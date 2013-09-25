@@ -8,24 +8,25 @@
 #import "TiStorekitReceiptRequest.h"
 #import "TiUtils.h"
 #import "TiApp.h"
+#import "TiStorekitModule.h"
 
 @implementation TiStorekitReceiptRequest
 
 -(id)initWithData:(NSData*)data callback:(KrollCallback*)callback_ pageContext:(id<TiEvaluator>)context productIdentifier:(NSString*)productIdentifier_ quantity:(NSInteger)quantity_ transactionIdentifier:(NSString*)transactionIdentifier_;
 {
-	if ((self = [super _initWithPageContext:context]))
-	{
-		callback = [callback_ retain];
+    if ((self = [super _initWithPageContext:context]))
+    {
+        callback = [callback_ retain];
         verifier = [[Verifier alloc] initWithReceipt:data delegate:self productIdentifer:productIdentifier_ quantity:quantity_ transactionIdentifier:transactionIdentifier_];
-	}
-	return self;
+    }
+    return self;
 }
 
 -(void)dealloc
 {
-	RELEASE_TO_NIL(callback);
+    RELEASE_TO_NIL(callback);
     RELEASE_TO_NIL(verifier);
-	[super dealloc];
+    [super dealloc];
 }
 
 -(BOOL)verify:(BOOL)sandbox_ secret:(NSString*)secret_
@@ -38,7 +39,7 @@
     }
     [self forgetSelf];
     
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[error localizedDescription],@"message",nil];
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[TiStorekitModule descriptionFromError:error],@"message",nil];
     [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
     RELEASE_TO_NIL(verifier);
     
@@ -60,7 +61,7 @@
 
 - (void)verifierDidVerifyPurchase:(Verifier*)verifier_ isValid:(BOOL)isValid error:(NSError *)error
 {
-	NSMutableDictionary *event = [NSMutableDictionary dictionaryWithCapacity:3];
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithCapacity:3];
     [event setObject:NUMBOOL(isValid) forKey:@"valid"];
     [event setObject:NUMBOOL(YES) forKey:@"success"];
     if (isValid) {
@@ -79,17 +80,17 @@
         [event setObject:blob forKey:@"receipt"];
         [blob release];
     } else {      
-        [event setObject:[error localizedDescription] forKey:@"message"];
+        [event setObject:[TiStorekitModule descriptionFromError:error] forKey:@"message"];
     }
-	[self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];  
+    [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];  
     
     [self forgetSelf];
 }
 
 - (void)verifierDidFailToVerifyPurchase:(Verifier*)verifier_ error:(NSError*)error 
 {
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[error localizedDescription],@"message",nil];
-	[self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[TiStorekitModule descriptionFromError:error],@"message",nil];
+    [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
     
     [self forgetSelf];
 }
