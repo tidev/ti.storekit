@@ -1,5 +1,7 @@
 # Change Log
 <pre>
+v2.1.3  TIMODOPEN-265: Fixed error causing crash at launch
+
 v2.1.2	Fix bug preventing iOS 7 builds: symbol EstimateBas64DecodedDataSize not found for armv7.
 
 v2.1.1  MOD-1485: Resolve duplicate symbol conflict 

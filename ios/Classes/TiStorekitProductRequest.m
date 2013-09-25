@@ -7,6 +7,7 @@
 
 #import "TiStorekitProductRequest.h"
 #import "TiStorekitProduct.h"
+#import "TiStorekitModule.h"
 
 
 @implementation TiStorekitProductRequest
@@ -73,8 +74,8 @@
 
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error 
 {
-	NSLog(@"[ERROR] received error %@",error);
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",[error localizedDescription],@"message",nil];
+	NSLog(@"[ERROR] received error %@",[TiStorekitModule descriptionFromError:error]);
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",[TiStorekitModule descriptionFromError:error],@"message",nil];
 	[self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
     
     [self forgetSelf];

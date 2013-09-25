@@ -162,6 +162,16 @@ MAKE_SYSTEM_PROP(PURCHASED,1);
 MAKE_SYSTEM_PROP(FAILED,2);
 MAKE_SYSTEM_PROP(RESTORED,3);
 
+#pragma mark Utils
+
++(NSString*)descriptionFromError:(NSError*)error
+{
+    if ([error localizedDescription] == nil) {
+        return @"Unknown error";
+    }
+    return [error localizedDescription];
+}
+
 #pragma mark Delegates
 
 // Sent when the transaction array has changed (additions or state changes).  
@@ -218,12 +228,12 @@ MAKE_SYSTEM_PROP(RESTORED,3);
     NSMutableDictionary *event = [self populateTransactionEvent:transaction];
 
     if (state == SKPaymentTransactionStateFailed) {
-        NSLog(@"[WARN] Error in transaction: %@",[error localizedDescription]);
+        NSLog(@"[WARN] Error in transaction: %@",[[self class] descriptionFromError:error]);
         // MOD-1025: Cancelled state is actually determined by the error code
         BOOL cancelled = ([error code] == SKErrorPaymentCancelled);
         [event setObject:NUMBOOL(cancelled) forKey:@"cancelled"];
         if (!cancelled) {
-            [event setObject:[error localizedDescription] forKey:@"message"];
+            [event setObject:[[self class] descriptionFromError:error] forKey:@"message"];
         }
 	} else if (state == SKPaymentTransactionStateRestored) {
 		NSLog(@"[DEBUG] Transaction restored %@",transaction);
@@ -260,7 +270,7 @@ MAKE_SYSTEM_PROP(RESTORED,3);
 - (void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error
 {
 	NSLog(@"[ERROR] Failed to restore all completed transactions: %@",error);
-	NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[error localizedDescription],@"error",nil];
+	NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[[self class] descriptionFromError:error],@"error",nil];
 	[self fireEvent:@"restoredCompletedTransactions" withObject: event];
     [self forgetSelf];
 }

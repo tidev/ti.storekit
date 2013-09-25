@@ -8,6 +8,7 @@
 #import "TiStorekitReceiptRequest.h"
 #import "TiUtils.h"
 #import "TiApp.h"
+#import "TiStorekitModule.h"
 
 @implementation TiStorekitReceiptRequest
 
@@ -38,7 +39,7 @@
     }
     [self forgetSelf];
     
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[error localizedDescription],@"message",nil];
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[TiStorekitModule descriptionFromError:error],@"message",nil];
     [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
     RELEASE_TO_NIL(verifier);
     
@@ -79,7 +80,7 @@
         [event setObject:blob forKey:@"receipt"];
         [blob release];
     } else {      
-        [event setObject:[error localizedDescription] forKey:@"message"];
+        [event setObject:[TiStorekitModule descriptionFromError:error] forKey:@"message"];
     }
 	[self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];  
     
@@ -88,7 +89,7 @@
 
 - (void)verifierDidFailToVerifyPurchase:(Verifier*)verifier_ error:(NSError*)error 
 {
-	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[error localizedDescription],@"message",nil];
+	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[TiStorekitModule descriptionFromError:error],@"message",nil];
 	[self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
     
     [self forgetSelf];
