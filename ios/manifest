@@ -6,7 +6,7 @@ version: 2.1.2
 apiversion: 2
 description: Apple StoreKit module for in application purchases 
 author: Jeff Haynie & Jeff English
-license: Appcelerator Commercial License 
+license: Apache License, Version 2.0
 copyright: Copyright (c) 2010-2013 by Appcelerator, Inc.
 
 
