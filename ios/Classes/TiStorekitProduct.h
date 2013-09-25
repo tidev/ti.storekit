@@ -10,7 +10,7 @@
 
 @interface TiStorekitProduct : TiProxy {
 @private
-	SKProduct *product;
+    SKProduct *product;
 }
 
 -(id)initWithProduct:(SKProduct*)product pageContext:(id<TiEvaluator>)context;

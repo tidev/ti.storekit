@@ -23,21 +23,21 @@
 // this is generated for your module, please do not change it
 -(id)moduleGUID
 {
-	return @"67fdca33-590b-498d-bd4e-1fc3a8be0f37";
+    return @"67fdca33-590b-498d-bd4e-1fc3a8be0f37";
 }
 
 // this is generated for your module, please do not change it
 -(NSString*)moduleId
 {
-	return @"ti.storekit";
+    return @"ti.storekit";
 }
 
 #pragma mark Lifecycle
 
 -(void)startup
 {
-	[super startup];
-	[[SKPaymentQueue defaultQueue] addTransactionObserver:self];
+    [super startup];
+    [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     
     receiptVerificationSandbox = NO;
     self.receiptVerificationSharedSecret = nil;
@@ -45,52 +45,52 @@
 
 -(void)shutdown:(id)sender
 {
-	[[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
-	[super shutdown:sender];
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+    [super shutdown:sender];
 }
 
 -(void)_destroy
 {
     RELEASE_TO_NIL(restoredTransactions);
     self.receiptVerificationSharedSecret = nil;
-	[super _destroy];
+    [super _destroy];
 }
 
 #pragma mark Public APIs
 
 -(id)requestProducts:(id)args
 {
-	ENSURE_ARG_COUNT(args,2);
-	
-	KrollCallback *callback = [args objectAtIndex:1];
-	
-	if ([SKPaymentQueue canMakePayments]==NO)
-	{
-		NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",@"In-app purchase is disabled. Please enable it to activate more features.",@"message",nil];
-		[self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
-		return nil;
-	}
-		
-	NSArray *ids = [args objectAtIndex:0];
-	
-	NSSet *products = [NSSet setWithArray:ids];
-	return [[[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]] autorelease];
+    ENSURE_ARG_COUNT(args,2);
+    
+    KrollCallback *callback = [args objectAtIndex:1];
+    
+    if ([SKPaymentQueue canMakePayments]==NO)
+    {
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",@"In-app purchase is disabled. Please enable it to activate more features.",@"message",nil];
+        [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
+        return nil;
+    }
+        
+    NSArray *ids = [args objectAtIndex:0];
+    
+    NSSet *products = [NSSet setWithArray:ids];
+    return [[[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]] autorelease];
 }
 
 -(void)purchase:(id)args
 {
-	TiStorekitProduct *product = [args objectAtIndex:0];
-	int quantity = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
-	
-	SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:[product product]];
-	payment.quantity = quantity;
-	SKPaymentQueue *queue = [SKPaymentQueue defaultQueue];
-	[queue performSelectorOnMainThread:@selector(addPayment:) withObject:payment waitUntilDone:NO];
+    TiStorekitProduct *product = [args objectAtIndex:0];
+    int quantity = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
+    
+    SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:[product product]];
+    payment.quantity = quantity;
+    SKPaymentQueue *queue = [SKPaymentQueue defaultQueue];
+    [queue performSelectorOnMainThread:@selector(addPayment:) withObject:payment waitUntilDone:NO];
 }
 
 -(id)canMakePayments
 {
-	return NUMBOOL([SKPaymentQueue canMakePayments]);
+    return NUMBOOL([SKPaymentQueue canMakePayments]);
 }
 
 -(id)receiptVerificationSandbox
@@ -138,12 +138,12 @@
     NSString *productId = [TiUtils stringValue:@"productIdentifier" properties:transaction def:nil];
     id receipt = [transaction objectForKey:@"receipt"];
     NSData *data = nil;
-	if ([receipt isKindOfClass:[TiBlob class]])	{
-		data = [(TiBlob*)receipt data];
-	} else {
-		THROW_INVALID_ARG(@"expected receipt data as a Blob object");
-	}
-	
+    if ([receipt isKindOfClass:[TiBlob class]]) {
+        data = [(TiBlob*)receipt data];
+    } else {
+        THROW_INVALID_ARG(@"expected receipt data as a Blob object");
+    }
+    
     TiStorekitReceiptRequest* request = [[[TiStorekitReceiptRequest alloc] initWithData:data callback:callback pageContext:[self pageContext] productIdentifier:productId quantity:quantity transactionIdentifier:transactionId] autorelease];
     
     [request verify:sandbox secret:sharedSecret];
@@ -178,9 +178,9 @@ MAKE_SYSTEM_PROP(RESTORED,3);
 // Client should check state of transactions and finish as appropriate.
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
 {
-	for (SKPaymentTransaction *transaction in transactions)
-	{
-		SKPaymentTransactionState state = transaction.transactionState;
+    for (SKPaymentTransaction *transaction in transactions)
+    {
+        SKPaymentTransactionState state = transaction.transactionState;
         [self handleTransaction:transaction error:transaction.error];
     }
 }
@@ -235,16 +235,16 @@ MAKE_SYSTEM_PROP(RESTORED,3);
         if (!cancelled) {
             [event setObject:[[self class] descriptionFromError:error] forKey:@"message"];
         }
-	} else if (state == SKPaymentTransactionStateRestored) {
-		NSLog(@"[DEBUG] Transaction restored %@",transaction);
-		// If this is a restored transaction, add it to the list of restored transactions
-		// that will be posted in the event indicating that transactions have been restored.
-		if (restoredTransactions==nil) {
-			restoredTransactions = [[NSMutableArray alloc] initWithCapacity:1];
-		}
-		[restoredTransactions addObject:[self populateTransactionEvent:transaction]];
-	}
-	// Nothing special to do for SKPaymentTransactionStatePurchased or SKPaymentTransactionStatePurchasing
+    } else if (state == SKPaymentTransactionStateRestored) {
+        NSLog(@"[DEBUG] Transaction restored %@",transaction);
+        // If this is a restored transaction, add it to the list of restored transactions
+        // that will be posted in the event indicating that transactions have been restored.
+        if (restoredTransactions==nil) {
+            restoredTransactions = [[NSMutableArray alloc] initWithCapacity:1];
+        }
+        [restoredTransactions addObject:[self populateTransactionEvent:transaction]];
+    }
+    // Nothing special to do for SKPaymentTransactionStatePurchased or SKPaymentTransactionStatePurchasing
 
     if ([self _hasListeners:@"transactionState"]) {
         [self fireEvent:@"transactionState" withObject:event];
@@ -252,35 +252,35 @@ MAKE_SYSTEM_PROP(RESTORED,3);
         NSLog(@"[WARN] No event listener for 'transactionState' event");
     }
 
-	// We need to finish the transaction as long as it is not still in progress
-	switch (state)
-	{
-		case SKPaymentTransactionStatePurchased:
-		case SKPaymentTransactionStateFailed:
-		case SKPaymentTransactionStateRestored:
-		{
-			NSLog(@"[DEBUG] Calling finish transaction for %@",transaction);
-			[[SKPaymentQueue defaultQueue] finishTransaction:transaction];
-			break;
-		}
-	}
+    // We need to finish the transaction as long as it is not still in progress
+    switch (state)
+    {
+        case SKPaymentTransactionStatePurchased:
+        case SKPaymentTransactionStateFailed:
+        case SKPaymentTransactionStateRestored:
+        {
+            NSLog(@"[DEBUG] Calling finish transaction for %@",transaction);
+            [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
+            break;
+        }
+    }
 }
 
 // Sent when an error is encountered while adding transactions from the user's purchase history back to the queue.
 - (void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error
 {
-	NSLog(@"[ERROR] Failed to restore all completed transactions: %@",error);
-	NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[[self class] descriptionFromError:error],@"error",nil];
-	[self fireEvent:@"restoredCompletedTransactions" withObject: event];
+    NSLog(@"[ERROR] Failed to restore all completed transactions: %@",error);
+    NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[[self class] descriptionFromError:error],@"error",nil];
+    [self fireEvent:@"restoredCompletedTransactions" withObject: event];
     [self forgetSelf];
 }
 
 // Sent when all transactions from the user's purchase history have successfully been added back to the queue.
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
 {
-	NSLog(@"[INFO] Finished restoring completed transactions!");
-	NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:restoredTransactions,@"transactions",nil];
-	[self fireEvent:@"restoredCompletedTransactions" withObject: event];
+    NSLog(@"[INFO] Finished restoring completed transactions!");
+    NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:restoredTransactions,@"transactions",nil];
+    [self fireEvent:@"restoredCompletedTransactions" withObject: event];
     RELEASE_TO_NIL(restoredTransactions);
     [self forgetSelf];
 }

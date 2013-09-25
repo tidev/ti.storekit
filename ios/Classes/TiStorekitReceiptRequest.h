@@ -10,7 +10,7 @@
 
 @interface TiStorekitReceiptRequest : TiProxy <VerifierDelegate> {
 @private
-	KrollCallback *callback;
+    KrollCallback *callback;
     Verifier* verifier;
 }
 
