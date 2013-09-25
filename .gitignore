@@ -1,0 +1,11 @@
+tmp
+bin
+build
+*.zip
+.DS_Store
+.gitignore
+.svn
+*.xcworkspace/
+xcuserdata
+*.xcuserstate
+*.xcuserdata*
