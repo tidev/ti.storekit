@@ -22,4 +22,6 @@
 
 @property(nonatomic,copy) NSString* receiptVerificationSharedSecret;
 
++(NSString*)descriptionFromError:(NSError*)error;
+
 @end

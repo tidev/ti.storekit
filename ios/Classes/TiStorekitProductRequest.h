@@ -12,8 +12,8 @@
 
 @interface TiStorekitProductRequest : TiProxy <SKProductsRequestDelegate> {
 @private
-	KrollCallback *callback;
-	SKProductsRequest* request;
+    KrollCallback *callback;
+    SKProductsRequest* request;
 }
 
 -(id)initWithProductIdentifiers:(NSSet*)set callback:(KrollCallback*)callback pageContext:(id<TiEvaluator>)context;

@@ -12,58 +12,58 @@
 
 -(id)initWithProduct:(SKProduct*)product_ pageContext:(id<TiEvaluator>)context
 {
-	if (self = [super _initWithPageContext:context])
-	{
-		product = [product_ retain];
-	}
-	return self;
+    if (self = [super _initWithPageContext:context])
+    {
+        product = [product_ retain];
+    }
+    return self;
 }
 
 -(void)_destroy
 {
-	RELEASE_TO_NIL(product);
-	[super _destroy];
+    RELEASE_TO_NIL(product);
+    [super _destroy];
 }
 
 -(SKProduct*)product
 {
-	return product;
+    return product;
 }
 
 -(NSString*)description 
 {
-	return [product localizedDescription];
+    return [product localizedDescription];
 }
 
 -(NSString*)title
 {
-	return [product localizedTitle];
+    return [product localizedTitle];
 }
 
 -(NSDecimalNumber*)price
 {
-	return [product price];
+    return [product price];
 }
 
 -(NSString*)formattedPrice
 {
-	NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-	[numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
-	[numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-	[numberFormatter setLocale:product.priceLocale];
-	NSString *formattedString = [numberFormatter stringFromNumber:product.price];
-	[numberFormatter release];
-	return formattedString;
+    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+    [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+    [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+    [numberFormatter setLocale:product.priceLocale];
+    NSString *formattedString = [numberFormatter stringFromNumber:product.price];
+    [numberFormatter release];
+    return formattedString;
 }
 
 -(NSString*)locale
 {
-	return [[product priceLocale] localeIdentifier];
+    return [[product priceLocale] localeIdentifier];
 }
 
 -(NSString*)identifier
 {
-	return [product productIdentifier];
+    return [product productIdentifier];
 }
 
 @end
