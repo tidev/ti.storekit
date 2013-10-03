@@ -26,6 +26,19 @@ To access this module from JavaScript, you would do the following:
 <strong>Note: </strong>Store Kit does not operate in iOS Simulator. When running your application in iOS Simulator,
 Store Kit logs a warning if your application attempts to retrieve the payment queue. Testing the store must be done on actual devices.
 
+## Breaking changes in version 3.0.0
+
+Added support for Apple's new receipt structure available in iOS 7.0 and later. To `validateReceipt`:  
+
+1. Obtain the Apple Inc. root certificate from [http://www.apple.com/certificateauthority/](http://www.apple.com/certificateauthority/)
+2. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
+3. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
+
+Arguments are now passed to the `purchase` function in a dictionary instead of individually.
+
+### Warning
+This module uses open source code for parsing and validating the receipt. It is recommended by Apple that users not use common code to do this as it will make it easier to crack your app. Please make appropriate changes to the receipt verification code in the module to make your implementation unique and less vulnerable to attack. We cannot do this for you or offer recommendations regarding how it should be done for obvious reasons.
+
 ## Breaking Changes in version 2.0.0
 
 It was previously possible for a transaction to complete after the application had been moved to the background due to the app store
@@ -66,14 +79,20 @@ information:
 
 Returns a _[Ti.Storekit.ProductRequest][]_ object.
 
-### purchase(object, quantity[int, optional])
+### purchase(args[object])
 
 Purchases the _[Ti.Storekit.Product][]_ object passed to it.  The _transactionState_ event is fired when
 the purchase request's state changes.
 
-The _quantity_ parameter is optional and has a default value of 1.
+Takes one argument, a dictionary with the following values:
+
+* product[_[Ti.Storekit.Product][]_]: The product to be purchased.
+* quantity[number] (optional): The quantity to be purchased. Has a default value of 1.
+* applicationUsername[string] (optional): An opaque identifier for the user’s account on your system. Used by Apple to detect irregular activity. Should hash the username before setting. Available in iOS 7.0 and later.
 
 ### verifyReceipt(args[object], callback(e){})
+
+**Deprecated:** Use `validateReceipt` in iOS 7.0 and later.
 
 Verifies that a receipt passed from a Storekit purchase or restored transaction is valid. Note that you rarely need to do this
 step in-app. It is much more likely that you would want to do this step on your own server to confirm from Apple that a
@@ -103,6 +122,33 @@ The _callback_ function is called when the verification request completes, with 
 
 Returns a _[Ti.Storekit.ReceiptRequest][]_ object.
 
+### validateReceipt()
+
+Checks if the receipt on the device is valid. Returns true if the receipt is valid or false if it is not. Throws an error if the receipt does not exist, use `receiptExists` to avoid this error.
+
+Returns a boolean.
+
+**Note:** Available in iOS 7.0 and later.
+
+### refreshReceipt(args[object], callback(e){})
+
+Allows an app to refresh its receipt. With this API, the app can request a new receipt if the receipt is invalid or missing. In the sandbox environment, you can request a receipt with any combination of properties to test the state transitions related to Volume Purchase Plan receipts.
+
+The args object can contain the following properties:
+
+* expired[number]: A number interpreted as a Boolean value, indicating whether the receipt is expired.
+* revoked[number]: A number interpreted as a Boolean value, indicating whether the receipt has been revoked.
+* vpp[number]: A number interpreted as a Boolean value, indicating whether the receipt is is a Volume Purchase Plan receipt.
+
+The _callback_ function is called when the refresh request completes, with the following event information:
+
+* success[boolean]: Boolean indicating if the request was successful or not.
+* error[string]: Error message if success is false.
+
+For more information checkout Apple's [SKReceiptRefreshRequest Documentation](https://developer.apple.com/library/ios/documentation/StoreKit/Reference/SKReceiptRefreshRequest_ClassRef/SKReceiptRefreshRequest.html)
+
+**Note:** Available in iOS 7.0 and later.
+
 ### restoreCompletedTransactions()
 
 Asks the payment queue to restore previously completed purchases. The _restoredCompletedTransactions_ event is fired when
@@ -125,6 +171,56 @@ The shared secret for your app that you created in iTunesConnect; required for v
 ### canMakePayments[boolean] (read-only)
 
 Whether or not payments can be made via Storekit.
+
+### bundleVersion[string]
+
+The bundleVersion of the app, used when validating the receipt. It is more secure to set it in the code than to read it out of the bundle. Required when calling `validateReceipt`.
+
+**Note:** Available in iOS 7.0 and later.
+
+### bundleIdentifier[string]
+
+The bundleIdentifier of the app, used when validating the receipt. It is more secure to set it in the code than to read it out of the bundle. Required when calling `validateReceipt`.
+
+**Note:** Available in iOS 7.0 and later.
+
+### receiptExists[boolean]
+
+Whether or not a receipt exists on the device. During development there maybe be no receipt on the device. Call `refreshReceipt` to get a receipt.
+
+**Note:** Available in iOS 7.0 and later.
+
+### receipt[TiBlob] (read-only)
+
+A TiBlob of the receipt on the device. Can be used to get the receipt to send it off for server side validation.
+
+**Note:** Available in iOS 7.0 and later.
+
+### receiptProperties[object]
+
+An object containing properties of the receipt on the device. Will contain the following values:
+
+* originalVersion[string]: The version of the app that was originally purchased.
+* bundleIdentifier[string]: The app's bundle identifier.
+* version[string]: The app's version number.
+* expirationDate[string] (optional): The date that the app receipt expires.
+* purchases[array]: An array of purchase objects
+
+A purchase will have the following values:
+
+* cancelDate[string]: For a transaction that was canceled by Apple customer support, the time and date of the cancellation.
+* originalPurchaseDate[string]: For a transaction that restores a previous transaction, the date of the original transaction.
+* originalTransactionIdentifier[string]: For a transaction that restores a previous transaction, the transaction identifier of the original transaction. Otherwise, identical to the transaction identifier.
+* productIdentifier[string]: The product identifier of the item that was purchased.
+* purchaseDate[string]: The date and time that the item was purchased.
+* quantity[number]: The number of items purchased.
+* subscriptionExpirationDate[string]: The expiration date for the subscription.
+* transactionIdentifier[string]: The transaction identifier of the item that was purchased.
+* webOrderLineItemID[string]: The primary key for identifying subscription purchases.
+ 
+For more information on receipt properties checkout Apple's [ReceiptFields Documentation](https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ReceiptFields.html).
+
+**Note:** Available in iOS 7.0 and later.
 
 ## Constants
 

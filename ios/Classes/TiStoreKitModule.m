@@ -13,6 +13,7 @@
 #import "TiStorekitProduct.h"
 #import "TiStorekitProductRequest.h"
 #import "TiStorekitReceiptRequest.h"
+#import "VerifyStoreReceipt.h"
 
 @implementation TiStorekitModule
 
@@ -51,12 +52,133 @@
 
 -(void)_destroy
 {
+    RELEASE_TO_NIL(bundleVersion);
+    RELEASE_TO_NIL(bundleIdentifier);
+    RELEASE_TO_NIL(refreshReceiptCallback);
+    
     RELEASE_TO_NIL(restoredTransactions);
     self.receiptVerificationSharedSecret = nil;
     [super _destroy];
 }
 
 #pragma mark Public APIs
+
+-(void)setBundleVersion:(id)value
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        [[self class] logAddedIniOS7Warning:@"bundleVersion"];
+    }
+    
+    RELEASE_AND_REPLACE(bundleVersion, [TiUtils stringValue:value]);
+}
+-(id)bundleVersion
+{
+    return bundleVersion;
+}
+
+-(void)setBundleIdentifier:(id)value
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        [[self class] logAddedIniOS7Warning:@"bundleIdentifier"];
+    }
+    
+    RELEASE_AND_REPLACE(bundleIdentifier, [TiUtils stringValue:value]);
+}
+-(id)bundleIdentifier
+{
+    return bundleIdentifier;
+}
+
+-(id)receiptExists
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        [[self class] logAddedIniOS7Warning:@"receiptExists()"];
+        return NUMBOOL(NO);
+    }
+    
+    NSURL *receiptURL = [[NSBundle mainBundle] performSelector:@selector(appStoreReceiptURL)];
+    return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]);
+}
+
+-(id)validateReceipt:(id)args
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        [[self class] logAddedIniOS7Warning:@"validateReceipt()"];
+        return NUMBOOL(NO);
+    }
+    
+    // If the receipt is missing, verifyReceiptAtPath will always return false.
+    // Adding a check here to assist with troubleshooting.
+    NSURL *certURL = [[NSBundle mainBundle] URLForResource:@"AppleIncRootCertificate" withExtension:@"cer"];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:certURL.path]) {
+        [self throwException:@"AppleIncRootCertificate.cer is missing." subreason:nil location:CODELOCATION];
+    }
+    
+    if (bundleVersion == nil || bundleIdentifier == nil) {
+        [self throwException:@"The `bundleVersion` and `bundleIdentifier` must be set before validating the receipt." subreason:nil location:CODELOCATION];
+    }
+    
+    NSURL *receiptURL = [self receiptURL];
+    return NUMBOOL(verifyReceiptAtPath(receiptURL.path, bundleVersion, bundleIdentifier));
+}
+
+-(TiBlob*)receipt
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        [[self class] logAddedIniOS7Warning:@"receipt"];
+        return nil;
+    }
+    
+    NSURL *receiptURL = [self receiptURL];
+    return [[[TiBlob alloc] initWithFile:receiptURL.path] autorelease];
+}
+
+-(id)receiptProperties
+{
+    if (![TiUtils isIOS7OrGreater]) {
+        [[self class] logAddedIniOS7Warning:@"receiptProperties"];
+        return nil;
+    }
+    
+    NSURL *receiptURL = [self receiptURL];
+    NSMutableDictionary *receiptDict = [NSMutableDictionary dictionaryWithDictionary:dictionaryWithAppStoreReceipt(receiptURL.path)];
+    // Removing properties that are unnecessary and are not datatypes that can be passed to JavaScript.
+    [receiptDict removeObjectsForKeys:@[@"Hash", @"OpaqueValue", @"BundleIdentifierData"]];
+    return receiptDict;
+}
+
+-(void)refreshReceipt:(id)args
+{
+    // Accepted properties are taken from
+    // https://developer.apple.com/library/ios/documentation/StoreKit/Reference/SKReceiptRefreshRequest_ClassRef/SKReceiptRefreshRequest.html
+    // Here is how they match up:
+    //    SKReceiptPropertyIsExpired        = expired
+    //    SKReceiptPropertyIsRevoked        = revoked
+    //    SKReceiptPropertyIsVolumePurchase = vpp
+    
+    if (![TiUtils isIOS7OrGreater]) {
+        [[self class] logAddedIniOS7Warning:@"refreshReceipt()"];
+        return nil;
+    }
+    
+    enum Args {
+		kArgProperties = 0,
+		kArgCallback,
+		kArgCount
+	};
+    
+    ENSURE_ARG_COUNT(args, kArgCount);
+    id properties = [args objectAtIndex:kArgProperties];
+    id callback = [args objectAtIndex:kArgCallback];
+    ENSURE_TYPE_OR_NIL(properties, NSDictionary);
+    ENSURE_TYPE(callback, KrollCallback);
+    
+    RELEASE_AND_REPLACE(refreshReceiptCallback, callback);
+    
+    SKReceiptRefreshRequest *request = [[NSClassFromString(@"SKReceiptRefreshRequest") alloc] initWithReceiptProperties:properties];
+    request.delegate = self;
+    [request start];
+}
 
 -(id)requestProducts:(id)args
 {
@@ -79,11 +201,35 @@
 
 -(void)purchase:(id)args
 {
-    TiStorekitProduct *product = [args objectAtIndex:0];
-    int quantity = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
+    TiStorekitProduct *product;
+    int quantity;
+    NSString *userName;
+    
+    if ([[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
+        // The new way
+        // Takes a dictionary of properties
+        ENSURE_SINGLE_ARG(args, NSDictionary);
+        product = [args objectForKey:@"product"];
+        quantity = [TiUtils intValue:@"quantity" properties:args def:1];
+        userName = [args objectForKey:@"applicationUsername"];
+    } else {
+        // The old way - for backwards compatibility
+        // Takes arguments
+        NSLog(@"[WARN] Passing individual args is DEPRECATED. Call `purchase` passing in a dictionary of arguments.");
+        product = [args objectAtIndex:0];
+        quantity = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
+    }
+    
+    if (!product) {
+        [self throwException:@"`product` is required" subreason:nil location:CODELOCATION];
+    }
     
     SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:[product product]];
     payment.quantity = quantity;
+    if (userName && [payment respondsToSelector:@selector(setApplicationUsername:)]) {
+        [payment performSelector:@selector(setApplicationUsername:) withObject:userName];
+    }
+    
     SKPaymentQueue *queue = [SKPaymentQueue defaultQueue];
     [queue performSelectorOnMainThread:@selector(addPayment:) withObject:payment waitUntilDone:NO];
 }
@@ -109,6 +255,11 @@
     KrollCallback *callback;
     
     ENSURE_ARG_AT_INDEX(transaction,args,0,NSDictionary);
+    
+    // Apple changed the structure of receipts and how they are validated.
+    // The old method required communication with a server and was asynchronous.
+    // The new method can be done on device and is synchronous.
+    NSLog(@"[WARN] `verifyReceipt` has been DEPRECATED. Use `validateReceipt`.");
 
     // As of version 1.6.0 of the module the callback is passed as the 2nd parameter to match other APIs.
     // The old method of passing the callback as a property of the transaction dictionary has been DEPRECATED
@@ -172,6 +323,25 @@ MAKE_SYSTEM_PROP(RESTORED,3);
     return [error localizedDescription];
 }
 
++(void)logAddedIniOS6Warning:(NSString*)name
+{
+    NSLog(@"[WARN] `%@` is only supported on iOS 6 and greater.", name);
+}
+
++(void)logAddedIniOS7Warning:(NSString*)name
+{
+    NSLog(@"[WARN] `%@` is only supported on iOS 7 and greater.", name);
+}
+
+-(NSURL*)receiptURL
+{
+    NSURL *receiptURL = [[NSBundle mainBundle] performSelector:@selector(appStoreReceiptURL)];
+    if (![[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]) {
+        [self throwException:@"Receipt does not exist. Try refreshing the receipt." subreason:nil location:CODELOCATION];
+    }
+    return receiptURL;
+}
+
 #pragma mark Delegates
 
 // Sent when the transaction array has changed (additions or state changes).  
@@ -191,8 +361,11 @@ MAKE_SYSTEM_PROP(RESTORED,3);
                                   NUMINT(transaction.transactionState),@"state",
                                   nil];
     
-    if (transaction.transactionReceipt) {
-        NSData *receipt = transaction.transactionReceipt;
+    if ([transaction respondsToSelector:@selector(transactionReceipt)] &&
+               [transaction performSelector:@selector(transactionReceipt)]) {
+        // Here for backwards compatibility
+        // Can be removed when support for iOS 6 is dropped and verifyReceipt is removed.
+        NSData *receipt = [transaction performSelector:@selector(transactionReceipt)];
         TiBlob *blob = [[TiBlob alloc] initWithData:receipt mimetype:@"text/json"];
         [event setObject:blob forKey:@"receipt"];
         [blob release];
@@ -283,6 +456,39 @@ MAKE_SYSTEM_PROP(RESTORED,3);
     [self fireEvent:@"restoredCompletedTransactions" withObject: event];
     RELEASE_TO_NIL(restoredTransactions);
     [self forgetSelf];
+}
+
+#pragma mark SKRequestDelegate
+
+-(void)requestDidFinish:(SKRequest *)request
+{
+    NSLog(@"[INFO] Finished refreshing receipt!");
+    
+    if (refreshReceiptCallback) {
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               NUMBOOL(YES),@"success",
+                               nil];
+        [self fireRefreshReceiptCallbackWithDict:event];
+    }
+}
+
+-(void)request:(SKRequest *)request didFailWithError:(NSError *)error
+{
+    NSLog(@"[ERROR] Failed to refresh receipt: %@",error);
+    
+    if (refreshReceiptCallback) {
+        NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                               NUMBOOL(NO),@"success",
+                               [[self class] descriptionFromError:error],@"error",
+                               nil];
+        [self fireRefreshReceiptCallbackWithDict:event];
+    }
+}
+
+-(void)fireRefreshReceiptCallbackWithDict:(NSDictionary*)dict
+{
+    [self _fireEventToListener:@"callback" withObject:dict listener:refreshReceiptCallback thisObject:nil];
+    RELEASE_TO_NIL_AUTORELEASE(refreshReceiptCallback);
 }
 
 @end

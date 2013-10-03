@@ -8,11 +8,14 @@
 #import "TiModule.h"
 #import <StoreKit/StoreKit.h>
 
-@interface TiStorekitModule : TiModule <SKPaymentTransactionObserver>
+@interface TiStorekitModule : TiModule <SKPaymentTransactionObserver, SKRequestDelegate>
 {
 @private
     NSMutableArray *restoredTransactions;
     BOOL receiptVerificationSandbox;
+    NSString *bundleVersion;
+    NSString *bundleIdentifier;
+    KrollCallback *refreshReceiptCallback;
 }
 
 @property(nonatomic,readonly) NSNumber *PURCHASING;
@@ -23,5 +26,7 @@
 @property(nonatomic,copy) NSString* receiptVerificationSharedSecret;
 
 +(NSString*)descriptionFromError:(NSError*)error;
++(void)logAddedIniOS6Warning:(NSString*)name;
++(void)logAddedIniOS7Warning:(NSString*)name;
 
 @end
