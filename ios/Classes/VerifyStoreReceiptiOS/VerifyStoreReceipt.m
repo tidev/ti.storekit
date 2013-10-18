@@ -79,7 +79,7 @@
 //NSString *kReceiptInAppCancellationDate         = @"CancelDate";
 //NSString *kReceiptInAppWebOrderLineItemID       = @"WebItemId";
 
-// Appc: changed some key names for consistency
+// Appc: changed key names for consistency
 NSString *kReceiptBundleIdentifier				= @"bundleIdentifier";
 NSString *kReceiptBundleIdentifierData			= @"BundleIdentifierData";
 NSString *kReceiptVersion						= @"version";
@@ -538,6 +538,7 @@ NSArray *obtainInAppPurchases(NSString *receiptPath) {
 // const NSString * global_bundleIdentifier = @"com.example.SampleApp";
 
 // Appc: changed verifyReceiptAtPath to accept bundleVersion and bundleIdentifier
+//BOOL verifyReceiptAtPath(NSString *receiptPath) {
 BOOL verifyReceiptAtPath(NSString *receiptPath, NSString *bundleVersion, NSString *bundleIdentifier) {
 	// it turns out, it's a bad idea, to use these two NSBundle methods in your app:
 	//

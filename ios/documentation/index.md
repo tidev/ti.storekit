@@ -8,7 +8,7 @@ The Storekit module allows you access to Apple's in-app purchasing mechanisms.
 
 Read our Wiki page to get started quickly:
 
-http://wiki.appcelerator.org/display/guides/StoreKit+Module+In-App+Purchase+Testing
+[http://wiki.appcelerator.org/display/guides/StoreKit+Module+In-App+Purchase+Testing](http://wiki.appcelerator.org/display/guides/StoreKit+Module+In-App+Purchase+Testing)
 
 ## Getting Started
 
@@ -23,21 +23,62 @@ To access this module from JavaScript, you would do the following:
 
 ## Testing a Store
 
-<strong>Note: </strong>Store Kit does not operate in iOS Simulator. When running your application in iOS Simulator,
-Store Kit logs a warning if your application attempts to retrieve the payment queue. Testing the store must be done on actual devices.
+#### Note:
+If you are getting this error "The hard-coded bundle version does not match the app's CFBundleShortVersionString." this could be why. 
+The `bundleVersion` and `bundleIdentifier` properties must be set on the module before calling `validateReceipt`. These values are used as part of the receipt validation process. In Titanium, when a development build is created to run on "device", a timestamp gets appended to the version number. This is done so that iTunes will see it as a new build and will update the app on the device. Because of this change to the version, when validation occurs the version number does not match and validation fails. To get around this issue: 
+
+- Build the app once through Titanium.
+- Go to the "build" folder of the app and open the Xcode project with Xcode.
+- Once the project is open, click on the project on the left in Xcode.
+- In the center section of Xcode select the "General" tab.
+- Under "General", make sure that the "Version" is what you expect it to be. 
+- If the version is not what you expect (maybe something like 1.0.0.1382133876099) change it to its correct value (in this case 1.0.0).
+- Plug in your device.
+- At the top left of Xcode, select the connected device.
+- At the top left of Xcode, click "Build and run" (it looks like a play button).
+- If this was the issue that was causing validation to fail, it should now validate the receipt successfully.
+
+#### Note:
+If you are having trouble testing or some options are not showing up when creating purchases, make sure that you have agreed to all of the contracts under "iTunes Connect" > "Contracts, Tax, and Banking".
+
+#### Note: 
+Be sure to use a "Development" Provisioning Profile and an "App ID" with "In-App Purchase" enabled.
+
+#### Note:
+Storekit does not work in the iOS 7 or iOS 5 Simulator. When running your application in iOS Simulator,
+Storekit logs a warning. Testing the store must be done on actual devices.
 
 ## Breaking changes in version 3.0.0
 
-Added support for Apple's new receipt structure available in iOS 7.0 and later. To `validateReceipt`:  
+- `addTransactionObserver` must be called in order for any events to be fired for `transactionState`, `restoredCompletedTransactions`, and `updatedDownloads` event listeners. See the `addTransactionObserver` documentation for more details.
+- Added support for Apple's new receipt structure available in iOS 7.0 and later. To `validateReceipt`:  
 
-1. Obtain the Apple Inc. root certificate from [http://www.apple.com/certificateauthority/](http://www.apple.com/certificateauthority/)
-2. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
-3. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
+	1. Obtain the Apple Inc. root certificate from [http://www.apple.com/certificateauthority/](http://www.apple.com/certificateauthority/)
+	2. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
+	3. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
+	4. Set the `bundleVersion` and `bundleIdentifier` properties of the module.
+	5. Call `validateReceipt()`.
+	6. If the receipt does not exist (only happens in development), refresh the receipt.
 
-Arguments are now passed to the `purchase` function in a dictionary instead of individually.
+- Apple hosted downloads are supported. The basic steps for downloading hosted content:
+	1. Create a product.
+	2. Create Hosted content (guide to [Creating App Store Hosted Content](https://github.com/appcelerator-modules/ti.storekit/wiki/Creating-App-Store-Hosted-Content)).
+	3. Add the content to the product.
+	4. Set the `autoFinishTransactions` property to false.
+	5. Purchase the product.
+	6. When the state of the `transactionState` event is `TRANSACTION_STATE_PURCHASED` and the `downloads` property of the event exists, start the downloads.
+	7. When the download completes, finish the transaction.
+	
+- Passing arguments to the `purchase` function individually is DEPRECATED, pass them as a dictionary instead.
+- Transaction state constants `PURCHASING`, `PURCHASED`, `FAILED`, and `RESTORED` have been DEPRECATED in favor of `TRANSACTION_STATE_PURCHASING`, `TRANSACTION_STATE_PURCHASED`, `TRANSACTION_STATE_FAILED`, and `TRANSACTION_STATE_RESTORED`.
+- Some event properties in the `transactionState` event have been DEPRECATED. See the `transactionState` event documentation for more details.
+- An alert dialog warning will now be shown when run in the simulator. This dialog can be disabled by setting the `suppressSimulatorWarning` property on the module to true.
+
+### Apple Hosted Purchases
+Apple hosted in app purchases can now be downloaded. This is supported in iOS 6.0 and later.  Must be [Non-Consumable Purchases](https://developer.apple.com/library/ios/documentation/LanguagesUtilities/Conceptual/iTunesConnect_Guide/13_ManagingIn-AppPurchases/ManagingIn-AppPurchases.html#//apple_ref/doc/uid/TP40011225-CH4-SW37) to be hosted by Apple. This guide will assist with [Creating App Store Hosted Content](https://github.com/appcelerator-modules/ti.storekit/wiki/Creating-App-Store-Hosted-Content).
 
 ### Warning
-This module uses open source code for parsing and validating the receipt. It is recommended by Apple that users not use common code to do this as it will make it easier to crack your app. Please make appropriate changes to the receipt verification code in the module to make your implementation unique and less vulnerable to attack. We cannot do this for you or offer recommendations regarding how it should be done for obvious reasons.
+This module uses open source code for parsing and validating the receipt. It is recommended by Apple that users not use common code to do this as it will make it easier to crack your app. Please make appropriate changes to the receipt verification code in the module to make your implementation unique and less vulnerable to attack. We cannot do this for you or offer recommendations regarding how it should be done due to aforementioned reasons.
 
 ## Breaking Changes in version 2.0.0
 
@@ -64,7 +105,25 @@ changes have been made to the _verifyReceipt_ function:
 * Setting the sandbox property in the argument dictionary has been DEPRECATED. Use the 'receiptVerificationSandbox' property for the module.
 * Setting the sharedSecret property in the argument dictionary has been DEPRECATED. Use the 'receiptVerificationSharedSecret' property for the module.
 
+## Helpful Links
+
+* [In-App Purchase for Developers](https://developer.apple.com/in-app-purchase/)
+* [Creating a test user account](https://developer.apple.com/library/ios/documentation/LanguagesUtilities/Conceptual/iTunesConnect_Guide/13_ManagingIn-AppPurchases/ManagingIn-AppPurchases.html#//apple_ref/doc/uid/TP40011225-CH4-SW44)
+* [Creating App Store Hosted Content](https://github.com/appcelerator-modules/ti.storekit/wiki/Creating-App-Store-Hosted-Content)
+
 ## Functions
+
+### addTransactionObserver()
+
+Start accepting events that will trigger event listeners for `transactionState`, `restoredCompletedTransactions`, and `updatedDownloads`. 
+
+This should be called early in the app startup, but only after event listeners for the above events are added. If this function is not called, the above events will not fire. Calling this function before adding the event listeners will tell the store kit that you are accepting events, but the events may be lost if they happen before the event listener is there to catch them.
+
+### removeTransactionObserver()
+
+Stop accepting events that will trigger event listeners for `transactionState`, `restoredCompletedTransactions`, and `updatedDownloads`.
+
+This will be called for you automatically when the app is shut down.
 
 ### requestProducts(ids[array], callback(e){})
 
@@ -88,11 +147,13 @@ Takes one argument, a dictionary with the following values:
 
 * product[_[Ti.Storekit.Product][]_]: The product to be purchased.
 * quantity[number] (optional): The quantity to be purchased. Has a default value of 1.
-* applicationUsername[string] (optional): An opaque identifier for the user’s account on your system. Used by Apple to detect irregular activity. Should hash the username before setting. Available in iOS 7.0 and later.
+* applicationUsername[string] (optional): An opaque identifier for the user's account on your system. Used by Apple to detect irregular activity. Should hash the username before setting. Available in iOS 7.0 and later.
+
+**DEPRECATED:** Passing separate arguments `purchase(object, quantity[int, optional])`. Use a dictionary of arguments as seen above.
 
 ### verifyReceipt(args[object], callback(e){})
 
-**Deprecated:** Use `validateReceipt` in iOS 7.0 and later.
+**DEPRECATED:** Use `validateReceipt` in iOS 7.0 and later.
 
 Verifies that a receipt passed from a Storekit purchase or restored transaction is valid. Note that you rarely need to do this
 step in-app. It is much more likely that you would want to do this step on your own server to confirm from Apple that a
@@ -124,7 +185,15 @@ Returns a _[Ti.Storekit.ReceiptRequest][]_ object.
 
 ### validateReceipt()
 
-Checks if the receipt on the device is valid. Returns true if the receipt is valid or false if it is not. Throws an error if the receipt does not exist, use `receiptExists` to avoid this error.
+Checks if the receipt on the device is valid. `validateReceipt` is just as secure as `verifyReceipt`, and it is done entirely on the device. Returns true if the receipt is valid or false if it is not. Throws an error if the receipt does not exist, use `receiptExists` to avoid this error.
+
+The `bundleVersion` and `bundleIdentifier` properties must be set on the module before calling `validateReceipt`. Do not pull these values from the app, they should be hard coded for security reasons.
+
+The Apple Inc. Root Certificate is required to validate receipts:
+
+a. Obtain the Apple Inc. root certificate from [http://www.apple.com/certificateauthority/](http://www.apple.com/certificateauthority/)
+b. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
+c. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
 
 Returns a boolean.
 
@@ -158,9 +227,59 @@ Note that calling this may ask the user to authenticate!
 It is recommended that you give the user the option to restore their past purchases via a button, and invoke this method
 only after the user touches it.
 
+### startDownloads(args[object])
+
+Adds a set of downloads to the download list.
+
+In order for a download object to be queued, it must be associated with a transaction that has been successfully purchased, but not yet finished.
+
+Takes one argument, a dictionary with the following values:
+
+* downloads[array<[Ti.Storekit.Download][]>]: An array of download objects to begin downloading.
+
+**Note:** `autoFinishTransactions` must be false for download functionality to work.
+
+**Note:** Available in iOS 6.0 and later.
+
+### cancelDownloads(args[object])
+
+Removes a set of downloads from the download list.
+
+Takes one argument, a dictionary with the following values:
+
+* downloads[array<[Ti.Storekit.Download][]>]: An array of download objects to cancel.
+
+**Note:** `autoFinishTransactions` must be false for download functionality to work.
+
+**Note:** Available in iOS 6.0 and later.
+
+### pauseDownloads(args[object])
+
+Pauses a set of downloads.
+
+Takes one argument, a dictionary with the following values:
+
+* downloads[array<[Ti.Storekit.Download][]>]: An array of download objects to pause.
+
+**Note:** `autoFinishTransactions` must be false for download functionality to work.
+
+**Note:** Available in iOS 6.0 and later.
+
+### resumeDownloads(args[object])
+
+Resumes a set of downloads.
+
+Takes one argument, a dictionary with the following values:
+
+* downloads[array<[Ti.Storekit.Download][]>]: An array of download objects to resume.
+
+**Note:** `autoFinishTransactions` must be false for download functionality to work.
+
+**Note:** Available in iOS 6.0 and later.
+
 ## Properties
 
-### receiptVerificationSandbox[bool, defaults to false]
+### receiptVerificationSandbox[boolean, defaults to false]
 
 Whether or not to use Apple's Sandbox verification server.
 
@@ -171,6 +290,12 @@ The shared secret for your app that you created in iTunesConnect; required for v
 ### canMakePayments[boolean] (read-only)
 
 Whether or not payments can be made via Storekit.
+
+### autoFinishTransactions[boolean, defaults to true]
+
+Toggle transactions being finished automatically when their state is `TRANSACTION_STATE_PURCHASED`, `TRANSACTION_STATE_FAILED`, or `TRANSACTION_STATE_RESTORED`.
+
+This property should be set to false and `finish` handled manually if any of the products to be purchased are downloadable products. When set to false, it is important that [Ti.Storekit.Transaction][]s be `finish` manually. When downloading products, do not finish the associated transaction until the download is complete. Finishing the transaction before the download is complete will cancel the download and if the transaction is finished before calling `startDownloads`, the download will not start.
 
 ### bundleVersion[string]
 
@@ -222,46 +347,107 @@ For more information on receipt properties checkout Apple's [ReceiptFields Docum
 
 **Note:** Available in iOS 7.0 and later.
 
+### suppressSimulatorWarning[boolean]
+
+Used to disable the alert dialog that pops up when running on the simulator. Set this property to true to disable the dialog.
+
+The alert dialog was added to warn users against testing Storekit on the simulator.
+
 ## Constants
 
 ### PURCHASING[int]
 
 The PURCHASING state during purchase request processing.
 
+**DEPRECATED:** Use TRANSACTION_STATE_PURCHASING.
+
 ### PURCHASED[int]
 
 The PURCHASED state during purchase request processing.
+
+**DEPRECATED:** Use TRANSACTION_STATE_PURCHASED.
 
 ### FAILED[int]
 
 The FAILED state during purchase request processing.
 
+**DEPRECATED:** Use TRANSACTION_STATE_FAILED.
+
 ### RESTORED[int]
 
 The RESTORED state during purchase request processing.
+
+**DEPRECATED:** Use TRANSACTION_STATE_RESTORED.
+
+### TRANSACTION_STATE_PURCHASING[int]
+
+The PURCHASING state during purchase request processing.
+
+### TRANSACTION_STATE_PURCHASED[int]
+
+The PURCHASED state during purchase request processing.
+
+### TRANSACTION_STATE_FAILED[int]
+
+The FAILED state during purchase request processing.
+
+### TRANSACTION_STATE_RESTORED[int]
+
+The RESTORED state during purchase request processing.
+
+### DOWNLOAD_STATE_WAITING[int]
+
+The WAITING state during download request processing.
+
+### DOWNLOAD_STATE_ACTIVE[int]
+
+The ACTIVE state during download request processing.
+
+### DOWNLOAD_STATE_PAUSED[int]
+
+The PAUSED state during download request processing.
+
+### DOWNLOAD_STATE_FINISHED[int]
+
+The FINISHED state during download request processing.
+
+### DOWNLOAD_STATE_FAILED[int]
+
+The FAILED state during download request processing.
+
+### DOWNLOAD_STATE_CANCELLED[int]
+
+The CANCELLED state during download request processing.
+
+### DOWNLOAD_TIME_REMAINING_UNKNOWN[int]
+
+The value of `timeRemaining` when it cannot create a good estimate.
 
 ## Events
 
 ### transactionState
 
-Occurs if you call Ti.Storekit.purchase and the purchase request's state changes. The following event information will be
-provided:
+Occurs if you call Ti.Storekit.purchase and the purchase request's state changes. The following event information will be provided:
 
-* state[int]: The current state of the transaction; either _Ti.Storekit.FAILED_, _Ti.Storekit.PURCHASED_,
-_Ti.Storekit.PURCHASING_, or _Ti.Storekit.RESTORED_.
-* quantity[int]: The number of items purchased or requested to purchase.
-* productIdentifier[string]: The product's identifier in the in-app store.
-
-For state _Ti.Storekit.FAILED_, the following additional information will be provided:
+For state _Ti.Storekit.TRANSACTION_STATE_FAILED_, the following additional information will be provided:
 
 * cancelled[boolean]: Whether the failure is due to cancellation of the request or not
-* message[string]: If not cancelled, what the error message is
+* message[string]: Error message if the transaction failed and was not cancelled.
 
-For state _Ti.Storekit.PURCHASED_ and _Ti.Storekit.RESTORED_, the following additional information will be provided:
+For state _Ti.Storekit.TRANSACTION_STATE_PURCHASED_ and _Ti.Storekit.TRANSACTION_STATE_RESTORED_, the following additional information will be provided:
 
+* transaction[[Ti.Storekit.Transaction][]]: The transaction that changed state
+
+**The following `transactionState` event properties are DEPRECATED. Use the `transaction` event property instead.** 
+
+* state[int]: The current state of the transaction; either _Ti.Storekit.TRANSACTION_STATE_FAILED_, _Ti.Storekit.TRANSACTION_STATE_PURCHASED_,
+_Ti.Storekit.PURCHASING_, or _Ti.Storekit.TRANSACTION_STATE_RESTORED_.
+* quantity[int]: The number of items purchased or requested to purchase.
+* productIdentifier[string]: The product's identifier in the in-app store.
 * date[date]: Transaction date
 * identifier[string]: The transaction identifier
 * receipt[object]: A blob of type "text/json" which contains the receipt information for the purchase.
+
 
 ### restoredCompletedTransactions
 
@@ -269,17 +455,18 @@ Occurs if you call Ti.Storekit.restoreCompletedTransactions and no errors are en
 will be provided:
 
 * error[string]: An error message, if one was encountered.
-* transactions[array]: If no errors were encountered, all of the transactions that were restored.
+* transactions[array<[Ti.Storekit.Transaction][]>]: If no errors were encountered, all of the transactions that were restored.
 
 Each transaction can contain the following properties:
 
-* state[int]: The current state of the transaction; most likely _Ti.Storekit.RESTORED_.
-* date[date]: The date the transaction was added to the App Store's payment queue.
-* identifier[string]: The transaction identifier
-* receipt[object]: A blob of type "text/json" which contains the receipt information for the purchase.
-* quantity[int]: The number of items purchased
-* productIdentifier[string]: The product's identifier in the in-app store.
-* originalTransaction[dictionary]: The transaction that was restored by the App Store
+### updatedDownloads
+
+Occurs when one or more downloads are updated. The following event information will be provided:
+
+* downloads[array<[Ti.Storekit.Download][]>]: The downloads that were updated.
+
+**Note:** Available in iOS 6.0 and later.
+
 
 ## Usage
 
@@ -287,7 +474,7 @@ See example.
 
 ## Author
 
-Jeff Haynie & Jeff English
+Jeff Haynie, Jeff English, & Jon Alter
 
 ## Module History
 
@@ -304,3 +491,5 @@ Copyright(c) 2010-2013 by Appcelerator, Inc. All Rights Reserved. Please see the
 [Ti.Storekit.ProductRequest]: productRequest.html
 [Ti.Storekit.Product]: product.html
 [Ti.Storekit.ReceiptRequest]: receiptRequest.html
+[Ti.Storekit.Download]: download.html
+[Ti.Storekit.Transaction]: transaction.html

@@ -39,6 +39,10 @@
 		A22AF52815F69B4000CA12E4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A22AF52715F69B4000CA12E4 /* UIKit.framework */; };
 		AA747D9F0F9514B9006C5449 /* TiStoreKit_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* TiStoreKit_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		CE029FA517FF04B8007A87EC /* TiStorekitDownload.h in Headers */ = {isa = PBXBuildFile; fileRef = CE029FA317FF04B8007A87EC /* TiStorekitDownload.h */; };
+		CE029FA617FF04B8007A87EC /* TiStorekitDownload.m in Sources */ = {isa = PBXBuildFile; fileRef = CE029FA417FF04B8007A87EC /* TiStorekitDownload.m */; };
+		CE2F86F5180340F2008545ED /* TiStorekitTransaction.h in Headers */ = {isa = PBXBuildFile; fileRef = CE2F86F3180340F2008545ED /* TiStorekitTransaction.h */; };
+		CE2F86F6180340F2008545ED /* TiStorekitTransaction.m in Sources */ = {isa = PBXBuildFile; fileRef = CE2F86F4180340F2008545ED /* TiStorekitTransaction.m */; };
 		CE6A5A0B17F4D0920014856F /* VerifyStoreReceipt.h in Headers */ = {isa = PBXBuildFile; fileRef = CE6A5A0917F4D0920014856F /* VerifyStoreReceipt.h */; };
 		CE6A5A0C17F4D0920014856F /* VerifyStoreReceipt.m in Sources */ = {isa = PBXBuildFile; fileRef = CE6A5A0A17F4D0920014856F /* VerifyStoreReceipt.m */; };
 		CE6A5A5B17F4D0D60014856F /* aes.h in Headers */ = {isa = PBXBuildFile; fileRef = CE6A5A0E17F4D0D60014856F /* aes.h */; };
@@ -153,6 +157,10 @@
 		A22AF52715F69B4000CA12E4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		AA747D9E0F9514B9006C5449 /* TiStoreKit_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStoreKit_Prefix.pch; sourceTree = "<group>"; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		CE029FA317FF04B8007A87EC /* TiStorekitDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiStorekitDownload.h; path = Classes/TiStorekitDownload.h; sourceTree = "<group>"; };
+		CE029FA417FF04B8007A87EC /* TiStorekitDownload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiStorekitDownload.m; path = Classes/TiStorekitDownload.m; sourceTree = "<group>"; };
+		CE2F86F3180340F2008545ED /* TiStorekitTransaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiStorekitTransaction.h; path = Classes/TiStorekitTransaction.h; sourceTree = "<group>"; };
+		CE2F86F4180340F2008545ED /* TiStorekitTransaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiStorekitTransaction.m; path = Classes/TiStorekitTransaction.m; sourceTree = "<group>"; };
 		CE6A5A0917F4D0920014856F /* VerifyStoreReceipt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VerifyStoreReceipt.h; sourceTree = "<group>"; };
 		CE6A5A0A17F4D0920014856F /* VerifyStoreReceipt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VerifyStoreReceipt.m; sourceTree = "<group>"; };
 		CE6A5A0E17F4D0D60014856F /* aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = aes.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -294,12 +302,16 @@
 				A22AF51F15F68A9400CA12E4 /* VerificationController */,
 				249ED4BA11EA9C81001AD11B /* TiStorekitProduct.h */,
 				249ED4BB11EA9C81001AD11B /* TiStorekitProduct.m */,
+				CE029FA317FF04B8007A87EC /* TiStorekitDownload.h */,
+				CE029FA417FF04B8007A87EC /* TiStorekitDownload.m */,
 				249ED4BC11EA9C81001AD11B /* TiStorekitProductRequest.h */,
 				249ED4BD11EA9C81001AD11B /* TiStorekitProductRequest.m */,
 				24DE9E0F11C5FE74003F90F6 /* TiStorekitModuleAssets.h */,
 				24DE9E1011C5FE74003F90F6 /* TiStorekitModuleAssets.m */,
 				24DD6CF71134B3F500162E58 /* TiStorekitModule.h */,
 				24DD6CF81134B3F500162E58 /* TiStoreKitModule.m */,
+				CE2F86F3180340F2008545ED /* TiStorekitTransaction.h */,
+				CE2F86F4180340F2008545ED /* TiStorekitTransaction.m */,
 				249ED50911EAA26B001AD11B /* TiStorekitReceiptRequest.h */,
 				249ED50A11EAA26B001AD11B /* TiStorekitReceiptRequest.m */,
 			);
@@ -512,6 +524,8 @@
 				CE6A5A8E17F4D0D60014856F /* pqueue.h in Headers */,
 				CE6A5A9817F4D0D60014856F /* srtp.h in Headers */,
 				CE6A5A8717F4D0D60014856F /* opensslconf.h in Headers */,
+				CE2F86F5180340F2008545ED /* TiStorekitTransaction.h in Headers */,
+				CE029FA517FF04B8007A87EC /* TiStorekitDownload.h in Headers */,
 				CE6A5A6017F4D0D60014856F /* blowfish.h in Headers */,
 				EFD74D85163F607B00AE3320 /* TiStoSBJSON.h in Headers */,
 				CE6A5A7A17F4D0D60014856F /* idea.h in Headers */,
@@ -588,6 +602,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				24DD6CFA1134B3F500162E58 /* TiStoreKitModule.m in Sources */,
+				CE029FA617FF04B8007A87EC /* TiStorekitDownload.m in Sources */,
+				CE2F86F6180340F2008545ED /* TiStorekitTransaction.m in Sources */,
 				24DE9E1211C5FE74003F90F6 /* TiStorekitModuleAssets.m in Sources */,
 				CE6A5A0C17F4D0920014856F /* VerifyStoreReceipt.m in Sources */,
 				249ED4C111EA9C81001AD11B /* TiStorekitProduct.m in Sources */,
@@ -642,6 +658,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					openssl,
@@ -691,7 +708,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					openssl,

@@ -7,6 +7,7 @@
 
 #import "TiStoreKitProduct.h"
 #import "TiUtils.h"
+#import "TiStorekitModule.h"
 
 @implementation TiStorekitProduct
 
@@ -29,6 +30,8 @@
 {
     return product;
 }
+
+#pragma mark Public APIs
 
 -(NSString*)description 
 {
@@ -64,6 +67,45 @@
 -(NSString*)identifier
 {
     return [product productIdentifier];
+}
+
+-(id)downloadable
+{
+    if (![TiUtils isIOS6OrGreater]) {
+        [TiStorekitModule logAddedIniOS6Warning:@"downloadable"];
+    }
+    
+    if ([product respondsToSelector:@selector(isDownloadable)]) {
+        return NUMBOOL([product performSelector:@selector(isDownloadable)]);
+    }
+    
+    return NUMBOOL(NO);
+}
+
+-(NSArray*)downloadContentLengths
+{
+    if (![TiUtils isIOS6OrGreater]) {
+        [TiStorekitModule logAddedIniOS6Warning:@"downloadContentLengths"];
+    }
+    
+    if ([product respondsToSelector:@selector(downloadContentLengths)]) {
+        return [product performSelector:@selector(downloadContentLengths)];
+    }
+    
+    return nil;
+}
+
+-(NSString*)downloadContentVersion
+{
+    if (![TiUtils isIOS6OrGreater]) {
+        [TiStorekitModule logAddedIniOS6Warning:@"downloadContentVersion"];
+    }
+    
+    if ([product respondsToSelector:@selector(downloadContentVersion)]) {
+        return [product performSelector:@selector(downloadContentVersion)];
+    }
+    
+    return nil;
 }
 
 @end
