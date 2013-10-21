@@ -14,8 +14,7 @@
 
 -(id)initWithData:(NSData*)data callback:(KrollCallback*)callback_ pageContext:(id<TiEvaluator>)context productIdentifier:(NSString*)productIdentifier_ quantity:(NSInteger)quantity_ transactionIdentifier:(NSString*)transactionIdentifier_;
 {
-    if ((self = [super _initWithPageContext:context]))
-    {
+    if ((self = [super _initWithPageContext:context])) {
         callback = [callback_ retain];
         verifier = [[Verifier alloc] initWithReceipt:data delegate:self productIdentifer:productIdentifier_ quantity:quantity_ transactionIdentifier:transactionIdentifier_];
     }

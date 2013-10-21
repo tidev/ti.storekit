@@ -15,8 +15,7 @@
 
 -(id)initWithTransaction:(SKPaymentTransaction*)transaction_ pageContext:(id<TiEvaluator>)context
 {
-    if (self = [super _initWithPageContext:context])
-    {
+    if (self = [super _initWithPageContext:context]) {
         transaction = [transaction_ retain];
     }
     return self;
@@ -110,7 +109,7 @@ if (!name) { \
 -(id)applicationUsername
 {
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"applicationUsername"];
+        [TiStorekitModule logAddedIniOS7Warning:@"applicationUsername"];
     }
     
     RETURN_UNDEFINED_IF_NIL(transaction);

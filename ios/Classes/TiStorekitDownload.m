@@ -13,8 +13,7 @@
 
 -(id)initWithDownload:(SKDownload*)download_ pageContext:(id<TiEvaluator>)context
 {
-    if (self = [super _initWithPageContext:context])
-    {
+    if (self = [super _initWithPageContext:context]) {
         download = [download_ retain];
     }
     return self;

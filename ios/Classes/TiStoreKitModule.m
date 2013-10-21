@@ -57,8 +57,7 @@ static TiStorekitModule *sharedInstance;
 
 -(void)shutdown:(id)sender
 {
-    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
-    transactionObserverSet = NO;
+    [self removeTransactionObserver:nil];
     [super shutdown:sender];
 }
 
@@ -114,7 +113,7 @@ static TiStorekitModule *sharedInstance;
 -(void)setBundleVersion:(id)value
 {
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"bundleVersion"];
+        [TiStorekitModule logAddedIniOS7Warning:@"bundleVersion"];
     }
     
     RELEASE_AND_REPLACE(bundleVersion, [TiUtils stringValue:value]);
@@ -127,7 +126,7 @@ static TiStorekitModule *sharedInstance;
 -(void)setBundleIdentifier:(id)value
 {
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"bundleIdentifier"];
+        [TiStorekitModule logAddedIniOS7Warning:@"bundleIdentifier"];
     }
     
     RELEASE_AND_REPLACE(bundleIdentifier, [TiUtils stringValue:value]);
@@ -140,7 +139,7 @@ static TiStorekitModule *sharedInstance;
 -(id)receiptExists
 {
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"receiptExists"];
+        [TiStorekitModule logAddedIniOS7Warning:@"receiptExists"];
         return NUMBOOL(NO);
     }
     
@@ -151,7 +150,7 @@ static TiStorekitModule *sharedInstance;
 -(id)validateReceipt:(id)args
 {
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"validateReceipt"];
+        [TiStorekitModule logAddedIniOS7Warning:@"validateReceipt"];
         return NUMBOOL(NO);
     }
     
@@ -173,7 +172,7 @@ static TiStorekitModule *sharedInstance;
 -(TiBlob*)receipt
 {
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"receipt"];
+        [TiStorekitModule logAddedIniOS7Warning:@"receipt"];
         return nil;
     }
     
@@ -184,7 +183,7 @@ static TiStorekitModule *sharedInstance;
 -(id)receiptProperties
 {
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"receiptProperties"];
+        [TiStorekitModule logAddedIniOS7Warning:@"receiptProperties"];
         return nil;
     }
     
@@ -205,15 +204,15 @@ static TiStorekitModule *sharedInstance;
     //    SKReceiptPropertyIsVolumePurchase = vpp
     
     if (![TiUtils isIOS7OrGreater]) {
-        [[self class] logAddedIniOS7Warning:@"refreshReceipt"];
+        [TiStorekitModule logAddedIniOS7Warning:@"refreshReceipt"];
         return nil;
     }
     
     enum Args {
-		kArgProperties = 0,
-		kArgCallback,
-		kArgCount
-	};
+        kArgProperties = 0,
+        kArgCallback,
+        kArgCount
+    };
     
     ENSURE_ARG_COUNT(args, kArgCount);
     id properties = [args objectAtIndex:kArgProperties];
@@ -368,7 +367,7 @@ static TiStorekitModule *sharedInstance;
 -(void)name:(id)args \
 { \
     if (![TiUtils isIOS6OrGreater]) { \
-        [[self class] logAddedIniOS7Warning:@"download functionality"]; \
+        [TiStorekitModule logAddedIniOS7Warning:@"download functionality"]; \
     } \
     if (autoFinishTransactions) { \
     [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
@@ -560,12 +559,12 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     NSMutableDictionary *event = [self populateTransactionEvent:transaction];
     
     if (state == SKPaymentTransactionStateFailed) {
-        NSLog(@"[WARN] Error in transaction: %@",[[self class] descriptionFromError:error]);
+        NSLog(@"[WARN] Error in transaction: %@",[TiStorekitModule descriptionFromError:error]);
         // MOD-1025: Cancelled state is actually determined by the error code
         BOOL cancelled = ([error code] == SKErrorPaymentCancelled);
         [event setObject:NUMBOOL(cancelled) forKey:@"cancelled"];
         if (!cancelled) {
-            [event setObject:[[self class] descriptionFromError:error] forKey:@"message"];
+            [event setObject:[TiStorekitModule descriptionFromError:error] forKey:@"message"];
         }
     } else if (state == SKPaymentTransactionStateRestored) {
         NSLog(@"[DEBUG] Transaction restored %@",transaction);
@@ -608,7 +607,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 {
     NSLog(@"[ERROR] Failed to restore all completed transactions: %@",error);
     if ([self _hasListeners:@"restoredCompletedTransactions"]) {
-        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[[self class] descriptionFromError:error],@"error",nil];
+        NSDictionary* event = [NSDictionary dictionaryWithObjectsAndKeys:[TiStorekitModule descriptionFromError:error],@"error",nil];
         [self fireEvent:@"restoredCompletedTransactions" withObject: event];
     } else {
         NSLog(@"[WARN] No event listener for 'restoredCompletedTransactions' event");
@@ -667,7 +666,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     if (refreshReceiptCallback) {
         NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
                                NUMBOOL(NO),@"success",
-                               [[self class] descriptionFromError:error],@"error",
+                               [TiStorekitModule descriptionFromError:error],@"error",
                                nil];
         [self fireRefreshReceiptCallbackWithDict:event];
     }
