@@ -191,9 +191,9 @@ The `bundleVersion` and `bundleIdentifier` properties must be set on the module 
 
 The Apple Inc. Root Certificate is required to validate receipts:
 
-a. Obtain the Apple Inc. root certificate from [http://www.apple.com/certificateauthority/](http://www.apple.com/certificateauthority/)
-b. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
-c. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
+1. Obtain the Apple Inc. root certificate from [http://www.apple.com/certificateauthority/](http://www.apple.com/certificateauthority/)
+2. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
+3. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
 
 Returns a boolean.
 
