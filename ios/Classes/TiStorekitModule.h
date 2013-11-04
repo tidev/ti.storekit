@@ -8,20 +8,46 @@
 #import "TiModule.h"
 #import <StoreKit/StoreKit.h>
 
-@interface TiStorekitModule : TiModule <SKPaymentTransactionObserver>
+@interface TiStorekitModule : TiModule <SKPaymentTransactionObserver, SKRequestDelegate>
 {
 @private
     NSMutableArray *restoredTransactions;
     BOOL receiptVerificationSandbox;
+    NSString *bundleVersion;
+    NSString *bundleIdentifier;
+    KrollCallback *refreshReceiptCallback;
+    BOOL autoFinishTransactions;
+    BOOL transactionObserverSet;
 }
 
+// TransactionStates
+// Here for backwards compatibility
 @property(nonatomic,readonly) NSNumber *PURCHASING;
 @property(nonatomic,readonly) NSNumber *PURCHASED;
 @property(nonatomic,readonly) NSNumber *FAILED;
 @property(nonatomic,readonly) NSNumber *RESTORED;
 
+@property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_PURCHASING;
+@property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_PURCHASED;
+@property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_FAILED;
+@property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_RESTORED;
+
+@property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_WAITING;
+@property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_ACTIVE;
+@property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_PAUSED;
+@property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_FINISHED;
+@property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_FAILED;
+@property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_CANCELLED;
+
+@property(nonatomic,readonly) NSNumber *DOWNLOAD_TIME_REMAINING_UNKNOWN;
+
 @property(nonatomic,copy) NSString* receiptVerificationSharedSecret;
 
++(TiStorekitModule*)sharedInstance;
 +(NSString*)descriptionFromError:(NSError*)error;
++(void)logAddedIniOS6Warning:(NSString*)name;
++(void)logAddedIniOS7Warning:(NSString*)name;
+-(NSArray*)tiDownloadsFromSKDownloads:(NSArray*)downloads;
+-(NSArray*)skDownloadsFromTiDownloads:(NSArray*)downloads;
 
 @end

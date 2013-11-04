@@ -1,11 +1,11 @@
 /*
  Learn the basics of Storekit with this example.
-
+ 
  Before we can do anything in our app, we need to set up iTunesConnect! This process can be a little painful, but I will
  guide you through it so you don't have to figure it out on your own.
-
+ 
  Follow these steps:
-
+ 
  1) Log in to your Apple Developer account at https://itunesconnect.apple.com/
  2) Click "Manage Your Applications".
  3) If you have already set up your app, click on its icon. If not, click "Add New App" and set up your app.
@@ -19,50 +19,95 @@
  11) Click "Create New" again, and this time click "Select" beneath "Auto-Renewable Subscriptions".
  12) Click "Create New Family" and fill out all of the required fields.
  13) When asked, enter "MonthlySodaPop" for the Product ID, and save the product.
-
+ 
  iTunesConnect is now set up with at least two products with the IDs "DigitalSodaPop" and "MonthlySodaPop".
-
- Now we're ready to use Storekit in our app. We're going to do 5 different activities:
-
+ 
+ To test a Downloadable Apple Hosted In-App Purchase, also follow these steps:
+ 
+ 1) Go to "Manage In-App Purchases" from above.
+ 2) Click "Create New".
+ 3) Click "Select" beneath "Non-Consumable".
+ 4) In "Reference Name" type "DownloadablePop", and in "Product ID" type "DownloadablePop".
+ 5) Under "Hosting Content with Apple" click "Yes".
+ 6) Fill out all of the required fields.
+ 7) Follow this guide to create and upload some hosted content: https://github.com/appcelerator-modules/ti.storekit/wiki/Creating-App-Store-Hosted-Content
+	a) Notice the "DownloadablePop" folder in the "example" folder. It was included as an example, but you should make your own content project.
+	b) Ensure that the image that is added to the package is named "DownloadablePop.jpeg", as it is in the example project.
+ 
+ Now we're ready to use Storekit in our app. We're going to do 7 different activities:
+ 
  1) Checking if the user can make purchases.
  2) Tracking what the user has purchased in the past.
  3) Buying a single item.
  4) Buying a subscription.
- 5) Restoring past purchases.
-
+ 5) Buying Apple Hosted Content.
+ 6) Restoring past purchases.
+ 7) Receipt verification.
+ 
  Look at the JavaScript below to understand how we do each of these.
-
+ 
  Then, when you are ready to test the app, follow these steps:
-
+ 
  1) Storekit works in two different environments: "Live" and "Sandbox". "Sandbox" is used during development of your
  application. "Live" is only used when your application is distributed via the App Store.
  2) Log in to your Apple Developer account at https://itunesconnect.apple.com/
  3) Click "Manage Users" and create a "Test User".
- 4) Run your app in the simulator from Titanium Studio at least once.
- 5) In your app's directory, open up the build/iphone/yourProject.xcodeproj in Xcode.
- 6) In the top left of Xcode, change the "Scheme" to target your device.
- 7) Hit "Run" to test the Storekit module in the sandbox!
+ 4) Run your app on device to test.
+ 5) Be sure to use a "Development" Provisioning Profile and an "App ID" with "In-App Purchase" enabled.	 
+ 6) When prompted to login, login with the "Test User" that you created. 
 
+ To test validating receipts on iOS 7 and above, follow the instructions below when running the app:
+
+ 1) Obtain the Apple Inc. root certificate.
+ 	a) This can be found here: http://www.apple.com/certificateauthority/
+ 	b) Or download the Apple Inc. Root Certificate directly here: http://www.apple.com/appleca/AppleIncRootCertificate.cer
+ 2) Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
+ 3) Set 'bundleVersion' and 'bundleIdentifier' below your app's respective values.
+ 4) Build the app once through Titanium.
+ 5) Go to the "build" folder of the app and open the Xcode project with Xcode.
+ 6) Once the project is open, click on the project on the left in Xcode.
+ 7) In the center section of Xcode, select the "General" tab.
+ 8) Under "General", make sure that the "Version" is what you expect it to be. 
+ 9) If the version is not what you expect (maybe something like 1.0.0.1382133876099) change it to its correct value (in this case 1.0.0).
+ 10) Plug in your device.
+ 11) At the top left of Xcode, select the connected device.
+ 12) At the top left of Xcode, click "Build and run" (it looks like a play button).
+ 
  */
 
 var Storekit = require('ti.storekit');
-
+ 
 /*
  If you decide to perform receipt verification then you need to indicate if the receipts should be verified
  against the "Sandbox" or "Live" server. If you are verifying auto-renewable subscriptions then you need
  to set the shared secret for the application from your iTunes Connect account.
  */
-
+ 
 Storekit.receiptVerificationSandbox = (Ti.App.deployType !== 'production');
 Storekit.receiptVerificationSharedSecret = "<YOUR STOREKIT SHARED SECRET HERE>";
 
+/*
+ autoFinishTransactions must be disabled (false) in order to start Apple hosted downloads.
+ If autoFinishTransactions is disabled, it is up to you to finish the transactions.
+ Transactions must be finished! Failing to finish transactions will cause your app to run slowly.
+ Finishing a transaction at any time before its associated download is complete will cancel the download. 
+ */
+Storekit.autoFinishTransactions = false;
+
+/*
+ bundleVersion and bundleIdentifier must be set before calling validateReceipt().
+ Do not pull these values from the app, they should be hard coded for security reasons.
+ */
+Storekit.bundleVersion = "<YOUR APP BUNDLE VERSION>"; // eg. "1.0.0"
+Storekit.bundleIdentifier = "<YOUR APP BUNDLE IDENTIFIER>"; // eg. "com.appc.storekit"
+
+
 var verifyingReceipts = false;
-
-
+  
 var win = Ti.UI.createWindow({
 	backgroundColor:'#fff'
 });
-
+ 
 /*
  We want to show the user when we're communicating with the server, so let's define two simple
  functions that interact with an activity indicator.
@@ -95,7 +140,28 @@ win.add(loading);
  Now let's define a couple utility functions. We'll use these throughout the app.
  */
 var tempPurchasedStore = {};
+ 
+/**
+ * Tells us if the version of iOS we are running on is iOS 7 or later
+ */
+function isIOS7Plus()
+{
+	if (Titanium.Platform.name == 'iPhone OS')
+	{
+		var version = Titanium.Platform.version.split(".");
+		var major = parseInt(version[0],10);
 
+		// can only test this support on a 3.2+ device
+		if (major >= 7)
+		{
+			return true;
+		}
+	}
+	return false;
+
+}
+var IOS7 = isIOS7Plus();
+ 
 /**
  * Keeps track (internally) of purchased products.
  * @param identifier The identifier of the Ti.Storekit.Product that was purchased.
@@ -108,7 +174,7 @@ function markProductAsPurchased(identifier)
 	// And in to Ti.App.Properties for persistent storage.
 	Ti.App.Properties.setBool('Purchased-' + identifier, true);
 }
-
+ 
 /**
  * Checks if a product has been purchased in the past, based on our internal memory.
  * @param identifier The identifier of the Ti.Storekit.Product that was purchased.
@@ -120,7 +186,7 @@ function checkIfProductPurchased(identifier)
 		tempPurchasedStore[identifier] = Ti.App.Properties.getBool('Purchased-' + identifier, false);
 	return tempPurchasedStore[identifier];
 }
-
+ 
 /**
  * Requests a product. Use this to get the information you have set up in iTunesConnect, like the localized name and
  * price for the current user.
@@ -144,7 +210,7 @@ function requestProduct(identifier, success)
 		}
 	});
 }
-
+ 
 /**
  * Purchases a product.
  * @param product A Ti.Storekit.Product (hint: use Storekit.requestProducts to get one of these!).
@@ -152,48 +218,134 @@ function requestProduct(identifier, success)
 Storekit.addEventListener('transactionState', function (evt) {
 	hideLoading();
 	switch (evt.state) {
-		case Storekit.FAILED:
+		case Storekit.TRANSACTION_STATE_FAILED:
 			if (evt.cancelled) {
 				alert('Purchase cancelled');
 			} else {
 				alert('ERROR: Buying failed! ' + evt.message);
 			}
+			evt.transaction && evt.transaction.finish();
 			break;
-		case Storekit.PURCHASED:
+		case Storekit.TRANSACTION_STATE_PURCHASED:
 			if (verifyingReceipts) {
-				Storekit.verifyReceipt(evt, function (e) {
-					if (e.success) {
-						if (e.valid) {
-							alert('Thanks! Receipt Verified');
-							markProductAsPurchased(evt.productIdentifier);
+				if (IOS7) {
+					// iOS 7 Plus receipt validation is just as secure as pre iOS 7 receipt verification, but is done entirely on the device.
+					var msg = Storekit.validateReceipt() ? 'Receipt is Valid!' : 'Receipt is Invalid.'; 
+					alert(msg);
+				} else {
+					// Pre iOS 7 receipt verification
+					Storekit.verifyReceipt(evt, function (e) {
+						if (e.success) {
+							if (e.valid) {
+								alert('Thanks! Receipt Verified');
+								markProductAsPurchased(evt.productIdentifier);
+							} else {
+								alert('Sorry. Receipt is invalid');
+							}
 						} else {
-							alert('Sorry. Receipt is invalid');
+							alert(e.message);
 						}
-					} else {
-						alert(e.message);
-					}
-				});
+					});
+				}
 			} else {
 				alert('Thanks!');
 				markProductAsPurchased(evt.productIdentifier);
 			}
+			
+			// If the transaction has hosted content, the downloads property will exist
+			// Downloads that exist in a PURCHASED state should be downloaded immediately, because they were just purchased.
+			if (evt.downloads) {
+				Storekit.startDownloads({
+					downloads: evt.downloads
+				});
+			} else {
+				// Do not finish the transaction here if you wish to start the download associated with it.
+				// The transaction should be finished when the download is complete.
+				// Finishing a transaction before the download is finished will cancel the download.
+				evt.transaction && evt.transaction.finish();
+			}
+			
 			break;
-		case Storekit.PURCHASING:
-			Ti.API.info("Purchasing " + evt.productIdentifier);
+		case Storekit.TRANSACTION_STATE_PURCHASING:
+			Ti.API.info('Purchasing ' + evt.productIdentifier);
 			break;
-		case Storekit.RESTORED:
+		case Storekit.TRANSACTION_STATE_RESTORED:
 			// The complete list of restored products is sent with the `restoredCompletedTransactions` event
-			Ti.API.info("Restored " + evt.productIdentifier);
-		    break;
+			Ti.API.info('Restored ' + evt.productIdentifier);
+			// Downloads that exist in a RESTORED state should not necessarily be downloaded immediately. Leave it up to the user.
+			if (evt.downloads) {
+				Ti.API.info('Downloads available for restored product');
+			}
+			
+			evt.transaction && evt.transaction.finish();
+			break;
 	}
 });
 
+/**
+ * Notification of an Apple hosted product being downloaded.
+ * Only supported on iOS 6.0 and later, but it doesn't hurt to add the listener.
+ */
+Storekit.addEventListener('updatedDownloads', function (evt) {
+	var download;
+	for (var i = 0, j = evt.downloads.length; i < j; i++) {
+		download = evt.downloads[i];
+		Ti.API.info('Updated: ' + download.contentIdentifier + ' Progress: ' + download.progress);
+		switch (download.downloadState) {
+			case Storekit.DOWNLOAD_STATE_FINISHED:
+			case Storekit.DOWNLOAD_STATE_FAILED:
+			case Storekit.DOWNLOAD_STATE_CANCELLED:
+				hideLoading();
+				break;
+		}
+		
+		switch (download.downloadState) {
+			case Storekit.DOWNLOAD_STATE_FAILED:
+			case Storekit.DOWNLOAD_STATE_CANCELLED:
+				download.transaction && download.transaction.finish();
+				break;
+			case Storekit.DOWNLOAD_STATE_FINISHED:
+				// Apple hosted content can be found in a 'Contents' folder at the location specified by the the 'contentURL'
+				// The name of the content does not need to be the same as the contentIdentifier, 
+				// it is the same in this example for simplicity.
+				var file = Ti.Filesystem.getFile(download.contentURL, 'Contents', download.contentIdentifier + '.jpeg');
+				if (file.exists()) {
+					Ti.API.info('File exists. Displaying it...');
+					var iv = Ti.UI.createImageView({
+						bottom: 0,
+						left: 0,
+						image: file.read()
+					});
+					iv.addEventListener('click', function() {
+						win.remove(iv);
+						iv = null;
+					});
+					win.add(iv);
+				} else {
+					Ti.API.error('Downloaded File does not exist at: ' + file.nativePath);
+				}
+				
+				// The transaction associated with the download that completed needs to be finished. 
+				download.transaction && download.transaction.finish();
+				break;
+		}
+	}
+});
+ 
 function purchaseProduct(product)
 {
+	if (product.downloadable) {
+		Ti.API.info('Purchasing a product that is downloadable');
+	}
 	showLoading();
-	Storekit.purchase(product);
+	Storekit.purchase({
+		product: product
+		// applicationUsername is a opaque identifier for the user’s account on your system. 
+		// Used by Apple to detect irregular activity. Should hash the username before setting.
+		// applicationUsername: '<HASHED APPLICATION USERNAME>'
+	});
 }
-
+ 
 /**
  * Restores any purchases that the current user has made in the past, but we have lost memory of.
  */
@@ -211,8 +363,15 @@ Storekit.addEventListener('restoredCompletedTransactions', function (evt) {
 		alert('There were no purchases to restore!');
 	}
 	else {
+		if (IOS7 && verifyingReceipts) {
+			if (Storekit.validateReceipt()) {
+				Ti.API.info('Restored Receipt is Valid!');
+			} else {
+				Ti.API.error('Restored Receipt is Invalid.');
+			} 
+		}
 		for (var i = 0; i < evt.transactions.length; i++) {
-			if (verifyingReceipts) {
+			if (!IOS7 && verifyingReceipts) {
 				Storekit.verifyReceipt(evt.transactions[i], function (e) {
 					if (e.valid) {
 						markProductAsPurchased(e.productIdentifier);
@@ -227,14 +386,49 @@ Storekit.addEventListener('restoredCompletedTransactions', function (evt) {
 		alert('Restored ' + evt.transactions.length + ' purchases!');
 	}
 });
-
+ 
+/**
+ * WARNING
+ * addTransactionObserver must be called after adding the Storekit event listeners.
+ * Failure to call addTransactionObserver will result in no Storekit events getting fired.
+ * Calling addTransactionObserver before event listeners are added can result in lost events.
+ */
+Storekit.addTransactionObserver();
+ 
+/**
+ * Validating receipt at startup
+ * Useful for volume purchase programs.
+ */
+if (IOS7) {
+	win.addEventListener('open', function() {
+		function validate() {
+			Ti.API.info('Validating receipt.');
+			Ti.API.info('Receipt is Valid: ' + Storekit.validateReceipt());
+		}
+		
+		/*
+		 During development it is possible that the receipt does not exist.
+		 This can be resolved by refreshing the receipt.
+		 */
+		if (!Storekit.receiptExists) {
+			Ti.API.info('Receipt does not exist yet. Refreshing to get one.');
+			Storekit.refreshReceipt(null, function(){
+				validate();
+			});
+		} else {
+			Ti.API.info('Receipt does exist.');
+			validate();
+		}
+	});
+}
+ 
 /*
  1) Can the user make payments? Their device may be locked down, or this may be a simulator.
  */
 if (!Storekit.canMakePayments)
 	alert('This device cannot make purchases!');
 else {
-
+ 
 	/*
 	 2) Tracking what the user has purchased in the past.
 	 */
@@ -245,11 +439,12 @@ else {
 	whatHaveIPurchased.addEventListener('click', function () {
 		alert({
 			'Single Item':checkIfProductPurchased('DigitalSodaPop') ? 'Purchased!' : 'Not Yet',
-			'Subscription':checkIfProductPurchased('MonthlySodaPop') ? 'Purchased!' : 'Not Yet'
+			'Subscription':checkIfProductPurchased('MonthlySodaPop') ? 'Purchased!' : 'Not Yet',
+			'Downloadable':checkIfProductPurchased('DownloadablePop') ? 'Purchased!' : 'Not Yet',
 		});
 	});
 	win.add(whatHaveIPurchased);
-
+ 
 	/*
 	 3) Buying a single item.
 	 */
@@ -263,7 +458,7 @@ else {
 		});
 		win.add(buySingleItem);
 	});
-
+ 
 	/*
 	 4) Buying a subscription.
 	 */
@@ -277,25 +472,39 @@ else {
 		});
 		win.add(buySubscription);
 	});
-
+	
 	/*
-	 5) Restoring past purchases.
+	 5) Buying Apple Hosted Content.
+	 */
+	requestProduct('DownloadablePop', function (product) {
+		var buySubscription = Ti.UI.createButton({
+			title:'Buy ' + product.title + ', ' + product.formattedPrice,
+			top:160, left:5, right:5, height:40
+		});
+		buySubscription.addEventListener('click', function () {
+			purchaseProduct(product);
+		});
+		win.add(buySubscription);
+	});
+ 
+	/*
+	 6) Restoring past purchases.
 	 */
 	var restoreCompletedTransactions = Ti.UI.createButton({
 		title:'Restore Lost Purchases',
-		top:160, left:5, right:5, height:40
+		top:210, left:5, right:5, height:40
 	});
 	restoreCompletedTransactions.addEventListener('click', function () {
 		restorePurchases();
 	});
 	win.add(restoreCompletedTransactions);
-
+ 
 	/*
-	 6) Receipt verification.
+	 7) Receipt verification.
 	 */
 	var view = Ti.UI.createView({
 		layout:'horizontal',
-		top:210,
+		top:260,
 		left:10,
 		width:'auto',
 		height:'auto'
@@ -319,5 +528,5 @@ else {
 	view.add(onSwitch);
 	win.add(view);
 }
-
+ 
 win.open();

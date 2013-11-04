@@ -14,8 +14,7 @@
 
 -(id)initWithProductIdentifiers:(NSSet*)set callback:(KrollCallback*)callback_ pageContext:(id<TiEvaluator>)context
 {
-    if ((self = [super _initWithPageContext:context]))
-    {
+    if ((self = [super _initWithPageContext:context])) {
         request = [[SKProductsRequest alloc] initWithProductIdentifiers:set];
         request.delegate = self;
         callback = [callback_ retain];

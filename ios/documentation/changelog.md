@@ -1,5 +1,13 @@
 # Change Log
 <pre>
+v3.0.0  MOD-1491: Add support new iOS 7 receipt.
+        MOD-875: Add support for the download of Apple hosted IAP.
+        MOD-1570: Add an informative alert or popup when running on iOS7 simulator.
+        Added `addTransactionObserver` function that must be called at app startup after event listeners are add.
+        DEPRECATED passing arguments to the `purchase` function individually, pass them as a dictionary instead.
+        DEPRECATED Transaction state constants `PURCHASING`, `PURCHASED`, `FAILED`, and `RESTORED` in favor of `TRANSACTION_STATE_PURCHASING`, `TRANSACTION_STATE_PURCHASED`, `TRANSACTION_STATE_FAILED`, and `TRANSACTION_STATE_RESTORED`.
+        DEPRECATED some event properties in the `transactionState` event.
+
 v2.1.3  TIMODOPEN-265: Fixed error causing crash at launch
 
 v2.1.2	Fix bug preventing iOS 7 builds: symbol EstimateBas64DecodedDataSize not found for armv7.
