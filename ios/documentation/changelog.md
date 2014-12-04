@@ -1,5 +1,6 @@
 # Change Log
 <pre>
+v3.1.0  [TIMOB-18092] Updated to build for 64bit, architectures updated in manifest        
 v3.0.0  MOD-1491: Add support new iOS 7 receipt.
         MOD-875: Add support for the download of Apple hosted IAP.
         MOD-1570: Add an informative alert or popup when running on iOS7 simulator.
