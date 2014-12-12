@@ -16,4 +16,4 @@ name: storekit
 moduleid: ti.storekit
 guid: 67fdca33-590b-498d-bd4e-1fc3a8be0f37
 platform: iphone
-minsdk: 3.4.1
+minsdk: 3.4.1.GA
