@@ -1,7 +1,11 @@
 # Change Log
 <pre>
+v3.1.2  [MOD-1802] Fixed app failing to build when including module and building with TiSDK 3.5.0.GA
+
 v3.1.1  [TIMOB-18092] Updated architectures in manifest      
+
 v3.1.0  [TIMOB-17928] Updated to build for 64-bit
+
 v3.0.0  MOD-1491: Add support new iOS 7 receipt.
         MOD-875: Add support for the download of Apple hosted IAP.
         MOD-1570: Add an informative alert or popup when running on iOS7 simulator.
