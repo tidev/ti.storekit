@@ -227,6 +227,15 @@ Note that calling this may ask the user to authenticate!
 It is recommended that you give the user the option to restore their past purchases via a button, and invoke this method
 only after the user touches it.
 
+### restoreCompletedTransactionsWithApplicationUsername(username[string])
+
+Asks the payment queue to restore previously completed purchases with a provided username. The _restoredCompletedTransactions_ event is fired when
+the transactions have been restored. 
+
+Note that calling this may ask the user to authenticate!
+It is recommended that you give the user the option to restore their past purchases via a button, and invoke this method
+only after the user touches it.
+
 ### startDownloads(args[object])
 
 Adds a set of downloads to the download list.
@@ -451,7 +460,7 @@ _Ti.Storekit.PURCHASING_, or _Ti.Storekit.TRANSACTION_STATE_RESTORED_.
 
 ### restoredCompletedTransactions
 
-Occurs if you call Ti.Storekit.restoreCompletedTransactions and no errors are encountered. The following event information
+Occurs if you call `Ti.Storekit.restoreCompletedTransactions` and no errors are encountered. The following event information
 will be provided:
 
 * error[string]: An error message, if one was encountered.

@@ -353,11 +353,20 @@ static TiStorekitModule *sharedInstance;
     return request;
 }
 
--(void)restoreCompletedTransactions:(id)args
+-(void)restoreCompletedTransactions:(id)unused
 {
     [self rememberSelf];
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
     
+    if (!transactionObserverSet) {
+        [self logAddTransactionObserverFirst:@"restoreCompletedTransactions"];
+    }
+}
+
+-(void)restoreCompletedTransactionsWithApplicationUsername:(id)value
+{
+    [[SKPaymentQueue defaultQueue] restoreCompletedTransactionsWithApplicationUsername:[TiUtils stringValue:value]];
+
     if (!transactionObserverSet) {
         [self logAddTransactionObserverFirst:@"restoreCompletedTransactions"];
     }
