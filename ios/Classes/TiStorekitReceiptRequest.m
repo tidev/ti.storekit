@@ -67,7 +67,7 @@
         if (verifier_.transactionIdentifier) {
             [event setObject:verifier_.transactionIdentifier forKey:@"identifier"];
         }
-        [event setObject:NUMINT(verifier_.quantity) forKey:@"quantity"];
+        [event setObject:NUMINTEGER(verifier_.quantity) forKey:@"quantity"];
         if (verifier_.productIdentifier) {
             [event setObject:verifier_.productIdentifier forKey:@"productIdentifier"];        
         }

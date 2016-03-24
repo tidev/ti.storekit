@@ -528,7 +528,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     }
     
     if (transaction.payment) {
-        [event setObject:NUMINT(transaction.payment.quantity) forKey:@"quantity"];
+        [event setObject:NUMINTEGER(transaction.payment.quantity) forKey:@"quantity"];
         if (transaction.payment.productIdentifier) {
             [event setObject:transaction.payment.productIdentifier forKey:@"productIdentifier"];
         }
@@ -590,6 +590,13 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
         // We need to finish the transaction as long as it is not still in progress
         switch (state)
         {
+            case SKPaymentTransactionStatePurchasing:
+                NSLog(@"[DEBUG] Purchasing for %@",transaction);
+                break;
+                
+            case SKPaymentTransactionStateDeferred:
+                NSLog(@"[DEBUG] Deffered transaction for %@",transaction);
+                break;
             case SKPaymentTransactionStatePurchased:
             case SKPaymentTransactionStateFailed:
             case SKPaymentTransactionStateRestored:

@@ -348,7 +348,7 @@ static void * base64_decode(const char* s, size_t * data_len);
         NSLog(@"[ERROR] Status not found in receipt dictionary");
         return NO;
     }
-    int verifyReceiptStatus = [status integerValue];
+    int verifyReceiptStatus = [status intValue];
     // 21006 = This receipt is valid but the subscription has expired.
     if (0 != verifyReceiptStatus && 21006 != verifyReceiptStatus)
     {
@@ -543,7 +543,7 @@ static void * base64_decode(const char* s, size_t * data_len);
     SecTrustResultType trust_result;
     if ((noErr == SecTrustEvaluate(trust, &trust_result)) && (trust_result == kSecTrustResultUnspecified))
     {
-        NSDictionary *trust_info = (__bridge_transfer NSDictionary *)SecTrustCopyInfo(trust);
+        NSDictionary *trust_info = (NSDictionary *)SecTrustCopyInfo(trust);
         id hasEV = [trust_info objectForKey:(__bridge NSString *)kSecTrustInfoExtendedValidationKey];
         trusted =  [hasEV isKindOfClass:[NSValue class]] && [hasEV boolValue];
     }

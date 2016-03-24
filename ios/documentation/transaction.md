@@ -50,7 +50,7 @@ See the `Ti.Storekit.TRANSACTION_STATE` constants for available states.
 
 ### receipt[blob] (read-only)
 
-The blob of the receipt associated with this transaction.
+The blob of the receipt associated with this transaction. You can decode the blob by using `var receiptB64String = Ti.Utils.base64encode(evt.receipt).text`.
 
 **DEPRECATED:** In iOS 7.0 and later. Use the `receipt` property on [Ti.Storekit][].
 

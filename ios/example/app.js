@@ -115,7 +115,7 @@ var win = Ti.UI.createWindow({
 var loading = Ti.UI.createActivityIndicator({
 	bottom:10, height:50, width:50,
 	backgroundColor:'black', borderRadius:10,
-	style:Ti.UI.iPhone.ActivityIndicatorStyle.BIG
+	style:Ti.UI.ActivityIndicatorStyle.BIG
 });
 var loadingCount = 0;
 function showLoading()
@@ -227,6 +227,10 @@ Storekit.addEventListener('transactionState', function (evt) {
 			evt.transaction && evt.transaction.finish();
 			break;
 		case Storekit.TRANSACTION_STATE_PURCHASED:
+
+			// Receive the receipt and decode it
+			var receiptB64String = Ti.Utils.base64encode(evt.receipt).text;
+
 			if (verifyingReceipts) {
 				if (IOS7) {
 					// iOS 7 Plus receipt validation is just as secure as pre iOS 7 receipt verification, but is done entirely on the device.

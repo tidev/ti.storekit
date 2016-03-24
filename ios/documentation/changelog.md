@@ -1,5 +1,7 @@
 # Change Log
 <pre>
+v3.1.3  Build with latest Ti.SDK 5.2.0.GA, add documentation on how to recode the receipt blob.
+
 v3.1.2  [MOD-1802] Fixed app failing to build when including module and building with TiSDK 3.5.0.GA
 
 v3.1.1  [TIMOB-18092] Updated architectures in manifest      

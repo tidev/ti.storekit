@@ -97,7 +97,7 @@ if (!name) { \
 -(id)quantity
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
-    return transaction.payment ? NUMINT(transaction.payment.quantity) : nil;
+    return transaction.payment ? NUMINTEGER(transaction.payment.quantity) : nil;
 }
 
 -(id)productIdentifier
