@@ -2,8 +2,6 @@
 
 This is the Store Kit Module for Titanium.
 
-> **NOTE**: This module has been archived in favor of [In-App Products Module](https://marketplace.appcelerator.com/apps/7161#!overview).
-
 ## Contributors
 
 * Pedro Enrique
