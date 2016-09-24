@@ -66,10 +66,6 @@ if (!name) { \
 
 -(id)downloads
 {
-    if (![TiUtils isIOS6OrGreater]) {
-        [TiStorekitModule logAddedIniOS6Warning:@"downloads"];
-    }
-    
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.downloads ? [[TiStorekitModule sharedInstance] tiDownloadsFromSKDownloads:transaction.downloads] : nil;
 }

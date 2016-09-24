@@ -375,9 +375,6 @@ static TiStorekitModule *sharedInstance;
 #define MAKE_DOWNLOAD_CONTROL_METHOD(name) \
 -(void)name:(id)args \
 { \
-    if (![TiUtils isIOS6OrGreater]) { \
-        [TiStorekitModule logAddedIniOS7Warning:@"download functionality"]; \
-    } \
     if (autoFinishTransactions) { \
     [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
     } \

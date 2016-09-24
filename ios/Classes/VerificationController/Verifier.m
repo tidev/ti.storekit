@@ -34,7 +34,7 @@ static void * base64_decode(const char* s, size_t * data_len);
         delegate = delegate_;
         transaction = [transaction_ retain];
 
-        receipt = [transaction_.transactionReceipt retain];
+        receipt = [[NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]] retain];
         productIdentifier = [transaction_.payment.productIdentifier retain];
         quantity = transaction_.payment.quantity;
         transactionIdentifier = [transaction_.transactionIdentifier retain];
@@ -366,7 +366,6 @@ static void * base64_decode(const char* s, size_t * data_len);
     // The receipt is valid, so checked the receipt specifics now.
     
     NSDictionary *verifiedReceiptReceiptDictionary  = [verifiedReceiptDictionary objectForKey:@"receipt"];
-    NSString *verifiedReceiptUniqueIdentifier       = [verifiedReceiptReceiptDictionary objectForKey:@"unique_identifier"];
     
     // Get the transaction's receipt data from the transactionsReceiptStorageDictionary
     NSDictionary *purchaseInfoFromTransaction = originalPurchaseInfoDict;
