@@ -45,8 +45,6 @@
 
 +(TiStorekitModule*)sharedInstance;
 +(NSString*)descriptionFromError:(NSError*)error;
-+(void)logAddedIniOS6Warning:(NSString*)name;
-+(void)logAddedIniOS7Warning:(NSString*)name;
 -(NSArray*)tiDownloadsFromSKDownloads:(NSArray*)downloads;
 -(NSArray*)skDownloadsFromTiDownloads:(NSArray*)downloads;
 

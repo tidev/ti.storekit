@@ -104,10 +104,6 @@ if (!name) { \
 
 -(id)applicationUsername
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"applicationUsername"];
-    }
-    
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.payment ? transaction.payment.applicationUsername : nil;
 }

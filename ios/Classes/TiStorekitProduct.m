@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiStoreKitProduct.h"
+#import "TiStorekitProduct.h"
 #import "TiUtils.h"
 #import "TiStorekitModule.h"
 

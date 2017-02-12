@@ -124,8 +124,6 @@
 		CE6A5AA717F4D0D60014856F /* x509v3.h in Headers */ = {isa = PBXBuildFile; fileRef = CE6A5A5A17F4D0D60014856F /* x509v3.h */; };
 		EFD74D82163F5EAD00AE3320 /* TiStoBase64Transcoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EFD74D80163F5EAD00AE3320 /* TiStoBase64Transcoder.h */; };
 		EFD74D83163F5EAD00AE3320 /* TiStoBase64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = EFD74D81163F5EAD00AE3320 /* TiStoBase64Transcoder.c */; };
-		EFD74D85163F607B00AE3320 /* TiStoSBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = EFD74D84163F607B00AE3320 /* TiStoSBJSON.h */; };
-		EFD74D89163F60C100AE3320 /* TiStoSBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = EFD74D87163F60C100AE3320 /* TiStoSBJSON.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -243,8 +241,6 @@
 		D2AAC07E0554694100DB518D /* libTiStorekit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTiStorekit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EFD74D80163F5EAD00AE3320 /* TiStoBase64Transcoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStoBase64Transcoder.h; sourceTree = "<group>"; };
 		EFD74D81163F5EAD00AE3320 /* TiStoBase64Transcoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TiStoBase64Transcoder.c; sourceTree = "<group>"; };
-		EFD74D84163F607B00AE3320 /* TiStoSBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStoSBJSON.h; sourceTree = "<group>"; };
-		EFD74D87163F60C100AE3320 /* TiStoSBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStoSBJSON.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -334,8 +330,6 @@
 				A22AF52115F68A9400CA12E4 /* Verifier.m */,
 				EFD74D80163F5EAD00AE3320 /* TiStoBase64Transcoder.h */,
 				EFD74D81163F5EAD00AE3320 /* TiStoBase64Transcoder.c */,
-				EFD74D84163F607B00AE3320 /* TiStoSBJSON.h */,
-				EFD74D87163F60C100AE3320 /* TiStoSBJSON.m */,
 			);
 			name = VerificationController;
 			path = Classes/VerificationController;
@@ -527,7 +521,6 @@
 				CE2F86F5180340F2008545ED /* TiStorekitTransaction.h in Headers */,
 				CE029FA517FF04B8007A87EC /* TiStorekitDownload.h in Headers */,
 				CE6A5A6017F4D0D60014856F /* blowfish.h in Headers */,
-				EFD74D85163F607B00AE3320 /* TiStoSBJSON.h in Headers */,
 				CE6A5A7A17F4D0D60014856F /* idea.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -612,7 +605,6 @@
 				249ED50C11EAA26B001AD11B /* TiStorekitReceiptRequest.m in Sources */,
 				A22AF52315F68A9400CA12E4 /* Verifier.m in Sources */,
 				EFD74D83163F5EAD00AE3320 /* TiStoBase64Transcoder.c in Sources */,
-				EFD74D89163F60C100AE3320 /* TiStoSBJSON.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

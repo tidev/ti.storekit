@@ -10,6 +10,7 @@
 #import "TiHost.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
+#import "TiApp.h"
 #import "TiStorekitProduct.h"
 #import "TiStorekitDownload.h"
 #import "TiStorekitProductRequest.h"
@@ -112,10 +113,6 @@ static TiStorekitModule *sharedInstance;
 
 -(void)setBundleVersion:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"bundleVersion"];
-    }
-    
     RELEASE_AND_REPLACE(bundleVersion, [TiUtils stringValue:value]);
 }
 -(id)bundleVersion
@@ -125,10 +122,6 @@ static TiStorekitModule *sharedInstance;
 
 -(void)setBundleIdentifier:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"bundleIdentifier"];
-    }
-    
     RELEASE_AND_REPLACE(bundleIdentifier, [TiUtils stringValue:value]);
 }
 -(id)bundleIdentifier
@@ -138,22 +131,12 @@ static TiStorekitModule *sharedInstance;
 
 -(id)receiptExists
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"receiptExists"];
-        return NUMBOOL(NO);
-    }
-    
-    NSURL *receiptURL = [[NSBundle mainBundle] performSelector:@selector(appStoreReceiptURL)];
+    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
     return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]);
 }
 
 -(id)validateReceipt:(id)args
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"validateReceipt"];
-        return NUMBOOL(NO);
-    }
-    
     // If the receipt is missing, verifyReceiptAtPath will always return false.
     // Adding a check here to assist with troubleshooting.
     NSURL *certURL = [[NSBundle mainBundle] URLForResource:@"AppleIncRootCertificate" withExtension:@"cer"];
@@ -171,22 +154,12 @@ static TiStorekitModule *sharedInstance;
 
 -(TiBlob*)receipt
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"receipt"];
-        return nil;
-    }
-    
     NSURL *receiptURL = [self receiptURL];
     return [[[TiBlob alloc] initWithFile:receiptURL.path] autorelease];
 }
 
 -(id)receiptProperties
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"receiptProperties"];
-        return nil;
-    }
-    
     NSURL *receiptURL = [self receiptURL];
     NSMutableDictionary *receiptDict = [NSMutableDictionary dictionaryWithDictionary:dictionaryWithAppStoreReceipt(receiptURL.path)];
     // Removing properties that are unnecessary and are not datatypes that can be passed to JavaScript.
@@ -203,27 +176,18 @@ static TiStorekitModule *sharedInstance;
     //    SKReceiptPropertyIsRevoked        = revoked
     //    SKReceiptPropertyIsVolumePurchase = vpp
     
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"refreshReceipt"];
-        return nil;
-    }
+    ENSURE_ARG_COUNT(args, 2);
+
+    id properties = [args objectAtIndex:0];
+    id callback = [args objectAtIndex:1];
     
-    enum Args {
-        kArgProperties = 0,
-        kArgCallback,
-        kArgCount
-    };
-    
-    ENSURE_ARG_COUNT(args, kArgCount);
-    id properties = [args objectAtIndex:kArgProperties];
-    id callback = [args objectAtIndex:kArgCallback];
     ENSURE_TYPE_OR_NIL(properties, NSDictionary);
     ENSURE_TYPE(callback, KrollCallback);
     
     RELEASE_AND_REPLACE(refreshReceiptCallback, callback);
     
-    SKReceiptRefreshRequest *request = [[NSClassFromString(@"SKReceiptRefreshRequest") alloc] initWithReceiptProperties:properties];
-    request.delegate = self;
+    SKReceiptRefreshRequest *request = [[SKReceiptRefreshRequest alloc] initWithReceiptProperties:properties];
+    [request setDelegate:self];
     [request start];
 }
 
@@ -310,7 +274,7 @@ static TiStorekitModule *sharedInstance;
     // Apple changed the structure of receipts and how they are validated.
     // The old method required communication with a server and was asynchronous.
     // The new method can be done on device and is synchronous.
-    NSLog(@"[WARN] `verifyReceipt` has been DEPRECATED. Use `validateReceipt`.");
+    NSLog(@"[WARN] `verifyReceipt` has been DEPRECATED. Use `validateReceipt` instead.");
 
     // As of version 1.6.0 of the module the callback is passed as the 2nd parameter to match other APIs.
     // The old method of passing the callback as a property of the transaction dictionary has been DEPRECATED
@@ -425,27 +389,23 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     return [error localizedDescription];
 }
 
-+(void)logAddedIniOS6Warning:(NSString*)name
-{
-    NSLog(@"[WARN] `%@` is only supported on iOS 6 and greater.", name);
-}
-
-+(void)logAddedIniOS7Warning:(NSString*)name
-{
-    NSLog(@"[WARN] `%@` is only supported on iOS 7 and greater.", name);
-}
-
 -(void)failIfSimulator
 {
     if ([[[UIDevice currentDevice] model] rangeOfString:@"Simulator"].location != NSNotFound) {
-        NSString *msg = @"StoreKit will not work on the iOS 7 or iOS 5 simulator. It must be tested on device.";
+        NSString *msg = @"StoreKit will not work on the iOS Simulator. It must be tested on device.";
         NSLog(@"[WARN] %@", msg);
         
         if (![TiUtils boolValue:[self valueForUndefinedKey:@"suppressSimulatorWarning"] def:NO]) {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Warning" message:msg delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Warning"
+                                                                           message:msg
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+
+            }]];
             
             TiThreadPerformOnMainThread(^{
-                [alert show];
+                [[TiApp app] showModalController:alert animated:YES];
                 [alert autorelease];
             }, NO);
         }

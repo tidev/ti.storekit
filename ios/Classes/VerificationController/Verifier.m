@@ -13,7 +13,6 @@
 #import "UIKit/UIDevice.h"
 
 #import "TiStoBase64Transcoder.h"
-#import "TiStoSBJSON.h"
 #import "TiUtils.h"
 
 #define IS_IOS6_AWARE (__IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_5_1)
@@ -111,19 +110,16 @@ static void * base64_decode(const char* s, size_t * data_len);
 
 - (NSDictionary *)dictionaryFromJSONData:(NSString *)data
 {
-    // Titanium: Converted to use the SBJSON parse so as not to use the NSJSONSerialization class
-    // which would require iOS 5.0 or greater. This way we can still support iOS 4.x
     NSError *error;
-    TiStoSBJSON *json = [[[TiStoSBJSON alloc] init] autorelease];
-    NSDictionary* dictionaryParsed = [json objectWithString:data  
-                                                      error:&error];
+    NSDictionary* json = [NSJSONSerialization JSONObjectWithData:[data dataUsingEncoding:NSUTF8StringEncoding]
+                                                         options:0
+                                                           error:&error];
 
-    if (!dictionaryParsed) {
-        if (error) {
-            NSLog(@"[ERROR] Error creating dictionary from JSON data: %@", error.description);
-        }        
+    if (!json || ![NSJSONSerialization isValidJSONObject:json]) {
+        NSLog(@"[ERROR] Error creating dictionary from JSON data: %@", error.description ?: @"Unknown Error");
     }
-    return dictionaryParsed;
+    
+    return json;
 }
 
 #pragma mark Receipt Verification
