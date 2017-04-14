@@ -14,7 +14,6 @@
 #import "TiStorekitProduct.h"
 #import "TiStorekitDownload.h"
 #import "TiStorekitProductRequest.h"
-#import "TiStorekitReceiptRequest.h"
 #import "TiStorekitTransaction.h"
 #import "VerifyStoreReceipt.h"
 
@@ -257,59 +256,6 @@ static TiStorekitModule *sharedInstance;
 -(void)setReceiptVerificationSandbox:(id)value
 {
     receiptVerificationSandbox = [TiUtils boolValue:value def:NO];
-}
-
--(id)verifyReceipt:(id)args
-{
-    NSDictionary* transaction;
-    KrollCallback *callback;
-    
-    ENSURE_ARG_AT_INDEX(transaction,args,0,NSDictionary);
-    
-    // Apple changed the structure of receipts and how they are validated.
-    // The old method required communication with a server and was asynchronous.
-    // The new method can be done on device and is synchronous.
-    NSLog(@"[WARN] `verifyReceipt` has been DEPRECATED. Use `validateReceipt` instead.");
-
-    // As of version 1.6.0 of the module the callback is passed as the 2nd parameter to match other APIs.
-    // The old method of passing the callback as a property of the transaction dictionary has been DEPRECATED
-    if ([args count] > 1) {
-        ENSURE_ARG_AT_INDEX(callback,args,1,KrollCallback);
-    } else {
-        callback = [transaction objectForKey:@"callback"];
-        if (callback != nil) {
-            NSLog(@"[WARN] Setting the callback in the receipt dictionary has been DEPRECATED. Pass the callback as the 2nd parameter to VerifyReceipt.");
-        }
-    }
-
-    BOOL exists;
-    BOOL sandbox = [TiUtils boolValue:@"sandbox" properties:transaction def:receiptVerificationSandbox exists:&exists];
-    if (exists) {
-        NSLog(@"[WARN] Setting the sandbox property in the receipt dictionary has been DEPRECATED. Use the 'receiptVerificationSandbox' property.");
-    }
-    
-    NSString* sharedSecret = [TiUtils stringValue:@"sharedSecret" properties:transaction def:self.receiptVerificationSharedSecret exists:&exists];
-    if (exists) {
-        NSLog(@"[WARN] Setting the sharedSecret property in the receipt dictionary has been DEPRECATED. Use the 'receiptVerificationSharedSecret' property.");
-    }    
-    
-    // New arguments provided by MOD-849 updates to assist in receipt verification
-    NSString *transactionId = [TiUtils stringValue:@"identifier" properties:transaction def:nil];
-    NSInteger quantity = [TiUtils intValue:[transaction objectForKey:@"quantity"] def:1];
-    NSString *productId = [TiUtils stringValue:@"productIdentifier" properties:transaction def:nil];
-    id receipt = [transaction objectForKey:@"receipt"];
-    NSData *data = nil;
-    if ([receipt isKindOfClass:[TiBlob class]]) {
-        data = [(TiBlob*)receipt data];
-    } else {
-        THROW_INVALID_ARG(@"expected receipt data as a Blob object");
-    }
-    
-    TiStorekitReceiptRequest* request = [[TiStorekitReceiptRequest alloc] initWithData:data callback:callback pageContext:[self pageContext] productIdentifier:productId quantity:quantity transactionIdentifier:transactionId];
-    
-    [request verify:sandbox secret:sharedSecret];
-    
-    return request;
 }
 
 -(void)restoreCompletedTransactions:(id)unused

@@ -89,8 +89,8 @@ Storekit.autoFinishTransactions = false;
  bundleVersion and bundleIdentifier must be set before calling validateReceipt().
  Do not pull these values from the app, they should be hard coded for security reasons.
  */
-Storekit.bundleVersion = "<YOUR APP BUNDLE VERSION>"; // eg. "1.0.0"
-Storekit.bundleIdentifier = "<YOUR APP BUNDLE IDENTIFIER>"; // eg. "com.appc.storekit"
+Storekit.bundleVersion = "1.0.0"; // eg. "1.0.0"
+Storekit.bundleIdentifier = "com.appc.teststore"; // eg. "com.appc.storekit"
 
 
 var verifyingReceipts = false;
