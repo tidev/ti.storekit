@@ -78,15 +78,6 @@
 var Storekit = require('ti.storekit');
 
 /*
- If you decide to perform receipt verification then you need to indicate if the receipts should be verified
- against the "Sandbox" or "Live" server. If you are verifying auto-renewable subscriptions then you need
- to set the shared secret for the application from your iTunes Connect account.
- */
-
-Storekit.receiptVerificationSandbox = (Ti.App.deployType !== 'production');
-Storekit.receiptVerificationSharedSecret = "<YOUR STOREKIT SHARED SECRET HERE>";
-
-/*
  autoFinishTransactions must be disabled (false) in order to start Apple hosted downloads.
  If autoFinishTransactions is disabled, it is up to you to finish the transactions.
  Transactions must be finished! Failing to finish transactions will cause your app to run slowly.
@@ -236,20 +227,6 @@ Storekit.addEventListener('transactionState', function (evt) {
 					// iOS 7 Plus receipt validation is just as secure as pre iOS 7 receipt verification, but is done entirely on the device.
 					var msg = Storekit.validateReceipt() ? 'Receipt is Valid!' : 'Receipt is Invalid.';
 					alert(msg);
-				} else {
-					// Pre iOS 7 receipt verification
-					Storekit.verifyReceipt(evt, function (e) {
-						if (e.success) {
-							if (e.valid) {
-								alert('Thanks! Receipt Verified');
-								markProductAsPurchased(evt.productIdentifier);
-							} else {
-								alert('Sorry. Receipt is invalid');
-							}
-						} else {
-							alert(e.message);
-						}
-					});
 				}
 			} else {
 				alert('Thanks!');
@@ -379,17 +356,7 @@ Storekit.addEventListener('restoredCompletedTransactions', function (evt) {
 			}
 		}
 		for (var i = 0; i < evt.transactions.length; i++) {
-			if (!IOS7 && verifyingReceipts) {
-				Storekit.verifyReceipt(evt.transactions[i], function (e) {
-					if (e.valid) {
-						markProductAsPurchased(e.productIdentifier);
-					} else {
-						Ti.API.error("Restored transaction is not valid");
-					}
-				});
-			} else {
-				markProductAsPurchased(evt.transactions[i].productIdentifier);
-			}
+			markProductAsPurchased(evt.transactions[i].productIdentifier);
 		}
 		alert('Restored ' + evt.transactions.length + ' purchases!');
 	}

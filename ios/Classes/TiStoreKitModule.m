@@ -418,7 +418,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 
 -(NSURL*)receiptURL
 {
-    NSURL *receiptURL = [[NSBundle mainBundle] performSelector:@selector(appStoreReceiptURL)];
+    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
     if (![[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]) {
         [self throwException:@"Receipt does not exist. Try refreshing the receipt." subreason:nil location:CODELOCATION];
     }
