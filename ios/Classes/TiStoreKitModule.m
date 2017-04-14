@@ -217,12 +217,6 @@ static TiStorekitModule *sharedInstance;
         product = [args objectForKey:@"product"];
         quantity = [TiUtils intValue:@"quantity" properties:args def:1];
         userName = [args objectForKey:@"applicationUsername"];
-    } else {
-        // The old way - for backwards compatibility
-        // Takes arguments
-        NSLog(@"[WARN] Passing individual args to `purchase` is DEPRECATED. Call `purchase` passing in a dictionary of arguments.");
-        product = [args objectAtIndex:0];
-        quantity = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
     }
     
     if (!product) {
@@ -231,9 +225,8 @@ static TiStorekitModule *sharedInstance;
     
     SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:[product product]];
     payment.quantity = quantity;
-    if (userName && [payment respondsToSelector:@selector(setApplicationUsername:)]) {
-        [payment performSelector:@selector(setApplicationUsername:) withObject:userName];
-    }
+
+    [payment setApplicationUsername:userName];
     
     SKPaymentQueue *queue = [SKPaymentQueue defaultQueue];
     [queue performSelectorOnMainThread:@selector(addPayment:) withObject:payment waitUntilDone:NO];
@@ -298,19 +291,14 @@ MAKE_DOWNLOAD_CONTROL_METHOD(resumeDownloads);
 
 #pragma mark Constants
 
-// TransactionStates
-// Here for backwards compatibility
-MAKE_SYSTEM_PROP(PURCHASING,0);
-MAKE_SYSTEM_PROP(PURCHASED,1);
-MAKE_SYSTEM_PROP(FAILED,2);
-MAKE_SYSTEM_PROP(RESTORED,3);
+// Transaction States
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASING, SKPaymentTransactionStatePurchasing);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASED, SKPaymentTransactionStatePurchased);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_FAILED, SKPaymentTransactionStateFailed);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_RESTORED, SKPaymentTransactionStateRestored);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_DEFERRED, SKPaymentTransactionStateDeferred);
 
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASING,0);
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASED,1);
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_FAILED,2);
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_RESTORED,3);
-
-// DownloadStates
+// Download States
 MAKE_SYSTEM_PROP(DOWNLOAD_STATE_WAITING,0);
 MAKE_SYSTEM_PROP(DOWNLOAD_STATE_ACTIVE,1);
 MAKE_SYSTEM_PROP(DOWNLOAD_STATE_PAUSED,2);
@@ -413,13 +401,11 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
                                   NUMINT(transaction.transactionState),@"state",
                                   nil];
     
-    if ([transaction respondsToSelector:@selector(transactionReceipt)] &&
-               [transaction performSelector:@selector(transactionReceipt)]) {
-        // Here for backwards compatibility
-        // Can be removed when support for iOS 6 is dropped and verifyReceipt is removed.
-        NSData *receipt = [transaction performSelector:@selector(transactionReceipt)];
-        TiBlob *blob = [[TiBlob alloc] initWithData:receipt mimetype:@"text/json"];
-        [event setObject:blob forKey:@"receipt"];
+    
+    NSData *dataReceipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+    
+    if (dataReceipt != nil) {
+        [event setObject:[dataReceipt base64EncodedStringWithOptions:0] forKey:@"receipt"];
     }
     
     if (transaction.transactionDate) {
@@ -437,9 +423,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
         }
     }
     
-    if ([transaction respondsToSelector:@selector(downloads)] && [transaction performSelector:@selector(downloads)]) {
-        [event setObject:[self tiDownloadsFromSKDownloads:[transaction performSelector:@selector(downloads)]] forKey:@"downloads"];
-    }
+    [event setObject:[self tiDownloadsFromSKDownloads:[transaction downloads]] forKey:@"downloads"];
 
     // MOD-1475 -- Restored transactions will include the original transaction. If found in the transaction
     // then we will add it to the event dictionary

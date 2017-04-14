@@ -36,20 +36,14 @@ A boolean value that indicates whether the App Store has downloadable content fo
 
 You can associate a set of data files with the iTunes Connect record you created for a product. The value of this property is true if at least one file has been associated with the product.
 
-**Note:** Available in iOS 6.0 and later.
-
 ### Ti.Storekit.Product.downloadContentLengths[array<number>] (read-only)
 
 The lengths of the downloadable files available for this product.
 
 The array holds number objects, each of which holds value that is the size of one of the downloadable files (in bytes).
 
-**Note:** Available in iOS 6.0 and later.
-
 ### Ti.Storekit.Product.downloadContentVersion[string] (read-only)
 
 A string that identifies which version of the content is available for download.
 
 The version string is formatted as a series of integers separated by periods.
-
-**Note:** Available in iOS 6.0 and later.

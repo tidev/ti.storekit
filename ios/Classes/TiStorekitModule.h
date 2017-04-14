@@ -20,17 +20,11 @@
     BOOL transactionObserverSet;
 }
 
-// TransactionStates
-// Here for backwards compatibility
-@property(nonatomic,readonly) NSNumber *PURCHASING;
-@property(nonatomic,readonly) NSNumber *PURCHASED;
-@property(nonatomic,readonly) NSNumber *FAILED;
-@property(nonatomic,readonly) NSNumber *RESTORED;
-
 @property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_PURCHASING;
 @property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_PURCHASED;
 @property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_FAILED;
 @property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_RESTORED;
+@property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_DEFERRED;
 
 @property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_WAITING;
 @property(nonatomic,readonly) NSNumber *DOWNLOAD_STATE_ACTIVE;

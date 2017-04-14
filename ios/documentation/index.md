@@ -39,14 +39,26 @@ The `bundleVersion` and `bundleIdentifier` properties must be set on the module 
 - If this was the issue that was causing validation to fail, it should now validate the receipt successfully.
 
 #### Note:
+If your receipts are not being validated (return `false`), ensure to test with a Sandbox account in your development environment,
+not with your real iTunes account. Otherwise you will get an Error 100 saying that you are not allowed to use a non-Sandbox-account in
+development.
+
+#### Note:
 If you are having trouble testing or some options are not showing up when creating purchases, make sure that you have agreed to all of the contracts under "iTunes Connect" > "Contracts, Tax, and Banking".
 
 #### Note: 
 Be sure to use a "Development" Provisioning Profile and an "App ID" with "In-App Purchase" enabled.
 
 #### Note:
-Storekit does not work in the iOS 7 or iOS 5 Simulator. When running your application in iOS Simulator,
-Storekit logs a warning. Testing the store must be done on actual devices.
+Storekit does not work in the Simulator. When running your application in iOS Simulator, Storekit logs a warning. 
+Testing the store must be done on actual devices.
+
+## Breaking changes in version 4.0.0
+
+- The `verifyReceipt` method has been removed in favor of `validateReceipt`
+- The `PURCHASING`, `PURCHASED`, `FAILED` and `RESTORED` constants have been removed in favor of the `TRANSACTION_STATE_*` prefixed ones.
+- Passing separate arguments `purchase(object, quantity[int, optional])`. Use a dictionary of arguments as seen in the API docs instead.
+- The transaction event key `receipt` will now include a Base 64-encoded string of the receipt instead of a JSON-blob 
 
 ## Breaking changes in version 3.0.0
 
@@ -147,41 +159,7 @@ Takes one argument, a dictionary with the following values:
 
 * product[_[Ti.Storekit.Product][]_]: The product to be purchased.
 * quantity[number] (optional): The quantity to be purchased. Has a default value of 1.
-* applicationUsername[string] (optional): An opaque identifier for the user's account on your system. Used by Apple to detect irregular activity. Should hash the username before setting. Available in iOS 7.0 and later.
-
-**DEPRECATED:** Passing separate arguments `purchase(object, quantity[int, optional])`. Use a dictionary of arguments as seen above.
-
-### verifyReceipt(args[object], callback(e){})
-
-**DEPRECATED:** Use `validateReceipt` in iOS 7.0 and later.
-
-Verifies that a receipt passed from a Storekit purchase or restored transaction is valid. Note that you rarely need to do this
-step in-app. It is much more likely that you would want to do this step on your own server to confirm from Apple that a
-purchase is legitimate.
-
-<strong>Important</strong> There is a vulnerability in iOS 5.1 and earlier related to receipt validation. Your application
-should perform the additional step of verifying that the receipt you received from Store Kit came from Apple. This is
-particularly important when your application relies on a separate server to provide subscriptions, services, or downloadable
-content. Verifying receipts on your server ensures that requests from your application are valid.
-
-Takes one argument, a dictionary with the following values:
-
-* identifier[string]: The transaction identifier
-* receipt[blob]: A receipt retrieved from a call to Ti.Storekit.purchase's callback evt.receipt.
-* quantity[int]: The number of items purchased
-* productIdentifier[string]: The product's identifier in the in-app store
-
-The _callback_ function is called when the verification request completes, with the following event information:
-
-* success[boolean]: Whether or not the request succeeded
-* valid[boolean]: Whether or not the receipt is valid
-* message[string]: If _success_ or _valid_ is false, the error message
-* identifier[string]: The transaction identifier
-* receipt[object]: A blob of type "text/json" which contains the receipt information for the purchase.
-* quantity[int]: The number of items purchased
-* productIdentifier[string]: The product's identifier in the in-app store.
-
-Returns a _[Ti.Storekit.ReceiptRequest][]_ object.
+* applicationUsername[string] (optional): An opaque identifier for the user's account on your system. Used by Apple to detect irregular activity. Should hash the username before setting.
 
 ### validateReceipt()
 
@@ -196,8 +174,6 @@ The Apple Inc. Root Certificate is required to validate receipts:
 3. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
 
 Returns a boolean.
-
-**Note:** Available in iOS 7.0 and later.
 
 ### refreshReceipt(args[object], callback(e){})
 
@@ -215,8 +191,6 @@ The _callback_ function is called when the refresh request completes, with the f
 * error[string]: Error message if success is false.
 
 For more information checkout Apple's [SKReceiptRefreshRequest Documentation](https://developer.apple.com/library/ios/documentation/StoreKit/Reference/SKReceiptRefreshRequest_ClassRef/SKReceiptRefreshRequest.html)
-
-**Note:** Available in iOS 7.0 and later.
 
 ### restoreCompletedTransactions()
 
@@ -310,25 +284,17 @@ This property should be set to false and `finish` handled manually if any of the
 
 The bundleVersion of the app, used when validating the receipt. It is more secure to set it in the code than to read it out of the bundle. Required when calling `validateReceipt`.
 
-**Note:** Available in iOS 7.0 and later.
-
 ### bundleIdentifier[string]
 
 The bundleIdentifier of the app, used when validating the receipt. It is more secure to set it in the code than to read it out of the bundle. Required when calling `validateReceipt`.
-
-**Note:** Available in iOS 7.0 and later.
 
 ### receiptExists[boolean]
 
 Whether or not a receipt exists on the device. During development there maybe be no receipt on the device. Call `refreshReceipt` to get a receipt.
 
-**Note:** Available in iOS 7.0 and later.
-
 ### receipt[TiBlob] (read-only)
 
 A TiBlob of the receipt on the device. Can be used to get the receipt to send it off for server side validation.
-
-**Note:** Available in iOS 7.0 and later.
 
 ### receiptProperties[object]
 
@@ -354,8 +320,6 @@ A purchase will have the following values:
  
 For more information on receipt properties checkout Apple's [ReceiptFields Documentation](https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ReceiptFields.html).
 
-**Note:** Available in iOS 7.0 and later.
-
 ### suppressSimulatorWarning[boolean]
 
 Used to disable the alert dialog that pops up when running on the simulator. Set this property to true to disable the dialog.
@@ -363,30 +327,6 @@ Used to disable the alert dialog that pops up when running on the simulator. Set
 The alert dialog was added to warn users against testing Storekit on the simulator.
 
 ## Constants
-
-### PURCHASING[int]
-
-The PURCHASING state during purchase request processing.
-
-**DEPRECATED:** Use TRANSACTION_STATE_PURCHASING.
-
-### PURCHASED[int]
-
-The PURCHASED state during purchase request processing.
-
-**DEPRECATED:** Use TRANSACTION_STATE_PURCHASED.
-
-### FAILED[int]
-
-The FAILED state during purchase request processing.
-
-**DEPRECATED:** Use TRANSACTION_STATE_FAILED.
-
-### RESTORED[int]
-
-The RESTORED state during purchase request processing.
-
-**DEPRECATED:** Use TRANSACTION_STATE_RESTORED.
 
 ### TRANSACTION_STATE_PURCHASING[int]
 
@@ -403,6 +343,10 @@ The FAILED state during purchase request processing.
 ### TRANSACTION_STATE_RESTORED[int]
 
 The RESTORED state during purchase request processing.
+
+### TRANSACTION_STATE_DEFERRED[int]
+
+The DEFERRED state during purchase request processing.
 
 ### DOWNLOAD_STATE_WAITING[int]
 
@@ -455,7 +399,7 @@ _Ti.Storekit.PURCHASING_, or _Ti.Storekit.TRANSACTION_STATE_RESTORED_.
 * productIdentifier[string]: The product's identifier in the in-app store.
 * date[date]: Transaction date
 * identifier[string]: The transaction identifier
-* receipt[object]: A blob of type "text/json" which contains the receipt information for the purchase.
+* receipt[string]: A Base 64-string which contains the receipt information for the purchase.
 
 
 ### restoredCompletedTransactions
@@ -499,6 +443,5 @@ Copyright(c) 2010-2013 by Appcelerator, Inc. All Rights Reserved. Please see the
 
 [Ti.Storekit.ProductRequest]: productRequest.html
 [Ti.Storekit.Product]: product.html
-[Ti.Storekit.ReceiptRequest]: receiptRequest.html
 [Ti.Storekit.Download]: download.html
 [Ti.Storekit.Transaction]: transaction.html
