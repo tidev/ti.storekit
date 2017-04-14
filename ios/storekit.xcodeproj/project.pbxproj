@@ -27,14 +27,10 @@
 		249ED4C111EA9C81001AD11B /* TiStorekitProduct.m in Sources */ = {isa = PBXBuildFile; fileRef = 249ED4BB11EA9C81001AD11B /* TiStorekitProduct.m */; };
 		249ED4C211EA9C81001AD11B /* TiStorekitProductRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 249ED4BC11EA9C81001AD11B /* TiStorekitProductRequest.h */; };
 		249ED4C311EA9C81001AD11B /* TiStorekitProductRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 249ED4BD11EA9C81001AD11B /* TiStorekitProductRequest.m */; };
-		249ED50B11EAA26B001AD11B /* TiStorekitReceiptRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 249ED50911EAA26B001AD11B /* TiStorekitReceiptRequest.h */; };
-		249ED50C11EAA26B001AD11B /* TiStorekitReceiptRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 249ED50A11EAA26B001AD11B /* TiStorekitReceiptRequest.m */; };
 		24DD6CF91134B3F500162E58 /* TiStorekitModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DD6CF71134B3F500162E58 /* TiStorekitModule.h */; };
 		24DD6CFA1134B3F500162E58 /* TiStoreKitModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DD6CF81134B3F500162E58 /* TiStoreKitModule.m */; };
 		24DE9E1111C5FE74003F90F6 /* TiStorekitModuleAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 24DE9E0F11C5FE74003F90F6 /* TiStorekitModuleAssets.h */; };
 		24DE9E1211C5FE74003F90F6 /* TiStorekitModuleAssets.m in Sources */ = {isa = PBXBuildFile; fileRef = 24DE9E1011C5FE74003F90F6 /* TiStorekitModuleAssets.m */; };
-		A22AF52215F68A9400CA12E4 /* Verifier.h in Headers */ = {isa = PBXBuildFile; fileRef = A22AF52015F68A9400CA12E4 /* Verifier.h */; };
-		A22AF52315F68A9400CA12E4 /* Verifier.m in Sources */ = {isa = PBXBuildFile; fileRef = A22AF52115F68A9400CA12E4 /* Verifier.m */; };
 		A22AF52615F68B4600CA12E4 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A22AF52515F68B4600CA12E4 /* Security.framework */; };
 		A22AF52815F69B4000CA12E4 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A22AF52715F69B4000CA12E4 /* UIKit.framework */; };
 		AA747D9F0F9514B9006C5449 /* TiStoreKit_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* TiStoreKit_Prefix.pch */; };
@@ -122,10 +118,6 @@
 		CE6A5AA517F4D0D60014856F /* x509.h in Headers */ = {isa = PBXBuildFile; fileRef = CE6A5A5817F4D0D60014856F /* x509.h */; };
 		CE6A5AA617F4D0D60014856F /* x509_vfy.h in Headers */ = {isa = PBXBuildFile; fileRef = CE6A5A5917F4D0D60014856F /* x509_vfy.h */; };
 		CE6A5AA717F4D0D60014856F /* x509v3.h in Headers */ = {isa = PBXBuildFile; fileRef = CE6A5A5A17F4D0D60014856F /* x509v3.h */; };
-		EFD74D82163F5EAD00AE3320 /* TiStoBase64Transcoder.h in Headers */ = {isa = PBXBuildFile; fileRef = EFD74D80163F5EAD00AE3320 /* TiStoBase64Transcoder.h */; };
-		EFD74D83163F5EAD00AE3320 /* TiStoBase64Transcoder.c in Sources */ = {isa = PBXBuildFile; fileRef = EFD74D81163F5EAD00AE3320 /* TiStoBase64Transcoder.c */; };
-		EFD74D85163F607B00AE3320 /* TiStoSBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = EFD74D84163F607B00AE3320 /* TiStoSBJSON.h */; };
-		EFD74D89163F60C100AE3320 /* TiStoSBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = EFD74D87163F60C100AE3320 /* TiStoSBJSON.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -144,15 +136,11 @@
 		249ED4BB11EA9C81001AD11B /* TiStorekitProduct.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiStorekitProduct.m; path = Classes/TiStorekitProduct.m; sourceTree = "<group>"; };
 		249ED4BC11EA9C81001AD11B /* TiStorekitProductRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiStorekitProductRequest.h; path = Classes/TiStorekitProductRequest.h; sourceTree = "<group>"; };
 		249ED4BD11EA9C81001AD11B /* TiStorekitProductRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiStorekitProductRequest.m; path = Classes/TiStorekitProductRequest.m; sourceTree = "<group>"; };
-		249ED50911EAA26B001AD11B /* TiStorekitReceiptRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiStorekitReceiptRequest.h; path = Classes/TiStorekitReceiptRequest.h; sourceTree = "<group>"; };
-		249ED50A11EAA26B001AD11B /* TiStorekitReceiptRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiStorekitReceiptRequest.m; path = Classes/TiStorekitReceiptRequest.m; sourceTree = "<group>"; };
 		24DD6CF71134B3F500162E58 /* TiStorekitModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiStorekitModule.h; path = Classes/TiStorekitModule.h; sourceTree = "<group>"; };
 		24DD6CF81134B3F500162E58 /* TiStoreKitModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiStoreKitModule.m; path = Classes/TiStoreKitModule.m; sourceTree = "<group>"; };
 		24DD6D1B1134B66800162E58 /* titanium.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = titanium.xcconfig; sourceTree = "<group>"; };
 		24DE9E0F11C5FE74003F90F6 /* TiStorekitModuleAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiStorekitModuleAssets.h; path = Classes/TiStorekitModuleAssets.h; sourceTree = "<group>"; };
 		24DE9E1011C5FE74003F90F6 /* TiStorekitModuleAssets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiStorekitModuleAssets.m; path = Classes/TiStorekitModuleAssets.m; sourceTree = "<group>"; };
-		A22AF52015F68A9400CA12E4 /* Verifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Verifier.h; sourceTree = "<group>"; };
-		A22AF52115F68A9400CA12E4 /* Verifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Verifier.m; sourceTree = "<group>"; };
 		A22AF52515F68B4600CA12E4 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		A22AF52715F69B4000CA12E4 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		AA747D9E0F9514B9006C5449 /* TiStoreKit_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStoreKit_Prefix.pch; sourceTree = "<group>"; };
@@ -241,10 +229,6 @@
 		CE6A5A5917F4D0D60014856F /* x509_vfy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		CE6A5A5A17F4D0D60014856F /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
 		D2AAC07E0554694100DB518D /* libTiStorekit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libTiStorekit.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		EFD74D80163F5EAD00AE3320 /* TiStoBase64Transcoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStoBase64Transcoder.h; sourceTree = "<group>"; };
-		EFD74D81163F5EAD00AE3320 /* TiStoBase64Transcoder.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = TiStoBase64Transcoder.c; sourceTree = "<group>"; };
-		EFD74D84163F607B00AE3320 /* TiStoSBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiStoSBJSON.h; sourceTree = "<group>"; };
-		EFD74D87163F60C100AE3320 /* TiStoSBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiStoSBJSON.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -275,7 +259,6 @@
 		0867D691FE84028FC02AAC07 /* inapp_purchase */ = {
 			isa = PBXGroup;
 			children = (
-				CE6A5A0D17F4D0D60014856F /* openssl */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -299,7 +282,6 @@
 			isa = PBXGroup;
 			children = (
 				CE6A5A0817F4D0920014856F /* VerifyStoreReceiptiOS */,
-				A22AF51F15F68A9400CA12E4 /* VerificationController */,
 				249ED4BA11EA9C81001AD11B /* TiStorekitProduct.h */,
 				249ED4BB11EA9C81001AD11B /* TiStorekitProduct.m */,
 				CE029FA317FF04B8007A87EC /* TiStorekitDownload.h */,
@@ -312,8 +294,6 @@
 				24DD6CF81134B3F500162E58 /* TiStoreKitModule.m */,
 				CE2F86F3180340F2008545ED /* TiStorekitTransaction.h */,
 				CE2F86F4180340F2008545ED /* TiStorekitTransaction.m */,
-				249ED50911EAA26B001AD11B /* TiStorekitReceiptRequest.h */,
-				249ED50A11EAA26B001AD11B /* TiStorekitReceiptRequest.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -327,23 +307,10 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
-		A22AF51F15F68A9400CA12E4 /* VerificationController */ = {
-			isa = PBXGroup;
-			children = (
-				A22AF52015F68A9400CA12E4 /* Verifier.h */,
-				A22AF52115F68A9400CA12E4 /* Verifier.m */,
-				EFD74D80163F5EAD00AE3320 /* TiStoBase64Transcoder.h */,
-				EFD74D81163F5EAD00AE3320 /* TiStoBase64Transcoder.c */,
-				EFD74D84163F607B00AE3320 /* TiStoSBJSON.h */,
-				EFD74D87163F60C100AE3320 /* TiStoSBJSON.m */,
-			);
-			name = VerificationController;
-			path = Classes/VerificationController;
-			sourceTree = "<group>";
-		};
 		CE6A5A0817F4D0920014856F /* VerifyStoreReceiptiOS */ = {
 			isa = PBXGroup;
 			children = (
+				CE6A5A0D17F4D0D60014856F /* openssl */,
 				CE6A5A0917F4D0920014856F /* VerifyStoreReceipt.h */,
 				CE6A5A0A17F4D0920014856F /* VerifyStoreReceipt.m */,
 			);
@@ -432,7 +399,8 @@
 				CE6A5A5917F4D0D60014856F /* x509_vfy.h */,
 				CE6A5A5A17F4D0D60014856F /* x509v3.h */,
 			);
-			path = openssl;
+			name = openssl;
+			path = ../../openssl;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -480,7 +448,6 @@
 				CE6A5A8117F4D0D60014856F /* md5.h in Headers */,
 				CE6A5A7717F4D0D60014856F /* err.h in Headers */,
 				CE6A5A9517F4D0D60014856F /* seed.h in Headers */,
-				249ED50B11EAA26B001AD11B /* TiStorekitReceiptRequest.h in Headers */,
 				CE6A5A9F17F4D0D60014856F /* tls1.h in Headers */,
 				CE6A5A6B17F4D0D60014856F /* des.h in Headers */,
 				CE6A5AA117F4D0D60014856F /* txt_db.h in Headers */,
@@ -507,7 +474,6 @@
 				CE6A5A6F17F4D0D60014856F /* dso.h in Headers */,
 				CE6A5A0B17F4D0920014856F /* VerifyStoreReceipt.h in Headers */,
 				CE6A5A8C17F4D0D60014856F /* pkcs12.h in Headers */,
-				A22AF52215F68A9400CA12E4 /* Verifier.h in Headers */,
 				CE6A5A8017F4D0D60014856F /* md4.h in Headers */,
 				CE6A5A7B17F4D0D60014856F /* krb5_asn.h in Headers */,
 				CE6A5A9E17F4D0D60014856F /* symhacks.h in Headers */,
@@ -517,7 +483,6 @@
 				CE6A5A9C17F4D0D60014856F /* ssl3.h in Headers */,
 				CE6A5A7217F4D0D60014856F /* ebcdic.h in Headers */,
 				CE6A5A8F17F4D0D60014856F /* rand.h in Headers */,
-				EFD74D82163F5EAD00AE3320 /* TiStoBase64Transcoder.h in Headers */,
 				CE6A5A5E17F4D0D60014856F /* asn1t.h in Headers */,
 				CE6A5A6E17F4D0D60014856F /* dsa.h in Headers */,
 				CE6A5A8417F4D0D60014856F /* obj_mac.h in Headers */,
@@ -527,7 +492,6 @@
 				CE2F86F5180340F2008545ED /* TiStorekitTransaction.h in Headers */,
 				CE029FA517FF04B8007A87EC /* TiStorekitDownload.h in Headers */,
 				CE6A5A6017F4D0D60014856F /* blowfish.h in Headers */,
-				EFD74D85163F607B00AE3320 /* TiStoSBJSON.h in Headers */,
 				CE6A5A7A17F4D0D60014856F /* idea.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -609,10 +573,6 @@
 				CE6A5A0C17F4D0920014856F /* VerifyStoreReceipt.m in Sources */,
 				249ED4C111EA9C81001AD11B /* TiStorekitProduct.m in Sources */,
 				249ED4C311EA9C81001AD11B /* TiStorekitProductRequest.m in Sources */,
-				249ED50C11EAA26B001AD11B /* TiStorekitReceiptRequest.m in Sources */,
-				A22AF52315F68A9400CA12E4 /* Verifier.m in Sources */,
-				EFD74D83163F5EAD00AE3320 /* TiStoBase64Transcoder.c in Sources */,
-				EFD74D89163F60C100AE3320 /* TiStoSBJSON.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -633,9 +593,11 @@
 			buildSettings = {
 				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
 				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DSTROOT = /tmp/TiStorekit.dst;
+				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -653,7 +615,7 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					openssl,
@@ -679,7 +641,9 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
 				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				DSTROOT = /tmp/TiStorekit.dst;
+				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -697,8 +661,8 @@
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
-				"IPHONEOS_DEPLOYMENT_TARGET[sdk=iphoneos*]" = 5.1.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				"IPHONEOS_DEPLOYMENT_TARGET[sdk=iphoneos*]" = 7.1;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					openssl,

@@ -14,15 +14,9 @@
 -(id)initWithDownload:(SKDownload*)download_ pageContext:(id<TiEvaluator>)context
 {
     if (self = [super _initWithPageContext:context]) {
-        download = [download_ retain];
+        download = download_;
     }
     return self;
-}
-
--(void)_destroy
-{
-    RELEASE_TO_NIL(download);
-    [super _destroy];
 }
 
 -(SKDownload*)download
@@ -30,19 +24,22 @@
     return download;
 }
 
-#pragma mark Utils
-
-#define MAKE_READONLY_PROP(obj,name) \
--(id)name \
-{\
-    return [obj name];\
-}\
-
 #pragma mark Public APIs
 
-MAKE_READONLY_PROP(download, contentIdentifier);
-MAKE_READONLY_PROP(download, contentURL);
-MAKE_READONLY_PROP(download, contentVersion);
+- (id)contentIdentifier
+{
+    return [download contentIdentifier];
+}
+
+- (id)contentURL
+{
+    return [download contentURL];
+}
+
+- (id)contentVersion
+{
+    return [download contentVersion];
+}
 
 -(id)contentLength
 {
@@ -75,7 +72,7 @@ MAKE_READONLY_PROP(download, contentVersion);
 
 -(TiStorekitTransaction*)transaction
 {
-    return [[[TiStorekitTransaction alloc] initWithTransaction:[download transaction] pageContext:[self pageContext]] autorelease];
+    return [[TiStorekitTransaction alloc] initWithTransaction:[download transaction] pageContext:[self pageContext]];
 }
 
 @end

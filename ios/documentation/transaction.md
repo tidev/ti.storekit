@@ -22,8 +22,6 @@ An array of download objects representing the downloadable content associated wi
 
 The contents of this property are undefined except when `transactionState` is set to `Ti.Storekit.TRANSACTION_STATE_PURCHASED`. The [Ti.Storekit.Download][] objects stored in this property must be used to download the transaction's content before the transaction is finished. After the transaction is finished, the download objects are no longer queueable.
 
-**Note:** Available in iOS 6.0 and later.
-
 ### originalTransaction[[Ti.Storekit.Transaction][]] (read-only)
 
 The transaction that was restored by the App Store.
@@ -46,13 +44,7 @@ The contents of this property are undefined except when transactionState is set 
 
 The current state of the transaction.
 
-See the `Ti.Storekit.TRANSACTION_STATE` constants for available states.
-
-### receipt[blob] (read-only)
-
-The blob of the receipt associated with this transaction.
-
-**DEPRECATED:** In iOS 7.0 and later. Use the `receipt` property on [Ti.Storekit][].
+See the `Ti.Storekit.TRANSACTION_STATE` constants for available states.[Ti.Storekit][].
 
 ### quantity[int] (read-only)
 
@@ -73,9 +65,6 @@ An opaque identifier for the user's account on your system.
 This is used to help detect irregular activity. For example, in a game, it would be unusual for as dozens of different iTunes Store accounts making purchases on behalf of the same in-game character.
 
 The recommended implementation is to use a one-way hash of the user's account name to calculate the value for this property.
-
-**Note:** Available in iOS 7.0 and later.
-
 
 [Ti.Storekit]: index.html
 [Ti.Storekit.Download]: download.html

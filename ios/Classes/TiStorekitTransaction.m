@@ -16,15 +16,9 @@
 -(id)initWithTransaction:(SKPaymentTransaction*)transaction_ pageContext:(id<TiEvaluator>)context
 {
     if (self = [super _initWithPageContext:context]) {
-        transaction = [transaction_ retain];
+        transaction = transaction_;
     }
     return self;
-}
-
--(void)_destroy
-{
-    RELEASE_TO_NIL(transaction);
-    [super _destroy];
 }
 
 #pragma mark Utils
@@ -66,10 +60,6 @@ if (!name) { \
 
 -(id)downloads
 {
-    if (![TiUtils isIOS6OrGreater]) {
-        [TiStorekitModule logAddedIniOS6Warning:@"downloads"];
-    }
-    
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.downloads ? [[TiStorekitModule sharedInstance] tiDownloadsFromSKDownloads:transaction.downloads] : nil;
 }
@@ -77,7 +67,7 @@ if (!name) { \
 -(id)originalTransaction
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
-    return transaction.originalTransaction ? [[[TiStorekitTransaction alloc] initWithTransaction:transaction.originalTransaction pageContext:[self pageContext]] autorelease] : nil;
+    return transaction.originalTransaction ? [[TiStorekitTransaction alloc] initWithTransaction:transaction.originalTransaction pageContext:[self pageContext]] : nil;
 }
 
 -(id)receipt
@@ -87,7 +77,7 @@ if (!name) { \
     if ([transaction respondsToSelector:@selector(transactionReceipt)] &&
         [transaction performSelector:@selector(transactionReceipt)]) {
         NSData *receipt = [transaction performSelector:@selector(transactionReceipt)];
-        TiBlob *blob = [[[TiBlob alloc] initWithData:receipt mimetype:@"text/json"] autorelease];
+        TiBlob *blob = [[TiBlob alloc] initWithData:receipt mimetype:@"text/json"];
         return blob;
     } else {
         return nil;
@@ -97,7 +87,7 @@ if (!name) { \
 -(id)quantity
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
-    return transaction.payment ? NUMINT(transaction.payment.quantity) : nil;
+    return transaction.payment ? NUMINTEGER(transaction.payment.quantity) : nil;
 }
 
 -(id)productIdentifier
@@ -108,10 +98,6 @@ if (!name) { \
 
 -(id)applicationUsername
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"applicationUsername"];
-    }
-    
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.payment ? transaction.payment.applicationUsername : nil;
 }

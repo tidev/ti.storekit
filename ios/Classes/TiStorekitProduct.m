@@ -5,7 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import "TiStoreKitProduct.h"
+#import "TiStorekitProduct.h"
 #import "TiUtils.h"
 #import "TiStorekitModule.h"
 
@@ -14,15 +14,9 @@
 -(id)initWithProduct:(SKProduct*)product_ pageContext:(id<TiEvaluator>)context
 {
     if (self = [super _initWithPageContext:context]) {
-        product = [product_ retain];
+        product = product_;
     }
     return self;
-}
-
--(void)_destroy
-{
-    RELEASE_TO_NIL(product);
-    [super _destroy];
 }
 
 -(SKProduct*)product
@@ -54,7 +48,7 @@
     [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
     [numberFormatter setLocale:product.priceLocale];
     NSString *formattedString = [numberFormatter stringFromNumber:product.price];
-    [numberFormatter release];
+
     return formattedString;
 }
 
@@ -70,41 +64,17 @@
 
 -(id)downloadable
 {
-    if (![TiUtils isIOS6OrGreater]) {
-        [TiStorekitModule logAddedIniOS6Warning:@"downloadable"];
-    }
-    
-    if ([product respondsToSelector:@selector(isDownloadable)]) {
-        return NUMBOOL([product performSelector:@selector(isDownloadable)]);
-    }
-    
-    return NUMBOOL(NO);
+    return NUMBOOL([product isDownloadable]);
 }
 
 -(NSArray*)downloadContentLengths
 {
-    if (![TiUtils isIOS6OrGreater]) {
-        [TiStorekitModule logAddedIniOS6Warning:@"downloadContentLengths"];
-    }
-    
-    if ([product respondsToSelector:@selector(downloadContentLengths)]) {
-        return [product performSelector:@selector(downloadContentLengths)];
-    }
-    
-    return nil;
+    return [product downloadContentLengths];
 }
 
 -(NSString*)downloadContentVersion
 {
-    if (![TiUtils isIOS6OrGreater]) {
-        [TiStorekitModule logAddedIniOS6Warning:@"downloadContentVersion"];
-    }
-    
-    if ([product respondsToSelector:@selector(downloadContentVersion)]) {
-        return [product performSelector:@selector(downloadContentVersion)];
-    }
-    
-    return nil;
+    return [product downloadContentVersion];
 }
 
 @end

@@ -1,5 +1,11 @@
 # Change Log
 <pre>
+v4.0.0  Build with latest Ti.SDK 6.0.3.GA
+        Add documentation on how to recode the receipt blob, 
+        Support the new `restoreCompletedTransactionsWithApplicationUsername` method.
+        Remove the `verifyReceipt` method in favor of the `validateReceipt` method
+        Update example to be more descriptive
+
 v3.1.2  [MOD-1802] Fixed app failing to build when including module and building with TiSDK 3.5.0.GA
 
 v3.1.1  [TIMOB-18092] Updated architectures in manifest      

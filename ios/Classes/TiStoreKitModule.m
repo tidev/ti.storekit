@@ -10,10 +10,10 @@
 #import "TiHost.h"
 #import "TiUtils.h"
 #import "TiBlob.h"
+#import "TiApp.h"
 #import "TiStorekitProduct.h"
 #import "TiStorekitDownload.h"
 #import "TiStorekitProductRequest.h"
-#import "TiStorekitReceiptRequest.h"
 #import "TiStorekitTransaction.h"
 #import "VerifyStoreReceipt.h"
 
@@ -63,11 +63,6 @@ static TiStorekitModule *sharedInstance;
 
 -(void)_destroy
 {
-    RELEASE_TO_NIL(bundleVersion);
-    RELEASE_TO_NIL(bundleIdentifier);
-    RELEASE_TO_NIL(refreshReceiptCallback);
-    
-    RELEASE_TO_NIL(restoredTransactions);
     self.receiptVerificationSharedSecret = nil;
     [super _destroy];
 }
@@ -112,11 +107,7 @@ static TiStorekitModule *sharedInstance;
 
 -(void)setBundleVersion:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"bundleVersion"];
-    }
-    
-    RELEASE_AND_REPLACE(bundleVersion, [TiUtils stringValue:value]);
+    bundleVersion = [TiUtils stringValue:value];
 }
 -(id)bundleVersion
 {
@@ -125,11 +116,7 @@ static TiStorekitModule *sharedInstance;
 
 -(void)setBundleIdentifier:(id)value
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"bundleIdentifier"];
-    }
-    
-    RELEASE_AND_REPLACE(bundleIdentifier, [TiUtils stringValue:value]);
+    bundleIdentifier = [TiUtils stringValue:value];
 }
 -(id)bundleIdentifier
 {
@@ -138,22 +125,12 @@ static TiStorekitModule *sharedInstance;
 
 -(id)receiptExists
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"receiptExists"];
-        return NUMBOOL(NO);
-    }
-    
-    NSURL *receiptURL = [[NSBundle mainBundle] performSelector:@selector(appStoreReceiptURL)];
+    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
     return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]);
 }
 
 -(id)validateReceipt:(id)args
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"validateReceipt"];
-        return NUMBOOL(NO);
-    }
-    
     // If the receipt is missing, verifyReceiptAtPath will always return false.
     // Adding a check here to assist with troubleshooting.
     NSURL *certURL = [[NSBundle mainBundle] URLForResource:@"AppleIncRootCertificate" withExtension:@"cer"];
@@ -171,22 +148,12 @@ static TiStorekitModule *sharedInstance;
 
 -(TiBlob*)receipt
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"receipt"];
-        return nil;
-    }
-    
     NSURL *receiptURL = [self receiptURL];
-    return [[[TiBlob alloc] initWithFile:receiptURL.path] autorelease];
+    return [[TiBlob alloc] initWithFile:receiptURL.path];
 }
 
 -(id)receiptProperties
 {
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"receiptProperties"];
-        return nil;
-    }
-    
     NSURL *receiptURL = [self receiptURL];
     NSMutableDictionary *receiptDict = [NSMutableDictionary dictionaryWithDictionary:dictionaryWithAppStoreReceipt(receiptURL.path)];
     // Removing properties that are unnecessary and are not datatypes that can be passed to JavaScript.
@@ -203,27 +170,18 @@ static TiStorekitModule *sharedInstance;
     //    SKReceiptPropertyIsRevoked        = revoked
     //    SKReceiptPropertyIsVolumePurchase = vpp
     
-    if (![TiUtils isIOS7OrGreater]) {
-        [TiStorekitModule logAddedIniOS7Warning:@"refreshReceipt"];
-        return nil;
-    }
+    ENSURE_ARG_COUNT(args, 2);
+
+    id properties = [args objectAtIndex:0];
+    id callback = [args objectAtIndex:1];
     
-    enum Args {
-        kArgProperties = 0,
-        kArgCallback,
-        kArgCount
-    };
-    
-    ENSURE_ARG_COUNT(args, kArgCount);
-    id properties = [args objectAtIndex:kArgProperties];
-    id callback = [args objectAtIndex:kArgCallback];
     ENSURE_TYPE_OR_NIL(properties, NSDictionary);
     ENSURE_TYPE(callback, KrollCallback);
     
-    RELEASE_AND_REPLACE(refreshReceiptCallback, callback);
+    refreshReceiptCallback = callback;
     
-    SKReceiptRefreshRequest *request = [[NSClassFromString(@"SKReceiptRefreshRequest") alloc] initWithReceiptProperties:properties];
-    request.delegate = self;
+    SKReceiptRefreshRequest *request = [[SKReceiptRefreshRequest alloc] initWithReceiptProperties:properties];
+    [request setDelegate:self];
     [request start];
 }
 
@@ -243,7 +201,7 @@ static TiStorekitModule *sharedInstance;
     NSArray *ids = [args objectAtIndex:0];
     
     NSSet *products = [NSSet setWithArray:ids];
-    return [[[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]] autorelease];
+    return [[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]];
 }
 
 -(void)purchase:(id)args
@@ -259,12 +217,6 @@ static TiStorekitModule *sharedInstance;
         product = [args objectForKey:@"product"];
         quantity = [TiUtils intValue:@"quantity" properties:args def:1];
         userName = [args objectForKey:@"applicationUsername"];
-    } else {
-        // The old way - for backwards compatibility
-        // Takes arguments
-        NSLog(@"[WARN] Passing individual args to `purchase` is DEPRECATED. Call `purchase` passing in a dictionary of arguments.");
-        product = [args objectAtIndex:0];
-        quantity = [args count] > 1 ? [TiUtils intValue:[args objectAtIndex:1]] : 1;
     }
     
     if (!product) {
@@ -273,9 +225,8 @@ static TiStorekitModule *sharedInstance;
     
     SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:[product product]];
     payment.quantity = quantity;
-    if (userName && [payment respondsToSelector:@selector(setApplicationUsername:)]) {
-        [payment performSelector:@selector(setApplicationUsername:) withObject:userName];
-    }
+
+    [payment setApplicationUsername:userName];
     
     SKPaymentQueue *queue = [SKPaymentQueue defaultQueue];
     [queue performSelectorOnMainThread:@selector(addPayment:) withObject:payment waitUntilDone:NO];
@@ -300,60 +251,7 @@ static TiStorekitModule *sharedInstance;
     receiptVerificationSandbox = [TiUtils boolValue:value def:NO];
 }
 
--(id)verifyReceipt:(id)args
-{
-    NSDictionary* transaction;
-    KrollCallback *callback;
-    
-    ENSURE_ARG_AT_INDEX(transaction,args,0,NSDictionary);
-    
-    // Apple changed the structure of receipts and how they are validated.
-    // The old method required communication with a server and was asynchronous.
-    // The new method can be done on device and is synchronous.
-    NSLog(@"[WARN] `verifyReceipt` has been DEPRECATED. Use `validateReceipt`.");
-
-    // As of version 1.6.0 of the module the callback is passed as the 2nd parameter to match other APIs.
-    // The old method of passing the callback as a property of the transaction dictionary has been DEPRECATED
-    if ([args count] > 1) {
-        ENSURE_ARG_AT_INDEX(callback,args,1,KrollCallback);
-    } else {
-        callback = [transaction objectForKey:@"callback"];
-        if (callback != nil) {
-            NSLog(@"[WARN] Setting the callback in the receipt dictionary has been DEPRECATED. Pass the callback as the 2nd parameter to VerifyReceipt.");
-        }
-    }
-
-    BOOL exists;
-    BOOL sandbox = [TiUtils boolValue:@"sandbox" properties:transaction def:receiptVerificationSandbox exists:&exists];
-    if (exists) {
-        NSLog(@"[WARN] Setting the sandbox property in the receipt dictionary has been DEPRECATED. Use the 'receiptVerificationSandbox' property.");
-    }
-    
-    NSString* sharedSecret = [TiUtils stringValue:@"sharedSecret" properties:transaction def:self.receiptVerificationSharedSecret exists:&exists];
-    if (exists) {
-        NSLog(@"[WARN] Setting the sharedSecret property in the receipt dictionary has been DEPRECATED. Use the 'receiptVerificationSharedSecret' property.");
-    }    
-    
-    // New arguments provided by MOD-849 updates to assist in receipt verification
-    NSString *transactionId = [TiUtils stringValue:@"identifier" properties:transaction def:nil];
-    NSInteger quantity = [TiUtils intValue:[transaction objectForKey:@"quantity"] def:1];
-    NSString *productId = [TiUtils stringValue:@"productIdentifier" properties:transaction def:nil];
-    id receipt = [transaction objectForKey:@"receipt"];
-    NSData *data = nil;
-    if ([receipt isKindOfClass:[TiBlob class]]) {
-        data = [(TiBlob*)receipt data];
-    } else {
-        THROW_INVALID_ARG(@"expected receipt data as a Blob object");
-    }
-    
-    TiStorekitReceiptRequest* request = [[[TiStorekitReceiptRequest alloc] initWithData:data callback:callback pageContext:[self pageContext] productIdentifier:productId quantity:quantity transactionIdentifier:transactionId] autorelease];
-    
-    [request verify:sandbox secret:sharedSecret];
-    
-    return request;
-}
-
--(void)restoreCompletedTransactions:(id)args
+-(void)restoreCompletedTransactions:(id)unused
 {
     [self rememberSelf];
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
@@ -363,12 +261,18 @@ static TiStorekitModule *sharedInstance;
     }
 }
 
+-(void)restoreCompletedTransactionsWithApplicationUsername:(id)value
+{
+    [[SKPaymentQueue defaultQueue] restoreCompletedTransactionsWithApplicationUsername:[TiUtils stringValue:value]];
+
+    if (!transactionObserverSet) {
+        [self logAddTransactionObserverFirst:@"restoreCompletedTransactions"];
+    }
+}
+
 #define MAKE_DOWNLOAD_CONTROL_METHOD(name) \
 -(void)name:(id)args \
 { \
-    if (![TiUtils isIOS6OrGreater]) { \
-        [TiStorekitModule logAddedIniOS7Warning:@"download functionality"]; \
-    } \
     if (autoFinishTransactions) { \
     [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
     } \
@@ -387,19 +291,14 @@ MAKE_DOWNLOAD_CONTROL_METHOD(resumeDownloads);
 
 #pragma mark Constants
 
-// TransactionStates
-// Here for backwards compatibility
-MAKE_SYSTEM_PROP(PURCHASING,0);
-MAKE_SYSTEM_PROP(PURCHASED,1);
-MAKE_SYSTEM_PROP(FAILED,2);
-MAKE_SYSTEM_PROP(RESTORED,3);
+// Transaction States
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASING, SKPaymentTransactionStatePurchasing);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASED, SKPaymentTransactionStatePurchased);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_FAILED, SKPaymentTransactionStateFailed);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_RESTORED, SKPaymentTransactionStateRestored);
+MAKE_SYSTEM_PROP(TRANSACTION_STATE_DEFERRED, SKPaymentTransactionStateDeferred);
 
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASING,0);
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_PURCHASED,1);
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_FAILED,2);
-MAKE_SYSTEM_PROP(TRANSACTION_STATE_RESTORED,3);
-
-// DownloadStates
+// Download States
 MAKE_SYSTEM_PROP(DOWNLOAD_STATE_WAITING,0);
 MAKE_SYSTEM_PROP(DOWNLOAD_STATE_ACTIVE,1);
 MAKE_SYSTEM_PROP(DOWNLOAD_STATE_PAUSED,2);
@@ -419,28 +318,23 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     return [error localizedDescription];
 }
 
-+(void)logAddedIniOS6Warning:(NSString*)name
-{
-    NSLog(@"[WARN] `%@` is only supported on iOS 6 and greater.", name);
-}
-
-+(void)logAddedIniOS7Warning:(NSString*)name
-{
-    NSLog(@"[WARN] `%@` is only supported on iOS 7 and greater.", name);
-}
-
 -(void)failIfSimulator
 {
     if ([[[UIDevice currentDevice] model] rangeOfString:@"Simulator"].location != NSNotFound) {
-        NSString *msg = @"StoreKit will not work on the iOS 7 or iOS 5 simulator. It must be tested on device.";
+        NSString *msg = @"StoreKit will not work on the iOS Simulator. It must be tested on device.";
         NSLog(@"[WARN] %@", msg);
         
         if (![TiUtils boolValue:[self valueForUndefinedKey:@"suppressSimulatorWarning"] def:NO]) {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Warning" message:msg delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Warning"
+                                                                           message:msg
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+            
+            [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+
+            }]];
             
             TiThreadPerformOnMainThread(^{
-                [alert show];
-                [alert autorelease];
+                [[TiApp app] showModalController:alert animated:YES];
             }, NO);
         }
     }
@@ -458,7 +352,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 
 -(NSURL*)receiptURL
 {
-    NSURL *receiptURL = [[NSBundle mainBundle] performSelector:@selector(appStoreReceiptURL)];
+    NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
     if (![[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]) {
         [self throwException:@"Receipt does not exist. Try refreshing the receipt." subreason:nil location:CODELOCATION];
     }
@@ -471,7 +365,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     for (SKDownload *download in downloads) {
         TiStorekitDownload *d = [[TiStorekitDownload alloc] initWithDownload:download pageContext:[self pageContext]];
         [dls addObject:d];
-        [d release];
     }
     return dls;
 }
@@ -488,7 +381,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 -(void)fireRefreshReceiptCallbackWithDict:(NSDictionary*)dict
 {
     [self _fireEventToListener:@"callback" withObject:dict listener:refreshReceiptCallback thisObject:nil];
-    RELEASE_TO_NIL_AUTORELEASE(refreshReceiptCallback);
 }
 
 #pragma mark Delegates
@@ -509,14 +401,11 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
                                   NUMINT(transaction.transactionState),@"state",
                                   nil];
     
-    if ([transaction respondsToSelector:@selector(transactionReceipt)] &&
-               [transaction performSelector:@selector(transactionReceipt)]) {
-        // Here for backwards compatibility
-        // Can be removed when support for iOS 6 is dropped and verifyReceipt is removed.
-        NSData *receipt = [transaction performSelector:@selector(transactionReceipt)];
-        TiBlob *blob = [[TiBlob alloc] initWithData:receipt mimetype:@"text/json"];
-        [event setObject:blob forKey:@"receipt"];
-        [blob release];
+    
+    NSData *dataReceipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+    
+    if (dataReceipt != nil) {
+        [event setObject:[dataReceipt base64EncodedStringWithOptions:0] forKey:@"receipt"];
     }
     
     if (transaction.transactionDate) {
@@ -528,27 +417,23 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     }
     
     if (transaction.payment) {
-        [event setObject:NUMINT(transaction.payment.quantity) forKey:@"quantity"];
+        [event setObject:NUMINTEGER(transaction.payment.quantity) forKey:@"quantity"];
         if (transaction.payment.productIdentifier) {
             [event setObject:transaction.payment.productIdentifier forKey:@"productIdentifier"];
         }
     }
     
-    if ([transaction respondsToSelector:@selector(downloads)] && [transaction performSelector:@selector(downloads)]) {
-        [event setObject:[self tiDownloadsFromSKDownloads:[transaction performSelector:@selector(downloads)]] forKey:@"downloads"];
-    }
+    [event setObject:[self tiDownloadsFromSKDownloads:[transaction downloads]] forKey:@"downloads"];
 
     // MOD-1475 -- Restored transactions will include the original transaction. If found in the transaction
     // then we will add it to the event dictionary
     if (transaction.originalTransaction) {
         TiStorekitTransaction *origTrans = [[TiStorekitTransaction alloc] initWithTransaction:transaction.originalTransaction pageContext:[self executionContext]];
         [event setObject:origTrans forKey:@"originalTransaction"];
-        [origTrans release];
     }
     
     TiStorekitTransaction *trans = [[TiStorekitTransaction alloc] initWithTransaction:transaction pageContext:[self executionContext]];
     [event setObject:trans forKey:@"transaction"];
-    [trans release];
 
     return event;
 }
@@ -576,7 +461,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
         
         TiStorekitTransaction *trans = [[TiStorekitTransaction alloc] initWithTransaction:transaction pageContext:[self executionContext]];
         [restoredTransactions addObject:trans];
-        [trans release];
     }
     // Nothing special to do for SKPaymentTransactionStatePurchased or SKPaymentTransactionStatePurchasing
 
@@ -590,6 +474,13 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
         // We need to finish the transaction as long as it is not still in progress
         switch (state)
         {
+            case SKPaymentTransactionStatePurchasing:
+                NSLog(@"[DEBUG] Purchasing for %@",transaction);
+                break;
+                
+            case SKPaymentTransactionStateDeferred:
+                NSLog(@"[DEBUG] Deffered transaction for %@",transaction);
+                break;
             case SKPaymentTransactionStatePurchased:
             case SKPaymentTransactionStateFailed:
             case SKPaymentTransactionStateRestored:
@@ -625,7 +516,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     } else {
         NSLog(@"[WARN] No event listener for 'restoredCompletedTransactions' event");
     }
-    RELEASE_TO_NIL(restoredTransactions);
     [self forgetSelf];
 }
 

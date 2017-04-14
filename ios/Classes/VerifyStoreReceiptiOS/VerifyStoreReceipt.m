@@ -561,6 +561,7 @@ BOOL verifyReceiptAtPath(NSString *receiptPath, NSString *bundleVersion, NSStrin
 	NSDictionary *receipt = dictionaryWithAppStoreReceipt(receiptPath);
     
 	if (!receipt) {
+        NSLog(@"[ERROR] Receipt does not exist!");
 		return NO;
     }
     
@@ -581,6 +582,13 @@ BOOL verifyReceiptAtPath(NSString *receiptPath, NSString *bundleVersion, NSStrin
         [hash isEqualToData:[receipt objectForKey:kReceiptHash]]) {
 		return YES;
 	}
+    
+    NSLog(@"[ERROR] Error validating the receipt. Please check that none of the following checks is failing:");
+    NSLog(@"[ERROR] - Bundle-Identifier: %@ == %@", bundleIdentifier, [receipt objectForKey:kReceiptBundleIdentifier]);
+    NSLog(@"[ERROR] - Bundle-Version: %@ == %@", bundleVersion, [receipt objectForKey:kReceiptVersion]);
+    NSLog(@"[ERROR] - Hash: %@ == %@", hash, [receipt objectForKey:kReceiptHash]);
+    
+    NSLog(@"[ERROR] Pleae correct the failing values and try again!");
     
 	return NO;
 }
