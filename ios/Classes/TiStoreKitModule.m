@@ -64,11 +64,6 @@ static TiStorekitModule *sharedInstance;
 
 -(void)_destroy
 {
-    RELEASE_TO_NIL(bundleVersion);
-    RELEASE_TO_NIL(bundleIdentifier);
-    RELEASE_TO_NIL(refreshReceiptCallback);
-    
-    RELEASE_TO_NIL(restoredTransactions);
     self.receiptVerificationSharedSecret = nil;
     [super _destroy];
 }
@@ -113,7 +108,7 @@ static TiStorekitModule *sharedInstance;
 
 -(void)setBundleVersion:(id)value
 {
-    RELEASE_AND_REPLACE(bundleVersion, [TiUtils stringValue:value]);
+    bundleVersion = [TiUtils stringValue:value];
 }
 -(id)bundleVersion
 {
@@ -122,7 +117,7 @@ static TiStorekitModule *sharedInstance;
 
 -(void)setBundleIdentifier:(id)value
 {
-    RELEASE_AND_REPLACE(bundleIdentifier, [TiUtils stringValue:value]);
+    bundleIdentifier = [TiUtils stringValue:value];
 }
 -(id)bundleIdentifier
 {
@@ -155,7 +150,7 @@ static TiStorekitModule *sharedInstance;
 -(TiBlob*)receipt
 {
     NSURL *receiptURL = [self receiptURL];
-    return [[[TiBlob alloc] initWithFile:receiptURL.path] autorelease];
+    return [[TiBlob alloc] initWithFile:receiptURL.path];
 }
 
 -(id)receiptProperties
@@ -184,7 +179,7 @@ static TiStorekitModule *sharedInstance;
     ENSURE_TYPE_OR_NIL(properties, NSDictionary);
     ENSURE_TYPE(callback, KrollCallback);
     
-    RELEASE_AND_REPLACE(refreshReceiptCallback, callback);
+    refreshReceiptCallback = callback;
     
     SKReceiptRefreshRequest *request = [[SKReceiptRefreshRequest alloc] initWithReceiptProperties:properties];
     [request setDelegate:self];
@@ -207,7 +202,7 @@ static TiStorekitModule *sharedInstance;
     NSArray *ids = [args objectAtIndex:0];
     
     NSSet *products = [NSSet setWithArray:ids];
-    return [[[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]] autorelease];
+    return [[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]];
 }
 
 -(void)purchase:(id)args
@@ -310,7 +305,7 @@ static TiStorekitModule *sharedInstance;
         THROW_INVALID_ARG(@"expected receipt data as a Blob object");
     }
     
-    TiStorekitReceiptRequest* request = [[[TiStorekitReceiptRequest alloc] initWithData:data callback:callback pageContext:[self pageContext] productIdentifier:productId quantity:quantity transactionIdentifier:transactionId] autorelease];
+    TiStorekitReceiptRequest* request = [[TiStorekitReceiptRequest alloc] initWithData:data callback:callback pageContext:[self pageContext] productIdentifier:productId quantity:quantity transactionIdentifier:transactionId];
     
     [request verify:sandbox secret:sharedSecret];
     
@@ -406,7 +401,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
             
             TiThreadPerformOnMainThread(^{
                 [[TiApp app] showModalController:alert animated:YES];
-                [alert autorelease];
             }, NO);
         }
     }
@@ -437,7 +431,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     for (SKDownload *download in downloads) {
         TiStorekitDownload *d = [[TiStorekitDownload alloc] initWithDownload:download pageContext:[self pageContext]];
         [dls addObject:d];
-        [d release];
     }
     return dls;
 }
@@ -454,7 +447,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 -(void)fireRefreshReceiptCallbackWithDict:(NSDictionary*)dict
 {
     [self _fireEventToListener:@"callback" withObject:dict listener:refreshReceiptCallback thisObject:nil];
-    RELEASE_TO_NIL_AUTORELEASE(refreshReceiptCallback);
 }
 
 #pragma mark Delegates
@@ -482,7 +474,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
         NSData *receipt = [transaction performSelector:@selector(transactionReceipt)];
         TiBlob *blob = [[TiBlob alloc] initWithData:receipt mimetype:@"text/json"];
         [event setObject:blob forKey:@"receipt"];
-        [blob release];
     }
     
     if (transaction.transactionDate) {
@@ -509,12 +500,10 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     if (transaction.originalTransaction) {
         TiStorekitTransaction *origTrans = [[TiStorekitTransaction alloc] initWithTransaction:transaction.originalTransaction pageContext:[self executionContext]];
         [event setObject:origTrans forKey:@"originalTransaction"];
-        [origTrans release];
     }
     
     TiStorekitTransaction *trans = [[TiStorekitTransaction alloc] initWithTransaction:transaction pageContext:[self executionContext]];
     [event setObject:trans forKey:@"transaction"];
-    [trans release];
 
     return event;
 }
@@ -542,7 +531,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
         
         TiStorekitTransaction *trans = [[TiStorekitTransaction alloc] initWithTransaction:transaction pageContext:[self executionContext]];
         [restoredTransactions addObject:trans];
-        [trans release];
     }
     // Nothing special to do for SKPaymentTransactionStatePurchased or SKPaymentTransactionStatePurchasing
 
@@ -598,7 +586,6 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     } else {
         NSLog(@"[WARN] No event listener for 'restoredCompletedTransactions' event");
     }
-    RELEASE_TO_NIL(restoredTransactions);
     [self forgetSelf];
 }
 

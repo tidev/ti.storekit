@@ -22,7 +22,6 @@
 
 #define KNOWN_TRANSACTIONS_KEY              @"knownIAPTransactions"
 
-static char* base64_encode(const void* buf, size_t size);
 static void * base64_decode(const char* s, size_t * data_len);
 
 @implementation Verifier
@@ -31,12 +30,12 @@ static void * base64_decode(const char* s, size_t * data_len);
 {
     if (self = [super init]) {
         delegate = delegate_;
-        transaction = [transaction_ retain];
+        transaction = transaction_;
 
-        receipt = [[NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]] retain];
-        productIdentifier = [transaction_.payment.productIdentifier retain];
+        receipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+        productIdentifier = transaction_.payment.productIdentifier;
         quantity = transaction_.payment.quantity;
-        transactionIdentifier = [transaction_.transactionIdentifier retain];
+        transactionIdentifier = transaction_.transactionIdentifier;
     }
     
     return self;
@@ -47,25 +46,13 @@ static void * base64_decode(const char* s, size_t * data_len);
     if (self = [super init]) {
         delegate = delegate_;
         
-        receipt = [receipt_ retain];
-        productIdentifier = [productIdentifier_ retain];
+        receipt = receipt_;
+        productIdentifier = productIdentifier_;
         quantity = quantity_;
-        transactionIdentifier = [transactionIdentifier_ retain];
+        transactionIdentifier = transactionIdentifier_;
     }
     
     return self;
-}
-
--(void)dealloc
-{
-    RELEASE_TO_NIL(transaction);
-    RELEASE_TO_NIL(receipt);
-    RELEASE_TO_NIL(productIdentifier);
-    RELEASE_TO_NIL(transactionIdentifier);
-    RELEASE_TO_NIL(originalPurchaseInfoDict);
-    RELEASE_TO_NIL(receivedData);
-    
-    [super dealloc];
 }
 
 -(NSData*)receipt
@@ -206,7 +193,7 @@ static void * base64_decode(const char* s, size_t * data_len);
     NSString *signature             = [receiptDict objectForKey:@"signature"];
     
     // Convert the string into a date
-    NSDateFormatter *dateFormat = [[[NSDateFormatter alloc] init] autorelease];
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
     [dateFormat setDateFormat:@"yyyy-MM-dd HH:mm:ss z"];
     
     NSDate *purchaseDate = [dateFormat dateFromString:[purchaseDateString stringByReplacingOccurrencesOfString:@"Etc/" withString:@""]];
@@ -242,7 +229,7 @@ static void * base64_decode(const char* s, size_t * data_len);
     [self saveTransactionId:transactionId];
     
     // Save the transaction receipt's purchaseInfo in the transactionsReceiptStorageDictionary.
-    originalPurchaseInfoDict = [purchaseInfoDict retain];
+    originalPurchaseInfoDict = purchaseInfoDict;
     
     return YES;
 }
@@ -295,7 +282,7 @@ static void * base64_decode(const char* s, size_t * data_len);
     
     if (![defaults objectForKey:transactionDictionary])
     {
-        [defaults setObject:[[[NSMutableDictionary alloc] init] autorelease] forKey:transactionDictionary];
+        [defaults setObject:[[NSMutableDictionary alloc] init] forKey:transactionDictionary];
         [defaults synchronize];
     }
     
@@ -319,7 +306,7 @@ static void * base64_decode(const char* s, size_t * data_len);
                                        [defaults objectForKey:transactionDictionary]];
     if (!dictionary)
     {
-        dictionary = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithInt:1], transactionId, nil] autorelease];
+        dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithInt:1], transactionId, nil];
     } else {
         [dictionary setObject:[NSNumber numberWithInt:1] forKey:transactionId];
     }
@@ -446,7 +433,7 @@ static void * base64_decode(const char* s, size_t * data_len);
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-	NSString *responseString = [[[NSString alloc] initWithData:receivedData encoding:NSUTF8StringEncoding] autorelease];
+	NSString *responseString = [[NSString alloc] initWithData:receivedData encoding:NSUTF8StringEncoding];
     
 	// So we got some receipt data. Now does it all check out?
 	BOOL isOk = [self doesTransactionInfoMatchReceipt:responseString];
@@ -455,14 +442,12 @@ static void * base64_decode(const char* s, size_t * data_len);
     NSLog(@"[%@] Receipt verified: %@", isOk ? @"INFO" : @"ERROR", isOk ? @"YES" : @"NO");
     
     [delegate verifierDidVerifyPurchase:self isValid:isOk error:error];
-    RELEASE_TO_NIL(conn);
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {    
     NSLog(@"[WARN] Purchase could not be verified with Apple's servers at this time. Reason: %@", [error localizedDescription]);
     [delegate verifierDidFailToVerifyPurchase:self error:error];
-    RELEASE_TO_NIL(conn);
 }
 
 - (void)connection:(NSURLConnection *)connection willSendRequestForAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge
@@ -538,7 +523,7 @@ static void * base64_decode(const char* s, size_t * data_len);
     SecTrustResultType trust_result;
     if ((noErr == SecTrustEvaluate(trust, &trust_result)) && (trust_result == kSecTrustResultUnspecified))
     {
-        NSDictionary *trust_info = (NSDictionary *)SecTrustCopyInfo(trust);
+        NSDictionary *trust_info = (__bridge NSDictionary *)SecTrustCopyInfo(trust);
         id hasEV = [trust_info objectForKey:(__bridge NSString *)kSecTrustInfoExtendedValidationKey];
         trusted =  [hasEV isKindOfClass:[NSValue class]] && [hasEV boolValue];
     }
@@ -754,7 +739,7 @@ BOOL checkReceiptSecurity(NSString *purchase_info_string, NSString *signature_st
     
     CC_SHA1_Init(&sha1_ctx);
     CC_SHA1_Update(&sha1_ctx, &signature_blob_ptr->version, sizeof(signature_blob_ptr->version));
-    CC_SHA1_Update(&sha1_ctx, purchase_info_bytes, purchase_info_length);
+    CC_SHA1_Update(&sha1_ctx, purchase_info_bytes, (CC_LONG)purchase_info_length);
     CC_SHA1_Final(to_be_verified_data, &sha1_ctx);
     
     SecKeyRef receipt_signing_key = SecTrustCopyPublicKey(trust);
@@ -799,7 +784,7 @@ outLabel:
     
     bool result = TiStoBase64EncodeData(input, length, base64Result, &outsize);
     if (result) {
-        str = [[[NSString alloc] initWithBytes:base64Result length:outsize encoding:NSUTF8StringEncoding] autorelease];
+        str = [[NSString alloc] initWithBytes:base64Result length:outsize encoding:NSUTF8StringEncoding];
     }
     free(base64Result);
     
@@ -816,22 +801,11 @@ outLabel:
     
     bool result = TiStoBase64DecodeData([input UTF8String], length, base64Result, &outsize);
     if (result) {
-        str = [[[NSString alloc] initWithBytes:base64Result length:outsize encoding:NSUTF8StringEncoding] autorelease];
+        str = [[NSString alloc] initWithBytes:base64Result length:outsize encoding:NSUTF8StringEncoding];
     }
     free(base64Result);
     
     return str;
-}
-
-char* base64_encode(const void* buf, size_t size)
-{ 
-    size_t outsize = TiStoEstimateBas64EncodedDataSize(size);
-    char *base64Result = malloc(sizeof(char)*outsize);
-    bool result = TiStoBase64EncodeData(buf, size, base64Result, &outsize);
-    if (result) {
-        return base64Result;
-    }
-    return nil;
 }
 
 void * base64_decode(const char* s, size_t * data_len)

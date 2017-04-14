@@ -17,18 +17,11 @@
     if ((self = [super _initWithPageContext:context])) {
         request = [[SKProductsRequest alloc] initWithProductIdentifiers:set];
         request.delegate = self;
-        callback = [callback_ retain];
+        callback = callback_;
         [request performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
         [self rememberSelf];
     }
     return self;
-}
-
--(void)dealloc
-{
-    RELEASE_TO_NIL(request);
-    RELEASE_TO_NIL(callback);
-    [super dealloc];
 }
 
 #pragma mark Public APIs
@@ -40,7 +33,6 @@
         [self forgetSelf];
         [request cancel];
     }
-    RELEASE_TO_NIL(request);
 }
 
 #pragma mark Delegate
@@ -53,7 +45,6 @@
     {
         TiStorekitProduct *p = [[TiStorekitProduct alloc] initWithProduct:product pageContext:[self executionContext]];
         [good addObject:p];
-        [p release];
     }
     
     NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
@@ -66,7 +57,7 @@
         [event setObject:invalid forKey:@"invalid"];
     }
     
-    [self _fireEventToListener:@"callback" withObject:[event autorelease] listener:callback thisObject:nil];
+    [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
     
     [self forgetSelf];
 }

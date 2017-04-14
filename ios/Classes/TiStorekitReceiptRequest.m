@@ -15,17 +15,10 @@
 -(id)initWithData:(NSData*)data callback:(KrollCallback*)callback_ pageContext:(id<TiEvaluator>)context productIdentifier:(NSString*)productIdentifier_ quantity:(NSInteger)quantity_ transactionIdentifier:(NSString*)transactionIdentifier_;
 {
     if ((self = [super _initWithPageContext:context])) {
-        callback = [callback_ retain];
+        callback = callback_;
         verifier = [[Verifier alloc] initWithReceipt:data delegate:self productIdentifer:productIdentifier_ quantity:quantity_ transactionIdentifier:transactionIdentifier_];
     }
     return self;
-}
-
--(void)dealloc
-{
-    RELEASE_TO_NIL(callback);
-    RELEASE_TO_NIL(verifier);
-    [super dealloc];
 }
 
 -(BOOL)verify:(BOOL)sandbox_ secret:(NSString*)secret_
@@ -40,7 +33,6 @@
     
     NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"valid",NUMBOOL(NO),@"success",[TiStorekitModule descriptionFromError:error],@"message",nil];
     [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
-    RELEASE_TO_NIL(verifier);
     
     return NO;
 }
@@ -52,7 +44,6 @@
     if (verifier) {
         [self forgetSelf];
         [verifier cancel];
-        RELEASE_TO_NIL(verifier);
     }
 }
 
@@ -77,7 +68,6 @@
         // an unrecognized data type that it couldn't convert.
         TiBlob *blob = [[TiBlob alloc] initWithData:verifier_.receipt mimetype:@"text/json"];
         [event setObject:blob forKey:@"receipt"];
-        [blob release];
     } else {      
         [event setObject:[TiStorekitModule descriptionFromError:error] forKey:@"message"];
     }
