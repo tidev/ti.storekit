@@ -24,7 +24,7 @@ To access this module from JavaScript, you would do the following:
 ## Testing a Store
 
 #### Note:
-If you are getting this error "The hard-coded bundle version does not match the app's CFBundleShortVersionString." this could be why. 
+If you are getting this error "The hard-coded bundle version does not match the app's `CFBundleVersion`." this could be why. 
 The `bundleVersion` and `bundleIdentifier` properties must be set on the module before calling `validateReceipt`. These values are used as part of the receipt validation process. In Titanium, when a development build is created to run on "device", a timestamp gets appended to the version number. This is done so that iTunes will see it as a new build and will update the app on the device. Because of this change to the version, when validation occurs the version number does not match and validation fails. To get around this issue: 
 
 - Build the app once through Titanium.
@@ -56,6 +56,7 @@ Testing the store must be done on actual devices.
 ## Breaking changes in version 4.0.0
 
 - The `verifyReceipt` method has been removed in favor of `validateReceipt`
+- The `bundleVersion` property now expects the `CFBundleVersion` instead the `CFBundleShortVersionString` as recommended by Apple. 
 - The `PURCHASING`, `PURCHASED`, `FAILED` and `RESTORED` constants have been removed in favor of the `TRANSACTION_STATE_*` prefixed ones.
 - Passing separate arguments `purchase(object, quantity[int, optional])`. Use a dictionary of arguments as seen in the API docs instead.
 - The transaction event key `receipt` will now include a Base 64-encoded string of the receipt instead of a JSON-blob 
@@ -173,6 +174,10 @@ The Apple Inc. Root Certificate is required to validate receipts:
 2. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
 3. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
 
+**Note**: Nowadays, Apple recommends to download the certificate from your app instead of placing it in the Resources. This ensures that the app will 
+always use the most recent one and will also prevent old versions of your app to fail when the AppleIncRootCertificate certificate gets invalidated by
+Apple some day.
+
 Returns a boolean.
 
 ### refreshReceipt(args[object], callback(e){})
@@ -282,7 +287,8 @@ This property should be set to false and `finish` handled manually if any of the
 
 ### bundleVersion[string]
 
-The bundleVersion of the app, used when validating the receipt. It is more secure to set it in the code than to read it out of the bundle. Required when calling `validateReceipt`.
+The bundleVersion of the app, used when validating the receipt. It is more secure to set it in the code than to read it out of the bundle. Required when calling `validateReceipt`. 
+**Important**: In versions prior to 4.0.0, this property expected a value that matches `CFBundleShortVersionString`, but Apple nowadays recommends using the value of `CFBundleVersion` instead. Passing the old value isn't supposed to fail, but if both have different values, the module will warn you and throw an error. 
 
 ### bundleIdentifier[string]
 

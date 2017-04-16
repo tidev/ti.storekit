@@ -12,7 +12,7 @@
 
 @implementation TiStorekitProductRequest
 
--(id)initWithProductIdentifiers:(NSSet*)set callback:(KrollCallback*)callback_ pageContext:(id<TiEvaluator>)context
+- (id)initWithProductIdentifiers:(NSSet *)set callback:(KrollCallback *)callback_ pageContext:(id<TiEvaluator>)context
 {
     if ((self = [super _initWithPageContext:context])) {
         request = [[SKProductsRequest alloc] initWithProductIdentifiers:set];
@@ -26,10 +26,9 @@
 
 #pragma mark Public APIs
 
--(void)cancel:(id)args
+- (void)cancel:(id)args
 {
-    if (request!=nil)
-    {
+    if (request != nil) {
         [self forgetSelf];
         [request cancel];
     }
@@ -58,7 +57,6 @@
     }
     
     [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
-    
     [self forgetSelf];
 }
 

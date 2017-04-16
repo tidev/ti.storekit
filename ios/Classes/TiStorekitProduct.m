@@ -11,7 +11,7 @@
 
 @implementation TiStorekitProduct
 
--(id)initWithProduct:(SKProduct*)product_ pageContext:(id<TiEvaluator>)context
+- (id)initWithProduct:(SKProduct *)product_ pageContext:(id<TiEvaluator>)context
 {
     if (self = [super _initWithPageContext:context]) {
         product = product_;
@@ -19,29 +19,29 @@
     return self;
 }
 
--(SKProduct*)product
+- (SKProduct *)product
 {
     return product;
 }
 
 #pragma mark Public APIs
 
--(NSString*)description 
+- (NSString *)description
 {
     return [product localizedDescription];
 }
 
--(NSString*)title
+- (NSString *)title
 {
     return [product localizedTitle];
 }
 
--(NSDecimalNumber*)price
+- (NSDecimalNumber *)price
 {
     return [product price];
 }
 
--(NSString*)formattedPrice
+- (NSString*)formattedPrice
 {
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
@@ -52,27 +52,27 @@
     return formattedString;
 }
 
--(NSString*)locale
+- (NSString *)locale
 {
     return [[product priceLocale] localeIdentifier];
 }
 
--(NSString*)identifier
+- (NSString *)identifier
 {
     return [product productIdentifier];
 }
 
--(id)downloadable
+- (id)downloadable
 {
     return NUMBOOL([product isDownloadable]);
 }
 
--(NSArray*)downloadContentLengths
+- (NSArray *)downloadContentLengths
 {
     return [product downloadContentLengths];
 }
 
--(NSString*)downloadContentVersion
+- (NSString *)downloadContentVersion
 {
     return [product downloadContentVersion];
 }

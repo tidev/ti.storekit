@@ -16,6 +16,6 @@
     SKProductsRequest* request;
 }
 
--(id)initWithProductIdentifiers:(NSSet*)set callback:(KrollCallback*)callback pageContext:(id<TiEvaluator>)context;
+- (id)initWithProductIdentifiers:(NSSet *)set callback:(KrollCallback *)callback pageContext:(id<TiEvaluator>)context;
 
 @end
