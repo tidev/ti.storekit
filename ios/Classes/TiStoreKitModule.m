@@ -22,7 +22,8 @@
 @synthesize receiptVerificationSharedSecret;
 
 static TiStorekitModule *sharedInstance;
-+(TiStorekitModule*)sharedInstance
+
++ (TiStorekitModule *)sharedInstance
 {
     return sharedInstance;
 }
@@ -30,20 +31,20 @@ static TiStorekitModule *sharedInstance;
 #pragma mark Internal
 
 // this is generated for your module, please do not change it
--(id)moduleGUID
+- (id)moduleGUID
 {
     return @"67fdca33-590b-498d-bd4e-1fc3a8be0f37";
 }
 
 // this is generated for your module, please do not change it
--(NSString*)moduleId
+- (NSString *)moduleId
 {
     return @"ti.storekit";
 }
 
 #pragma mark Lifecycle
 
--(void)startup
+- (void)startup
 {
     [super startup];
     
@@ -55,13 +56,13 @@ static TiStorekitModule *sharedInstance;
     transactionObserverSet = NO;
 }
 
--(void)shutdown:(id)sender
+- (void)shutdown:(id)sender
 {
     [self removeTransactionObserver:nil];
     [super shutdown:sender];
 }
 
--(void)_destroy
+- (void)_destroy
 {
     self.receiptVerificationSharedSecret = nil;
     [super _destroy];
@@ -69,7 +70,7 @@ static TiStorekitModule *sharedInstance;
 
 #pragma mark Public APIs
 
--(void)addTransactionObserver:(id)args
+- (void)addTransactionObserver:(id)args
 {
     [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
     transactionObserverSet = YES;
@@ -90,46 +91,49 @@ static TiStorekitModule *sharedInstance;
     [self failIfSimulator];
 }
 
--(void)removeTransactionObserver:(id)args
+- (void)removeTransactionObserver:(id)args
 {
     [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
     transactionObserverSet = NO;
 }
 
--(void)setAutoFinishTransactions:(id)value
+- (void)setAutoFinishTransactions:(id)value
 {
     autoFinishTransactions = [TiUtils boolValue:value];
 }
--(id)autoFinishTransactions
+
+- (id)autoFinishTransactions
 {
     return NUMBOOL(autoFinishTransactions);
 }
 
--(void)setBundleVersion:(id)value
+- (void)setBundleVersion:(id)value
 {
     bundleVersion = [TiUtils stringValue:value];
 }
--(id)bundleVersion
+
+- (id)bundleVersion
 {
     return bundleVersion;
 }
 
--(void)setBundleIdentifier:(id)value
+- (void)setBundleIdentifier:(id)value
 {
     bundleIdentifier = [TiUtils stringValue:value];
 }
--(id)bundleIdentifier
+
+- (id)bundleIdentifier
 {
     return bundleIdentifier;
 }
 
--(id)receiptExists
+- (id)receiptExists
 {
     NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
     return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]);
 }
 
--(id)validateReceipt:(id)args
+- (id)validateReceipt:(id)args
 {
     // If the receipt is missing, verifyReceiptAtPath will always return false.
     // Adding a check here to assist with troubleshooting.
@@ -146,13 +150,13 @@ static TiStorekitModule *sharedInstance;
     return NUMBOOL(verifyReceiptAtPath(receiptURL.path, bundleVersion, bundleIdentifier));
 }
 
--(TiBlob*)receipt
+- (TiBlob *)receipt
 {
     NSURL *receiptURL = [self receiptURL];
     return [[TiBlob alloc] initWithFile:receiptURL.path];
 }
 
--(id)receiptProperties
+- (id)receiptProperties
 {
     NSURL *receiptURL = [self receiptURL];
     NSMutableDictionary *receiptDict = [NSMutableDictionary dictionaryWithDictionary:dictionaryWithAppStoreReceipt(receiptURL.path)];
@@ -161,7 +165,7 @@ static TiStorekitModule *sharedInstance;
     return receiptDict;
 }
 
--(void)refreshReceipt:(id)args
+- (void)refreshReceipt:(id)args
 {
     // Accepted properties are taken from
     // https://developer.apple.com/library/ios/documentation/StoreKit/Reference/SKReceiptRefreshRequest_ClassRef/SKReceiptRefreshRequest.html
@@ -185,7 +189,7 @@ static TiStorekitModule *sharedInstance;
     [request start];
 }
 
--(id)requestProducts:(id)args
+- (id)requestProducts:(id)args
 {
     ENSURE_ARG_COUNT(args,2);
     
@@ -204,7 +208,7 @@ static TiStorekitModule *sharedInstance;
     return [[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]];
 }
 
--(void)purchase:(id)args
+- (void)purchase:(id)args
 {
     TiStorekitProduct *product;
     int quantity;
@@ -236,42 +240,48 @@ static TiStorekitModule *sharedInstance;
     }
 }
 
--(id)canMakePayments
+- (id)canMakePayments
 {
     return NUMBOOL([SKPaymentQueue canMakePayments]);
 }
 
--(id)receiptVerificationSandbox
+- (id)receiptVerificationSandbox
 {
     return NUMBOOL(receiptVerificationSandbox);
 }
 
--(void)setReceiptVerificationSandbox:(id)value
+- (void)setReceiptVerificationSandbox:(id)value
 {
     receiptVerificationSandbox = [TiUtils boolValue:value def:NO];
 }
 
--(void)restoreCompletedTransactions:(id)unused
+- (void)restoreCompletedTransactions:(id)args
 {
     [self rememberSelf];
-    [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    
+    if ([args isKindOfClass:[NSDictionary class]]) {
+        NSString *username = [args objectForKey:@"username"];
+        [[SKPaymentQueue defaultQueue] restoreCompletedTransactionsWithApplicationUsername:username];
+    } else {
+        [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
+    }
     
     if (!transactionObserverSet) {
         [self logAddTransactionObserverFirst:@"restoreCompletedTransactions"];
     }
 }
 
--(void)restoreCompletedTransactionsWithApplicationUsername:(id)value
+- (void)restoreCompletedTransactionsWithApplicationUsername:(id)value
 {
-    [[SKPaymentQueue defaultQueue] restoreCompletedTransactionsWithApplicationUsername:[TiUtils stringValue:value]];
-
-    if (!transactionObserverSet) {
-        [self logAddTransactionObserverFirst:@"restoreCompletedTransactions"];
-    }
+    ENSURE_SINGLE_ARG(value, NSString);
+    
+    DEPRECATED_REPLACED(@"StoreKit.restoreCompletedTransactionsWithApplicationUsername", @"4.0.1", @"restoreCompletedTransactions({username: 'username'})");
+    [self restoreCompletedTransactions:@[@{@"username": value}]];    
 }
 
 #define MAKE_DOWNLOAD_CONTROL_METHOD(name) \
--(void)name:(id)args \
+- (void)name:(id)args \
 { \
     if (autoFinishTransactions) { \
     [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
@@ -299,18 +309,18 @@ MAKE_SYSTEM_PROP(TRANSACTION_STATE_RESTORED, SKPaymentTransactionStateRestored);
 MAKE_SYSTEM_PROP(TRANSACTION_STATE_DEFERRED, SKPaymentTransactionStateDeferred);
 
 // Download States
-MAKE_SYSTEM_PROP(DOWNLOAD_STATE_WAITING,0);
-MAKE_SYSTEM_PROP(DOWNLOAD_STATE_ACTIVE,1);
-MAKE_SYSTEM_PROP(DOWNLOAD_STATE_PAUSED,2);
-MAKE_SYSTEM_PROP(DOWNLOAD_STATE_FINISHED,3);
-MAKE_SYSTEM_PROP(DOWNLOAD_STATE_FAILED,4);
-MAKE_SYSTEM_PROP(DOWNLOAD_STATE_CANCELLED,5);
+MAKE_SYSTEM_PROP(DOWNLOAD_STATE_WAITING, SKDownloadStateWaiting);
+MAKE_SYSTEM_PROP(DOWNLOAD_STATE_ACTIVE, SKDownloadStateActive);
+MAKE_SYSTEM_PROP(DOWNLOAD_STATE_PAUSED, SKDownloadStatePaused);
+MAKE_SYSTEM_PROP(DOWNLOAD_STATE_FINISHED, SKDownloadStateFinished);
+MAKE_SYSTEM_PROP(DOWNLOAD_STATE_FAILED, SKDownloadStateFailed);
+MAKE_SYSTEM_PROP(DOWNLOAD_STATE_CANCELLED, SKDownloadStateCancelled);
 
 MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 
 #pragma mark Utils
 
-+(NSString*)descriptionFromError:(NSError*)error
++ (NSString *)descriptionFromError:(NSError *)error
 {
     if ([error localizedDescription] == nil) {
         return @"Unknown error";
@@ -318,7 +328,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     return [error localizedDescription];
 }
 
--(void)failIfSimulator
+- (void)failIfSimulator
 {
     if ([[[UIDevice currentDevice] model] rangeOfString:@"Simulator"].location != NSNotFound) {
         NSString *msg = @"StoreKit will not work on the iOS Simulator. It must be tested on device.";
@@ -340,17 +350,17 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     }
 }
 
--(void)logAddListenerFirst:(NSString*)name
+- (void)logAddListenerFirst:(NSString *)name
 {
     NSLog(@"[WARN] A `%@` event listener should be added before calling `addTransactionObserver` to avoid missing events.", name);
 }
 
--(void)logAddTransactionObserverFirst:(NSString*)name
+- (void)logAddTransactionObserverFirst:(NSString *)name
 {
     NSLog(@"[WARN] `addTransactionObserver` should be called before `%@`.", name);
 }
 
--(NSURL*)receiptURL
+- (NSURL *)receiptURL
 {
     NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
     if (![[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]) {
@@ -359,7 +369,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     return receiptURL;
 }
 
--(NSArray*)tiDownloadsFromSKDownloads:(NSArray*)downloads
+- (NSArray *)tiDownloadsFromSKDownloads:(NSArray *)downloads
 {
     NSMutableArray *dls = [NSMutableArray arrayWithCapacity:[downloads count]];
     for (SKDownload *download in downloads) {
@@ -369,7 +379,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     return dls;
 }
 
--(NSArray*)skDownloadsFromTiDownloads:(NSArray*)downloads
+- (NSArray *)skDownloadsFromTiDownloads:(NSArray *)downloads
 {
     NSMutableArray *dls = [NSMutableArray arrayWithCapacity:[downloads count]];
     for (TiStorekitDownload *download in downloads) {
@@ -378,7 +388,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     return dls;
 }
 
--(void)fireRefreshReceiptCallbackWithDict:(NSDictionary*)dict
+- (void)fireRefreshReceiptCallbackWithDict:(NSDictionary *)dict
 {
     [self _fireEventToListener:@"callback" withObject:dict listener:refreshReceiptCallback thisObject:nil];
 }
@@ -395,7 +405,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     }
 }
 
--(NSMutableDictionary*)populateTransactionEvent:(SKPaymentTransaction*)transaction
+- (NSMutableDictionary *)populateTransactionEvent:(SKPaymentTransaction *)transaction
 {
     NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                   NUMINT(transaction.transactionState),@"state",
@@ -438,7 +448,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
     return event;
 }
 
--(void)handleTransaction:(SKPaymentTransaction*)transaction error:(NSError*)error
+- (void)handleTransaction:(SKPaymentTransaction *)transaction error:(NSError *)error
 {
     SKPaymentTransactionState state = transaction.transactionState;
     NSMutableDictionary *event = [self populateTransactionEvent:transaction];
@@ -494,7 +504,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 }
 
 // Sent when an error is encountered while adding transactions from the user's purchase history back to the queue.
--(void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error
+- (void)paymentQueue:(SKPaymentQueue *)queue restoreCompletedTransactionsFailedWithError:(NSError *)error
 {
     NSLog(@"[ERROR] Failed to restore all completed transactions: %@",error);
     if ([self _hasListeners:@"restoredCompletedTransactions"]) {
@@ -507,7 +517,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 }
 
 // Sent when all transactions from the user's purchase history have successfully been added back to the queue.
--(void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
+- (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
 {
     NSLog(@"[INFO] Finished restoring completed transactions!");
     if ([self _hasListeners:@"restoredCompletedTransactions"]) {
@@ -520,7 +530,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 }
 
 // Sent when there is progress with a download
--(void)paymentQueue:(SKPaymentQueue *)queue updatedDownloads:(NSArray *)downloads
+- (void)paymentQueue:(SKPaymentQueue *)queue updatedDownloads:(NSArray *)downloads
 {
     if ([self _hasListeners:@"updatedDownloads"]) {
         NSArray *dls = [self tiDownloadsFromSKDownloads:downloads];
@@ -536,7 +546,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 #pragma mark SKRequestDelegate
 
 // Sent if a refreshReceipt request finishes successfully
--(void)requestDidFinish:(SKRequest *)request
+- (void)requestDidFinish:(SKRequest *)request
 {
     NSLog(@"[INFO] Finished refreshing receipt!");
     
@@ -549,7 +559,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 }
 
 // Sent if there is an error as a result of calling refreshReceipt
--(void)request:(SKRequest *)request didFailWithError:(NSError *)error
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
     NSLog(@"[ERROR] Failed to refresh receipt: %@",error);
     

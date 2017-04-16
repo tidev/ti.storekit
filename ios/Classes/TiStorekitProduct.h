@@ -13,8 +13,8 @@
     SKProduct *product;
 }
 
--(id)initWithProduct:(SKProduct*)product pageContext:(id<TiEvaluator>)context;
+- (id)initWithProduct:(SKProduct *)product pageContext:(id<TiEvaluator>)context;
 
--(SKProduct*)product;
+- (SKProduct *)product;
 
 @end

@@ -13,7 +13,7 @@
     SKPaymentTransaction *transaction;
 }
 
--(id)initWithTransaction:(SKPaymentTransaction*)transaction_ pageContext:(id<TiEvaluator>)context;
--(void)finish:(id)args;
+- (id)initWithTransaction:(SKPaymentTransaction *)transaction_ pageContext:(id<TiEvaluator>)context;
+- (void)finish:(id)args;
 
 @end

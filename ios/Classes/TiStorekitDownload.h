@@ -13,17 +13,17 @@
     SKDownload *download;
 }
 
--(id)initWithDownload:(SKDownload*)download pageContext:(id<TiEvaluator>)context;
+- (id)initWithDownload:(SKDownload *)download pageContext:(id<TiEvaluator>)context;
 
--(SKDownload*)download;
+- (SKDownload* )download;
 
--(id)contentIdentifier;
--(id)contentURL;
--(id)contentVersion;
--(id)contentLength;
--(id)downloadState;
--(id)error;
--(id)progress;
--(id)timeRemaining;
+- (id)contentIdentifier;
+- (id)contentURL;
+- (id)contentVersion;
+- (id)contentLength;
+- (id)downloadState;
+- (id)error;
+- (id)progress;
+- (id)timeRemaining;
 
 @end

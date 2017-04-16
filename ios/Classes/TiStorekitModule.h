@@ -37,9 +37,9 @@
 
 @property(nonatomic,copy) NSString* receiptVerificationSharedSecret;
 
-+(TiStorekitModule*)sharedInstance;
-+(NSString*)descriptionFromError:(NSError*)error;
--(NSArray*)tiDownloadsFromSKDownloads:(NSArray*)downloads;
--(NSArray*)skDownloadsFromTiDownloads:(NSArray*)downloads;
++ (TiStorekitModule *)sharedInstance;
++ (NSString *)descriptionFromError:(NSError *)error;
+- (NSArray *)tiDownloadsFromSKDownloads:(NSArray *)downloads;
+- (NSArray *)skDownloadsFromTiDownloads:(NSArray *)downloads;
 
 @end

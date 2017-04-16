@@ -13,7 +13,7 @@
 
 #pragma mark Internal
 
--(id)initWithTransaction:(SKPaymentTransaction*)transaction_ pageContext:(id<TiEvaluator>)context
+- (id)initWithTransaction:(SKPaymentTransaction *)transaction_ pageContext:(id<TiEvaluator>)context
 {
     if (self = [super _initWithPageContext:context]) {
         transaction = transaction_;
@@ -30,7 +30,7 @@ if (!name) { \
 
 #pragma mark Public API
 
--(void)finish:(id)args
+- (void)finish:(id)args
 {
     NSLog(@"[DEBUG] Transaction finished %@",transaction);
     
@@ -40,63 +40,57 @@ if (!name) { \
     [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 }
 
--(id)state
+- (id)state
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return NUMINT(transaction.transactionState);
 }
 
--(id)date
+- (id)date
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.transactionDate;
 }
 
--(id)identifier
+- (id)identifier
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.transactionIdentifier;
 }
 
--(id)downloads
+- (id)downloads
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.downloads ? [[TiStorekitModule sharedInstance] tiDownloadsFromSKDownloads:transaction.downloads] : nil;
 }
 
--(id)originalTransaction
+- (id)originalTransaction
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.originalTransaction ? [[TiStorekitTransaction alloc] initWithTransaction:transaction.originalTransaction pageContext:[self pageContext]] : nil;
 }
 
--(id)receipt
+- (id)receipt
 {
-    // Here for backwards compatibility
-    // Can be removed when support for iOS 6 is dropped and verifyReceipt is removed.
-    if ([transaction respondsToSelector:@selector(transactionReceipt)] &&
-        [transaction performSelector:@selector(transactionReceipt)]) {
-        NSData *receipt = [transaction performSelector:@selector(transactionReceipt)];
-        TiBlob *blob = [[TiBlob alloc] initWithData:receipt mimetype:@"text/json"];
-        return blob;
-    } else {
-        return nil;
-    }
+    NSData *dataReceipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
+    
+    RETURN_UNDEFINED_IF_NIL(dataReceipt);
+    return [dataReceipt base64EncodedStringWithOptions:0];
 }
 
--(id)quantity
+- (id)quantity
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.payment ? NUMINTEGER(transaction.payment.quantity) : nil;
 }
 
--(id)productIdentifier
+- (id)productIdentifier
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.payment ? transaction.payment.productIdentifier : nil;
 }
 
--(id)applicationUsername
+- (id)applicationUsername
 {
     RETURN_UNDEFINED_IF_NIL(transaction);
     return transaction.payment ? transaction.payment.applicationUsername : nil;

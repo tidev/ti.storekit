@@ -11,7 +11,7 @@
 
 @implementation TiStorekitDownload
 
--(id)initWithDownload:(SKDownload*)download_ pageContext:(id<TiEvaluator>)context
+- (id)initWithDownload:(SKDownload *)download_ pageContext:(id<TiEvaluator>)context
 {
     if (self = [super _initWithPageContext:context]) {
         download = download_;
@@ -19,7 +19,7 @@
     return self;
 }
 
--(SKDownload*)download
+- (SKDownload *)download
 {
     return download;
 }
@@ -41,17 +41,17 @@
     return [download contentVersion];
 }
 
--(id)contentLength
+- (id)contentLength
 {
     return NUMLONGLONG([download contentLength]);
 }
 
--(id)downloadState
+- (id)downloadState
 {
     return NUMINT([download downloadState]);
 }
 
--(id)error
+- (id)error
 {
     NSError *error = [download error];
     if (!error) {
@@ -60,17 +60,17 @@
     return [TiStorekitModule descriptionFromError:error];
 }
 
--(id)progress
+- (id)progress
 {
     return NUMFLOAT([download progress]);
 }
 
--(id)timeRemaining
+- (id)timeRemaining
 {
-    return NUMDOUBLE([download timeRemaining]/1000);
+    return NUMDOUBLE([download timeRemaining] / 1000);
 }
 
--(TiStorekitTransaction*)transaction
+- (TiStorekitTransaction *)transaction
 {
     return [[TiStorekitTransaction alloc] initWithTransaction:[download transaction] pageContext:[self pageContext]];
 }

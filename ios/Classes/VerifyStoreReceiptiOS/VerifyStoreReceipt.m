@@ -542,7 +542,7 @@ NSArray *obtainInAppPurchases(NSString *receiptPath) {
 BOOL verifyReceiptAtPath(NSString *receiptPath, NSString *bundleVersion, NSString *bundleIdentifier) {
 	// it turns out, it's a bad idea, to use these two NSBundle methods in your app:
 	//
-	// bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+	// bundleVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
 	// bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
 	//
 	// http://www.craftymind.com/2011/01/06/mac-app-store-hacked-how-developers-can-better-protect-themselves/
@@ -554,8 +554,8 @@ BOOL verifyReceiptAtPath(NSString *receiptPath, NSString *bundleVersion, NSStrin
     //	NSString *bundleIdentifier = (NSString*)global_bundleIdentifier;
 
 	// avoid making stupid mistakes --> check again
-	NSCAssert([bundleVersion isEqualToString:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]],
-              @"The hard-coded bundle version does not match the app's CFBundleShortVersionString.");
+	NSCAssert([bundleVersion isEqualToString:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]],
+              @"The hard-coded bundle version does not match the app's CFBundleVersion.");
 	NSCAssert([bundleIdentifier isEqualToString:[[NSBundle mainBundle] bundleIdentifier]],
               @"The hard-coded bundle identifier does not match the app's bundle identifier.");
 	NSDictionary *receipt = dictionaryWithAppStoreReceipt(receiptPath);

@@ -205,8 +205,13 @@ Storekit.addEventListener('transactionState', function(evt) {
             break;
         case Storekit.TRANSACTION_STATE_PURCHASED:
 
-            // Receive the receipt and decode it
-            var receiptB64String = Ti.Utils.base64encode(evt.receipt).text;
+            // Receive the receipt
+            var receiptB64String = evt.receipt;
+            
+            if (receiptB64String) {
+                Ti.API.info('Receipt Data (Base64):');
+                Ti.API.info(receiptB64String);                
+            }
 
             if (verifyingReceipts) {
                 var msg = Storekit.validateReceipt() ? 'Receipt is Valid!' : 'Receipt is Invalid.';
