@@ -35,8 +35,6 @@
 
 @property(nonatomic,readonly) NSNumber *DOWNLOAD_TIME_REMAINING_UNKNOWN;
 
-@property(nonatomic,copy) NSString* receiptVerificationSharedSecret;
-
 + (TiStorekitModule *)sharedInstance;
 + (NSString *)descriptionFromError:(NSError *)error;
 - (NSArray *)tiDownloadsFromSKDownloads:(NSArray *)downloads;
