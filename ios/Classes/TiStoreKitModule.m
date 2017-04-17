@@ -19,8 +19,6 @@
 
 @implementation TiStorekitModule
 
-@synthesize receiptVerificationSharedSecret;
-
 static TiStorekitModule *sharedInstance;
 
 + (TiStorekitModule *)sharedInstance
@@ -49,7 +47,6 @@ static TiStorekitModule *sharedInstance;
     [super startup];
     
     receiptVerificationSandbox = NO;
-    self.receiptVerificationSharedSecret = nil;
     
     sharedInstance = self;
     autoFinishTransactions = YES;
@@ -60,12 +57,6 @@ static TiStorekitModule *sharedInstance;
 {
     [self removeTransactionObserver:nil];
     [super shutdown:sender];
-}
-
-- (void)_destroy
-{
-    self.receiptVerificationSharedSecret = nil;
-    [super _destroy];
 }
 
 #pragma mark Public APIs
