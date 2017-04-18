@@ -8,7 +8,7 @@ The Storekit module allows you access to Apple's in-app purchasing mechanisms.
 
 Read our Wiki page to get started quickly:
 
-[http://wiki.appcelerator.org/display/guides/StoreKit+Module+In-App+Purchase+Testing](http://wiki.appcelerator.org/display/guides/StoreKit+Module+In-App+Purchase+Testing)
+[StoreKit Module In-App Purchase Testing](https://wiki.appcelerator.org/pages/viewpage.action?pageId=27591081)
 
 ## Getting Started
 
