@@ -8,7 +8,7 @@
 #import "TiModule.h"
 #import <StoreKit/StoreKit.h>
 
-@interface TiStorekitModule : TiModule <SKPaymentTransactionObserver, SKRequestDelegate>
+@interface TiStorekitModule : TiModule <SKPaymentTransactionObserver, SKRequestDelegate, SKCloudServiceSetupViewControllerDelegate, SKStoreProductViewControllerDelegate>
 {
 @private
     NSMutableArray *restoredTransactions;
@@ -39,5 +39,8 @@
 + (NSString *)descriptionFromError:(NSError *)error;
 - (NSArray *)tiDownloadsFromSKDownloads:(NSArray *)downloads;
 - (NSArray *)skDownloadsFromTiDownloads:(NSArray *)downloads;
+- (void)showProductDialog:(id)args;
+- (void)showCloudSetupDialog:(id)args;
+- (void)requestReviewDialog:(id)unused;
 
 @end

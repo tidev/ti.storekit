@@ -1,5 +1,13 @@
 # Change Log
 <pre>
+v4.1.0  Support for `requestReviewDialog()`
+        Support for `showProductDialog()`
+        Support for `showCloudSetupDialog()`
+        Update OpenSSL to 1.0.2k
+
+v4.0.1  Return the `receipt` as a String using the recommended `[NSBundle appstoreReceiptURL]` method
+        Use the `CFBundleVersion` instead of `CFBundleShortVersionString` as recommended by Apple
+
 v4.0.0  Build with latest Ti.SDK 6.0.3.GA
         Add documentation on how to recode the receipt blob, 
         Support the new `restoreCompletedTransactionsWithApplicationUsername` method.

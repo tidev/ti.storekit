@@ -116,6 +116,8 @@
 		DB0CAEE21EA600EB00AE8D56 /* x509_vfy.h in Headers */ = {isa = PBXBuildFile; fileRef = DB0CAE971EA600EB00AE8D56 /* x509_vfy.h */; };
 		DB0CAEE31EA600EB00AE8D56 /* x509.h in Headers */ = {isa = PBXBuildFile; fileRef = DB0CAE981EA600EB00AE8D56 /* x509.h */; };
 		DB0CAEE41EA600EB00AE8D56 /* x509v3.h in Headers */ = {isa = PBXBuildFile; fileRef = DB0CAE991EA600EB00AE8D56 /* x509v3.h */; };
+		DB0CAF321EA62C8100AE8D56 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB0CAF301EA62C8100AE8D56 /* libcrypto.a */; };
+		DB0CAF331EA62C8100AE8D56 /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB0CAF311EA62C8100AE8D56 /* libssl.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -225,6 +227,8 @@
 		DB0CAE971EA600EB00AE8D56 /* x509_vfy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509_vfy.h; sourceTree = "<group>"; };
 		DB0CAE981EA600EB00AE8D56 /* x509.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509.h; sourceTree = "<group>"; };
 		DB0CAE991EA600EB00AE8D56 /* x509v3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x509v3.h; sourceTree = "<group>"; };
+		DB0CAF301EA62C8100AE8D56 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = openssl/libcrypto.a; sourceTree = "<group>"; };
+		DB0CAF311EA62C8100AE8D56 /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libssl.a; path = openssl/libssl.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +240,8 @@
 				A22AF52615F68B4600CA12E4 /* Security.framework in Frameworks */,
 				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
 				249D3D8211EA844500464980 /* StoreKit.framework in Frameworks */,
+				DB0CAF321EA62C8100AE8D56 /* libcrypto.a in Frameworks */,
+				DB0CAF331EA62C8100AE8D56 /* libssl.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +270,8 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DB0CAF301EA62C8100AE8D56 /* libcrypto.a */,
+				DB0CAF311EA62C8100AE8D56 /* libssl.a */,
 				A22AF52715F69B4000CA12E4 /* UIKit.framework */,
 				A22AF52515F68B4600CA12E4 /* Security.framework */,
 				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
@@ -589,7 +597,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DSTROOT = /tmp/TiStorekit.dst;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -611,6 +619,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					openssl,
+					"$(PROJECT_DIR)/openssl",
 				);
 				OTHER_CFLAGS = (
 					"-DDEBUG",
@@ -635,7 +644,7 @@
 				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				DSTROOT = /tmp/TiStorekit.dst;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -658,6 +667,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					openssl,
+					"$(PROJECT_DIR)/openssl",
 				);
 				OTHER_CFLAGS = "-DTI_POST_1_2";
 				OTHER_LDFLAGS = "-ObjC";

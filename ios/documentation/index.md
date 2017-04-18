@@ -88,7 +88,7 @@ Testing the store must be done on actual devices.
 - An alert dialog warning will now be shown when run in the simulator. This dialog can be disabled by setting the `suppressSimulatorWarning` property on the module to true.
 
 ### Apple Hosted Purchases
-Apple hosted in app purchases can now be downloaded. This is supported in iOS 6.0 and later.  Must be [Non-Consumable Purchases](https://developer.apple.com/library/ios/documentation/LanguagesUtilities/Conceptual/iTunesConnect_Guide/13_ManagingIn-AppPurchases/ManagingIn-AppPurchases.html#//apple_ref/doc/uid/TP40011225-CH4-SW37) to be hosted by Apple. This guide will assist with [Creating App Store Hosted Content](https://github.com/appcelerator-modules/ti.storekit/wiki/Creating-App-Store-Hosted-Content).
+Apple hosted in app purchases can now be downloaded. Must be [Non-Consumable Purchases](https://developer.apple.com/library/ios/documentation/LanguagesUtilities/Conceptual/iTunesConnect_Guide/13_ManagingIn-AppPurchases/ManagingIn-AppPurchases.html#//apple_ref/doc/uid/TP40011225-CH4-SW37) to be hosted by Apple. This guide will assist with [Creating App Store Hosted Content](https://github.com/appcelerator-modules/ti.storekit/wiki/Creating-App-Store-Hosted-Content).
 
 ### Warning
 This module uses open source code for parsing and validating the receipt. It is recommended by Apple that users not use common code to do this as it will make it easier to crack your app. Please make appropriate changes to the receipt verification code in the module to make your implementation unique and less vulnerable to attack. We cannot do this for you or offer recommendations regarding how it should be done due to aforementioned reasons.
@@ -227,8 +227,6 @@ Takes one argument, a dictionary with the following values:
 
 **Note:** `autoFinishTransactions` must be false for download functionality to work.
 
-**Note:** Available in iOS 6.0 and later.
-
 ### cancelDownloads(args[object])
 
 Removes a set of downloads from the download list.
@@ -238,8 +236,6 @@ Takes one argument, a dictionary with the following values:
 * downloads[array<[Ti.Storekit.Download][]>]: An array of download objects to cancel.
 
 **Note:** `autoFinishTransactions` must be false for download functionality to work.
-
-**Note:** Available in iOS 6.0 and later.
 
 ### pauseDownloads(args[object])
 
@@ -251,8 +247,6 @@ Takes one argument, a dictionary with the following values:
 
 **Note:** `autoFinishTransactions` must be false for download functionality to work.
 
-**Note:** Available in iOS 6.0 and later.
-
 ### resumeDownloads(args[object])
 
 Resumes a set of downloads.
@@ -263,7 +257,33 @@ Takes one argument, a dictionary with the following values:
 
 **Note:** `autoFinishTransactions` must be false for download functionality to work.
 
-**Note:** Available in iOS 6.0 and later.
+### showProductDialog(args[object])
+
+Shows an App Store product dialog. To choose a specific product, pass the iTunes item identifier 
+for the item you want to sell. Valid keys are:
+  * id (`SKStoreProductParameterITunesItemIdentifier`)
+  * at (`SKStoreProductParameterAffiliateToken`)
+  * ct (`SKStoreProductParameterCampaignToken`)
+  * pt (`SKStoreProductParameterProviderToken`)
+  * advp (`SKStoreProductParameterAdvertisingPartnerToken`)
+
+You can read more about valid key-value pairs [here](https://developer.apple.com/reference/storekit/skstoreproductviewcontroller/product_dictionary_keys).
+
+### showCloudSetupDialog
+
+A dialog that helps users perform setup for a cloud service, such as an Apple Music subscription. Valid keys are:
+  * action
+  * iTunesItemIdentifier
+  * affiliateTokenKey
+  * campainTokenKey
+
+You can read more about valid key-value pairs [here](https://developer.apple.com/reference/storekit/skcloudservicesetupoptionskey).
+
+### requestReviewDialog
+
+Controls the process of requesting App Store ratings and reviews from users. Calling this method will 
+tell StoreKit to ask the user to rate or review your app, if appropriate. Important: Because of that,
+the user might not see a dialog although requested, so do not store properties based on showing this dialog.
 
 ## Properties
 
@@ -424,16 +444,13 @@ Occurs when one or more downloads are updated. The following event information w
 
 * downloads[array<[Ti.Storekit.Download][]>]: The downloads that were updated.
 
-**Note:** Available in iOS 6.0 and later.
-
-
 ## Usage
 
 See example.
 
 ## Author
 
-Jeff Haynie, Jeff English, & Jon Alter
+Jeff Haynie, Jeff English, Jon Alter & Hans Knöchel.
 
 ## Module History
 
@@ -441,11 +458,11 @@ View the [change log](changelog.html) for this module.
 
 ## Feedback and Support
 
-Please direct all questions, feedback, and concerns to [info@appcelerator.com](mailto:info@appcelerator.com?subject=iOS%20Storekit%20Module).
+Please direct all questions, feedback, and concerns to [JIRA](http://jira.appcelerator.com).
 
 ## License
 
-Copyright(c) 2010-2013 by Appcelerator, Inc. All Rights Reserved. Please see the LICENSE file included in the distribution for further details.
+Copyright(c) 2010-2017 by Appcelerator, Inc. All Rights Reserved. Please see the LICENSE file included in the distribution for further details.
 
 [Ti.Storekit.ProductRequest]: productRequest.html
 [Ti.Storekit.Product]: product.html

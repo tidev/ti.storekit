@@ -19,6 +19,20 @@
 
 @implementation TiStorekitModule
 
+#define MAKE_DOWNLOAD_CONTROL_METHOD(name) \
+- (void)name:(id)args \
+{ \
+if (autoFinishTransactions) { \
+[self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
+} \
+ENSURE_SINGLE_ARG(args, NSDictionary); \
+id downloads = [args objectForKey:@"downloads"]; \
+ENSURE_ARRAY(downloads); \
+if ([[SKPaymentQueue defaultQueue] respondsToSelector:@selector(name:)]) { \
+[[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self skDownloadsFromTiDownloads:downloads]]; \
+} \
+} \
+
 static TiStorekitModule *sharedInstance;
 
 + (TiStorekitModule *)sharedInstance
@@ -201,19 +215,12 @@ static TiStorekitModule *sharedInstance;
 
 - (void)purchase:(id)args
 {
-    TiStorekitProduct *product;
-    int quantity;
-    NSString *userName = nil;
-    
-    if ([[args objectAtIndex:0] isKindOfClass:[NSDictionary class]]) {
-        // The new way
-        // Takes a dictionary of properties
-        ENSURE_SINGLE_ARG(args, NSDictionary);
-        product = [args objectForKey:@"product"];
-        quantity = [TiUtils intValue:@"quantity" properties:args def:1];
-        userName = [args objectForKey:@"applicationUsername"];
-    }
-    
+    ENSURE_SINGLE_ARG(args, NSDictionary);
+
+    TiStorekitProduct *product = [args objectForKey:@"product"];
+    int quantity = [TiUtils intValue:@"quantity" properties:args def:1];
+    NSString *userName = [args objectForKey:@"applicationUsername"];
+
     if (!product) {
         [self throwException:@"`product` is required" subreason:nil location:CODELOCATION];
     }
@@ -271,19 +278,54 @@ static TiStorekitModule *sharedInstance;
     [self restoreCompletedTransactions:@[@{@"username": value}]];    
 }
 
-#define MAKE_DOWNLOAD_CONTROL_METHOD(name) \
-- (void)name:(id)args \
-{ \
-    if (autoFinishTransactions) { \
-    [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
-    } \
-    ENSURE_SINGLE_ARG(args, NSDictionary); \
-    id downloads = [args objectForKey:@"downloads"]; \
-    ENSURE_ARRAY(downloads); \
-    if ([[SKPaymentQueue defaultQueue] respondsToSelector:@selector(name:)]) { \
-        [[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self skDownloadsFromTiDownloads:downloads]]; \
-    } \
-} \
+- (void)showProductDialog:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    
+    SKStoreProductViewController *productDialog = [SKStoreProductViewController new];
+    [productDialog setDelegate:self];
+    
+    [productDialog loadProductWithParameters:args
+                             completionBlock:^(BOOL result, NSError *error) {
+                                 NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+                                 
+                                 if (error) {
+                                     [event setObject:[error localizedDescription] forKey:@"error"];
+                                 }
+                                 
+                                 if ([self _hasListeners:@"productDialogDidOpen"]) {
+                                     [self fireEvent:@"productDialogDidOpen" withObject:event];
+                                 }
+                             }];
+}
+
+- (void)showCloudSetupDialog:(id)args
+{
+    ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+    
+    SKCloudServiceSetupViewController *cloudSetupDialog = [SKCloudServiceSetupViewController new];
+    [cloudSetupDialog setDelegate:self];
+    
+    [cloudSetupDialog loadWithOptions:args
+                    completionHandler:^(BOOL result, NSError *error) {
+                        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+                        
+                        if (error) {
+                            [event setObject:[error localizedDescription] forKey:@"error"];
+                        }
+                        
+                        if ([self _hasListeners:@"cloudSetupDialogDidOpen"]) {
+                            [self fireEvent:@"cloudSetupDialogDidOpen" withObject:event];
+                        }
+    }];
+}
+
+- (void)requestReviewDialog:(id)unused
+{
+    TiThreadPerformOnMainThread(^{
+        [SKStoreReviewController requestReview];
+    }, NO);
+}
 
 MAKE_DOWNLOAD_CONTROL_METHOD(startDownloads);
 MAKE_DOWNLOAD_CONTROL_METHOD(cancelDownloads);
@@ -385,6 +427,20 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
 }
 
 #pragma mark Delegates
+
+- (void)cloudServiceSetupViewControllerDidDismiss:(SKCloudServiceSetupViewController *)cloudServiceSetupViewController
+{
+    if ([self _hasListeners:@"cloudSetupDialogDidClose"]) {
+        [self fireEvent:@"cloudSetupDialogDidClose"];
+    }
+}
+
+- (void)productViewControllerDidFinish:(SKStoreProductViewController *)viewController
+{
+    if ([self _hasListeners:@"productDialogDidClose"]) {
+        [self fireEvent:@"productDialogDidClose"];
+    }
+}
 
 // Sent when the transaction array has changed (additions or state changes).  
 // Client should check state of transactions and finish as appropriate.
