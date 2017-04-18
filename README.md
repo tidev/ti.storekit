@@ -1,6 +1,6 @@
 # Titanium Store Kit Module [![Build Status](https://travis-ci.org/appcelerator-modules/ti.storekit.svg)](https://travis-ci.org/appcelerator-modules/ti.storekit)
 
-> Note: We recently updated the Ti.StoreKit to 4.0.0 which includes some breaking changes. Make sure to check-out
+> Note: We recently updated the Ti.StoreKit to version 4.x which includes some breaking changes. Make sure to check-out
 the `Releases` tab to grab the newest version. Thanks!
 
 This is the Store Kit Module for Titanium. Check the [documentation](ios/documentation/index.md) and [example](ios/example/app.js) for more infos!
