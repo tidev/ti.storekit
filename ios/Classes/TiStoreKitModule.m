@@ -322,9 +322,13 @@ static TiStorekitModule *sharedInstance;
 
 - (void)requestReviewDialog:(id)unused
 {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_3
     TiThreadPerformOnMainThread(^{
         [SKStoreReviewController requestReview];
     }, NO);
+#else
+    NSLog(@"[ERROR] The \"requestReviewDialog\" method is only available on iOS 10.3 and later, please check the iOS version before calling this method.");
+#endif
 }
 
 MAKE_DOWNLOAD_CONTROL_METHOD(startDownloads);
