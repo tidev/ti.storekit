@@ -9,8 +9,8 @@
 #import <StoreKit/StoreKit.h>
 
 @interface TiStorekitProduct : TiProxy {
-@private
-    SKProduct *product;
+  @private
+  SKProduct *product;
 }
 
 - (id)initWithProduct:(SKProduct *)product pageContext:(id<TiEvaluator>)context;

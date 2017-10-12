@@ -6,75 +6,75 @@
  */
 
 #import "TiStorekitProduct.h"
-#import "TiUtils.h"
 #import "TiStorekitModule.h"
+#import "TiUtils.h"
 
 @implementation TiStorekitProduct
 
 - (id)initWithProduct:(SKProduct *)product_ pageContext:(id<TiEvaluator>)context
 {
-    if (self = [super _initWithPageContext:context]) {
-        product = product_;
-    }
-    return self;
+  if (self = [super _initWithPageContext:context]) {
+    product = product_;
+  }
+  return self;
 }
 
 - (SKProduct *)product
 {
-    return product;
+  return product;
 }
 
 #pragma mark Public APIs
 
 - (NSString *)description
 {
-    return [product localizedDescription];
+  return [product localizedDescription];
 }
 
 - (NSString *)title
 {
-    return [product localizedTitle];
+  return [product localizedTitle];
 }
 
 - (NSDecimalNumber *)price
 {
-    return [product price];
+  return [product price];
 }
 
-- (NSString*)formattedPrice
+- (NSString *)formattedPrice
 {
-    NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
-    [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
-    [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-    [numberFormatter setLocale:product.priceLocale];
-    NSString *formattedString = [numberFormatter stringFromNumber:product.price];
+  NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
+  [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
+  [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
+  [numberFormatter setLocale:product.priceLocale];
+  NSString *formattedString = [numberFormatter stringFromNumber:product.price];
 
-    return formattedString;
+  return formattedString;
 }
 
 - (NSString *)locale
 {
-    return [[product priceLocale] localeIdentifier];
+  return [[product priceLocale] localeIdentifier];
 }
 
 - (NSString *)identifier
 {
-    return [product productIdentifier];
+  return [product productIdentifier];
 }
 
 - (id)downloadable
 {
-    return NUMBOOL([product isDownloadable]);
+  return NUMBOOL([product isDownloadable]);
 }
 
 - (NSArray *)downloadContentLengths
 {
-    return [product downloadContentLengths];
+  return [product downloadContentLengths];
 }
 
 - (NSString *)downloadContentVersion
 {
-    return [product downloadContentVersion];
+  return [product downloadContentVersion];
 }
 
 @end

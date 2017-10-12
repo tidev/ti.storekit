@@ -9,8 +9,8 @@
 #import <StoreKit/StoreKit.h>
 
 @interface TiStorekitTransaction : TiProxy {
-@private
-    SKPaymentTransaction *transaction;
+  @private
+  SKPaymentTransaction *transaction;
 }
 
 - (id)initWithTransaction:(SKPaymentTransaction *)transaction_ pageContext:(id<TiEvaluator>)context;

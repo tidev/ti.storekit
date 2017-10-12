@@ -9,13 +9,13 @@
 #import <StoreKit/StoreKit.h>
 
 @interface TiStorekitDownload : TiProxy {
-@private
-    SKDownload *download;
+  @private
+  SKDownload *download;
 }
 
 - (id)initWithDownload:(SKDownload *)download pageContext:(id<TiEvaluator>)context;
 
-- (SKDownload* )download;
+- (SKDownload *)download;
 
 - (id)contentIdentifier;
 - (id)contentURL;
