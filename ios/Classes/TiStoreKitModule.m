@@ -206,11 +206,10 @@ static TiStorekitModule *sharedInstance;
         [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
         return nil;
     }
-        
-    NSArray *ids = [args objectAtIndex:0];
-    
-    NSSet *products = [NSSet setWithArray:ids];
-    return [[TiStorekitProductRequest alloc] initWithProductIdentifiers:products callback:callback pageContext:[self executionContext]];
+      
+    return [[TiStorekitProductRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:[args objectAtIndex:0]]
+                                                               callback:callback
+                                                            pageContext:[self executionContext]];
 }
 
 - (void)purchase:(id)args
@@ -622,5 +621,15 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN,-1);
         [self fireRefreshReceiptCallbackWithDict:event];
     }
 }
+
+#if IS_IOS_11
+- (BOOL)paymentQueue:(SKPaymentQueue *)queue shouldAddStorePayment:(SKPayment *)payment forProduct:(SKProduct *)product
+{
+  NSArray<NSString *> *allowedStorePaymentProductIdentifiers = [self valueForKey:@"allowedStorePaymentProductIdentifiers"];
+  
+  return !allowedStorePaymentProductIdentifiers ||
+          allowedStorePaymentProductIdentifiers && [allowedStorePaymentProductIdentifiers containsObject:product.productIdentifier];
+}
+#endif
 
 @end

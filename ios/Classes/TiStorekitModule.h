@@ -8,6 +8,8 @@
 #import "TiModule.h"
 #import <StoreKit/StoreKit.h>
 
+@class TiStorekitProduct;
+
 @interface TiStorekitModule : TiModule <SKPaymentTransactionObserver, SKRequestDelegate, SKCloudServiceSetupViewControllerDelegate, SKStoreProductViewControllerDelegate>
 {
 @private
@@ -17,7 +19,7 @@
     NSString *bundleIdentifier;
     KrollCallback *refreshReceiptCallback;
     BOOL autoFinishTransactions;
-    BOOL transactionObserverSet;
+    BOOL transactionObserverSet;  
 }
 
 @property(nonatomic,readonly) NSNumber *TRANSACTION_STATE_PURCHASING;

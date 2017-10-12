@@ -2,3 +2,9 @@
 #ifdef __OBJC__
     #import <Foundation/Foundation.h>
 #endif
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+    #define IS_IOS_11 true
+#else
+    #define IS_IOS_11 false
+#endif
