@@ -305,6 +305,17 @@ Toggle transactions being finished automatically when their state is `TRANSACTIO
 
 This property should be set to false and `finish` handled manually if any of the products to be purchased are downloadable products. When set to false, it is important that [Ti.Storekit.Transaction][]s be `finish` manually. When downloading products, do not finish the associated transaction until the download is complete. Finishing the transaction before the download is complete will cancel the download and if the transaction is finished before calling `startDownloads`, the download will not start.
 
+### allowedStorePaymentProductIdentifiers[array, defaults to undefined]
+
+(iOS 11 and later)
+
+Tells the observer which products to consider when a user initiated an in-app purchase from the App Store using the iOS 11+ API `paymentQueue:shouldAddStorePayment:forProduct`.
+Provide an array of of product-identifiers that will be allowed to be purchased through the App Store.
+
+This property is used when the user starts an in-app purchase in the App Store, and the transaction continues in your app. Specifically, if your app is already installed, the method is called automatically.
+If your app is not yet installed when the user starts the in-app purchase in the App Store, the user gets a notification when the app installation is complete. This property is also used when the user taps
+the notification. Otherwise, if the user opens the app manually, this property is used only if the app is opened soon after the purchase was started.
+
 ### bundleVersion[string]
 
 The bundleVersion of the app, used when validating the receipt. It is more secure to set it in the code than to read it out of the bundle. Required when calling `validateReceipt`. 
