@@ -12,13 +12,13 @@
 
 @interface TiStorekitModule : TiModule <SKPaymentTransactionObserver, SKRequestDelegate, SKCloudServiceSetupViewControllerDelegate, SKStoreProductViewControllerDelegate> {
   @private
-  NSMutableArray *restoredTransactions;
-  BOOL receiptVerificationSandbox;
-  NSString *bundleVersion;
-  NSString *bundleIdentifier;
-  KrollCallback *refreshReceiptCallback;
-  BOOL autoFinishTransactions;
-  BOOL transactionObserverSet;
+  NSMutableArray *_restoredTransactions;
+  BOOL _receiptVerificationSandboxEnabled;
+  NSString *_bundleVersion;
+  NSString *_bundleIdentifier;
+  KrollCallback *_refreshReceiptCallback;
+  BOOL _autoFinishTransactionsEnabled;
+  BOOL _isTransactionObserverSet;
 }
 
 @property (nonatomic, readonly) NSNumber *TRANSACTION_STATE_PURCHASING;
@@ -37,11 +37,17 @@
 @property (nonatomic, readonly) NSNumber *DOWNLOAD_TIME_REMAINING_UNKNOWN;
 
 + (TiStorekitModule *)sharedInstance;
+
 + (NSString *)descriptionFromError:(NSError *)error;
-- (NSArray *)tiDownloadsFromSKDownloads:(NSArray *)downloads;
-- (NSArray *)skDownloadsFromTiDownloads:(NSArray *)downloads;
+
+- (NSArray *)tiDownloadsFromStoreKitDownloads:(NSArray *)downloads;
+
+- (NSArray *)storeKitDownloadsFromTiDownloads:(NSArray *)downloads;
+
 - (void)showProductDialog:(id)args;
+
 - (void)showCloudSetupDialog:(id)args;
+
 - (void)requestReviewDialog:(id)unused;
 
 @end

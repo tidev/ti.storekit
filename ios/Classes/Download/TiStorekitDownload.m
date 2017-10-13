@@ -11,49 +11,49 @@
 
 @implementation TiStorekitDownload
 
-- (id)initWithDownload:(SKDownload *)download_ pageContext:(id<TiEvaluator>)context
+- (id)initWithDownload:(SKDownload *)download pageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
-    download = download_;
+    _download = download;
   }
   return self;
 }
 
 - (SKDownload *)download
 {
-  return download;
+  return _download;
 }
 
-#pragma mark Public APIs
+#pragma mark Public API's
 
 - (id)contentIdentifier
 {
-  return [download contentIdentifier];
+  return [_download contentIdentifier];
 }
 
 - (id)contentURL
 {
-  return [download contentURL];
+  return [_download contentURL];
 }
 
 - (id)contentVersion
 {
-  return [download contentVersion];
+  return [_download contentVersion];
 }
 
 - (id)contentLength
 {
-  return NUMLONGLONG([download contentLength]);
+  return NUMLONGLONG([_download contentLength]);
 }
 
 - (id)downloadState
 {
-  return NUMINT([download downloadState]);
+  return NUMINT([_download downloadState]);
 }
 
 - (id)error
 {
-  NSError *error = [download error];
+  NSError *error = [_download error];
   if (!error) {
     return nil;
   }
@@ -62,17 +62,17 @@
 
 - (id)progress
 {
-  return NUMFLOAT([download progress]);
+  return NUMFLOAT([_download progress]);
 }
 
 - (id)timeRemaining
 {
-  return NUMDOUBLE([download timeRemaining] / 1000);
+  return NUMDOUBLE([_download timeRemaining] / 1000);
 }
 
 - (TiStorekitTransaction *)transaction
 {
-  return [[TiStorekitTransaction alloc] initWithTransaction:[download transaction] pageContext:[self pageContext]];
+  return [[TiStorekitTransaction alloc] initWithTransaction:[_download transaction] pageContext:[self pageContext]];
 }
 
 @end

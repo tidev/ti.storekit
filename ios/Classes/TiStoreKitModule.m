@@ -22,14 +22,14 @@
 #define MAKE_DOWNLOAD_CONTROL_METHOD(name)                                                                                                            \
   -(void)name : (id)args                                                                                                                              \
   {                                                                                                                                                   \
-    if (autoFinishTransactions) {                                                                                                                     \
+    if (_autoFinishTransactionsEnabled) {                                                                                                             \
       [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
     }                                                                                                                                                 \
     ENSURE_SINGLE_ARG(args, NSDictionary);                                                                                                            \
     id downloads = [args objectForKey:@"downloads"];                                                                                                  \
     ENSURE_ARRAY(downloads);                                                                                                                          \
     if ([[SKPaymentQueue defaultQueue] respondsToSelector:@selector(name:)]) {                                                                        \
-      [[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self skDownloadsFromTiDownloads:downloads]];                        \
+      [[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self storeKitDownloadsFromTiDownloads:downloads]];                        \
     }                                                                                                                                                 \
   }
 
@@ -60,11 +60,11 @@ static TiStorekitModule *sharedInstance;
 {
   [super startup];
 
-  receiptVerificationSandbox = NO;
+  _receiptVerificationSandboxEnabled = NO;
 
   sharedInstance = self;
-  autoFinishTransactions = YES;
-  transactionObserverSet = NO;
+  _autoFinishTransactionsEnabled = YES;
+  _isTransactionObserverSet = NO;
 }
 
 - (void)shutdown:(id)sender
@@ -73,12 +73,12 @@ static TiStorekitModule *sharedInstance;
   [super shutdown:sender];
 }
 
-#pragma mark Public APIs
+#pragma mark Public API's
 
 - (void)addTransactionObserver:(id)args
 {
   [[SKPaymentQueue defaultQueue] addTransactionObserver:self];
-  transactionObserverSet = YES;
+  _isTransactionObserverSet = YES;
 
   // After addTransactionObserver is called, events will be fired.
   // If these event listeners are not added first, it is possible that events will be missed.
@@ -89,7 +89,7 @@ static TiStorekitModule *sharedInstance;
   if (![self _hasListeners:@"restoredCompletedTransactions"]) {
     [self logAddListenerFirst:@"restoredCompletedTransactions"];
   }
-  if (!autoFinishTransactions && ![self _hasListeners:@"updatedDownloads"]) {
+  if (!_autoFinishTransactionsEnabled && ![self _hasListeners:@"updatedDownloads"]) {
     [self logAddListenerFirst:@"updatedDownloads"];
   }
 
@@ -99,37 +99,37 @@ static TiStorekitModule *sharedInstance;
 - (void)removeTransactionObserver:(id)args
 {
   [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
-  transactionObserverSet = NO;
+  _isTransactionObserverSet = NO;
 }
 
 - (void)setAutoFinishTransactions:(id)value
 {
-  autoFinishTransactions = [TiUtils boolValue:value];
+  _autoFinishTransactionsEnabled = [TiUtils boolValue:value];
 }
 
 - (id)autoFinishTransactions
 {
-  return NUMBOOL(autoFinishTransactions);
+  return NUMBOOL(_autoFinishTransactionsEnabled);
 }
 
 - (void)setBundleVersion:(id)value
 {
-  bundleVersion = [TiUtils stringValue:value];
+  _bundleVersion = [TiUtils stringValue:value];
 }
 
 - (id)bundleVersion
 {
-  return bundleVersion;
+  return _bundleVersion;
 }
 
 - (void)setBundleIdentifier:(id)value
 {
-  bundleIdentifier = [TiUtils stringValue:value];
+  _bundleIdentifier = [TiUtils stringValue:value];
 }
 
 - (id)bundleIdentifier
 {
-  return bundleIdentifier;
+  return _bundleIdentifier;
 }
 
 - (id)receiptExists
@@ -147,12 +147,12 @@ static TiStorekitModule *sharedInstance;
     [self throwException:@"AppleIncRootCertificate.cer is missing." subreason:nil location:CODELOCATION];
   }
 
-  if (bundleVersion == nil || bundleIdentifier == nil) {
+  if (_bundleVersion == nil || _bundleIdentifier == nil) {
     [self throwException:@"The `bundleVersion` and `bundleIdentifier` must be set before validating the receipt." subreason:nil location:CODELOCATION];
   }
 
   NSURL *receiptURL = [self receiptURL];
-  return NUMBOOL(verifyReceiptAtPath(receiptURL.path, bundleVersion, bundleIdentifier));
+  return NUMBOOL(verifyReceiptAtPath(receiptURL.path, _bundleVersion, _bundleIdentifier));
 }
 
 - (TiBlob *)receipt
@@ -187,7 +187,7 @@ static TiStorekitModule *sharedInstance;
   ENSURE_TYPE_OR_NIL(properties, NSDictionary);
   ENSURE_TYPE(callback, KrollCallback);
 
-  refreshReceiptCallback = callback;
+  _refreshReceiptCallback = callback;
 
   SKReceiptRefreshRequest *request = [[SKReceiptRefreshRequest alloc] initWithReceiptProperties:properties];
   [request setDelegate:self];
@@ -231,7 +231,7 @@ static TiStorekitModule *sharedInstance;
   SKPaymentQueue *queue = [SKPaymentQueue defaultQueue];
   [queue performSelectorOnMainThread:@selector(addPayment:) withObject:payment waitUntilDone:NO];
 
-  if (!transactionObserverSet) {
+  if (!_isTransactionObserverSet) {
     [self logAddTransactionObserverFirst:@"purchase"];
   }
 }
@@ -243,12 +243,12 @@ static TiStorekitModule *sharedInstance;
 
 - (id)receiptVerificationSandbox
 {
-  return NUMBOOL(receiptVerificationSandbox);
+  return NUMBOOL(_receiptVerificationSandboxEnabled);
 }
 
 - (void)setReceiptVerificationSandbox:(id)value
 {
-  receiptVerificationSandbox = [TiUtils boolValue:value def:NO];
+  _receiptVerificationSandboxEnabled = [TiUtils boolValue:value def:NO];
 }
 
 - (void)restoreCompletedTransactions:(id)args
@@ -263,7 +263,7 @@ static TiStorekitModule *sharedInstance;
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
   }
 
-  if (!transactionObserverSet) {
+  if (!_isTransactionObserverSet) {
     [self logAddTransactionObserverFirst:@"restoreCompletedTransactions"];
   }
 }
@@ -408,19 +408,18 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
   return receiptURL;
 }
 
-- (NSArray *)tiDownloadsFromSKDownloads:(NSArray *)downloads
+- (NSArray *)tiDownloadsFromStoreKitDownloads:(NSArray *)downloads
 {
   NSMutableArray *dls = [NSMutableArray arrayWithCapacity:[downloads count]];
   for (SKDownload *download in downloads) {
-    TiStorekitDownload *d = [[TiStorekitDownload alloc] initWithDownload:download pageContext:[self pageContext]];
-    [dls addObject:d];
+    [dls addObject:[[TiStorekitDownload alloc] initWithDownload:download pageContext:[self pageContext]]];
   }
   return dls;
 }
 
-- (NSArray *)skDownloadsFromTiDownloads:(NSArray *)downloads
+- (NSArray *)storeKitDownloadsFromTiDownloads:(NSArray *)downloads
 {
-  NSMutableArray *dls = [NSMutableArray arrayWithCapacity:[downloads count]];
+  NSMutableArray<SKDownload *> *dls = [NSMutableArray arrayWithCapacity:[downloads count]];
   for (TiStorekitDownload *download in downloads) {
     [dls addObject:[download download]];
   }
@@ -429,7 +428,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
 
 - (void)fireRefreshReceiptCallbackWithDict:(NSDictionary *)dict
 {
-  [self _fireEventToListener:@"callback" withObject:dict listener:refreshReceiptCallback thisObject:nil];
+  [self _fireEventToListener:@"callback" withObject:dict listener:_refreshReceiptCallback thisObject:nil];
 }
 
 #pragma mark Delegates
@@ -484,7 +483,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
     }
   }
 
-  [event setObject:[self tiDownloadsFromSKDownloads:[transaction downloads]] forKey:@"downloads"];
+  [event setObject:[self tiDownloadsFromStoreKitDownloads:[transaction downloads]] forKey:@"downloads"];
 
   // MOD-1475 -- Restored transactions will include the original transaction. If found in the transaction
   // then we will add it to the event dictionary
@@ -516,12 +515,12 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
     NSLog(@"[DEBUG] Transaction restored %@", transaction);
     // If this is a restored transaction, add it to the list of restored transactions
     // that will be posted in the event indicating that transactions have been restored.
-    if (restoredTransactions == nil) {
-      restoredTransactions = [[NSMutableArray alloc] initWithCapacity:1];
+    if (_restoredTransactions == nil) {
+      _restoredTransactions = [[NSMutableArray alloc] initWithCapacity:1];
     }
 
     TiStorekitTransaction *trans = [[TiStorekitTransaction alloc] initWithTransaction:transaction pageContext:[self executionContext]];
-    [restoredTransactions addObject:trans];
+    [_restoredTransactions addObject:trans];
   }
   // Nothing special to do for SKPaymentTransactionStatePurchased or SKPaymentTransactionStatePurchasing
 
@@ -531,7 +530,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
     NSLog(@"[WARN] No event listener for 'transactionState' event");
   }
 
-  if (autoFinishTransactions) {
+  if (_autoFinishTransactionsEnabled) {
     // We need to finish the transaction as long as it is not still in progress
     switch (state) {
     case SKPaymentTransactionStatePurchasing:
@@ -568,9 +567,8 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
 // Sent when all transactions from the user's purchase history have successfully been added back to the queue.
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
 {
-  NSLog(@"[INFO] Finished restoring completed transactions!");
   if ([self _hasListeners:@"restoredCompletedTransactions"]) {
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:restoredTransactions, @"transactions", nil];
+    NSDictionary *event = @{ @"transactions" : _restoredTransactions };
     [self fireEvent:@"restoredCompletedTransactions" withObject:event];
   } else {
     NSLog(@"[WARN] No event listener for 'restoredCompletedTransactions' event");
@@ -582,10 +580,7 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
 - (void)paymentQueue:(SKPaymentQueue *)queue updatedDownloads:(NSArray *)downloads
 {
   if ([self _hasListeners:@"updatedDownloads"]) {
-    NSArray *dls = [self tiDownloadsFromSKDownloads:downloads];
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                            dls, @"downloads",
-                                        nil];
+    NSDictionary *event = @{ @"downloads" : [self tiDownloadsFromStoreKitDownloads:downloads] };
     [self fireEvent:@"updatedDownloads" withObject:event];
   } else {
     NSLog(@"[WARN] No event listener for 'updatedDownloads' event");
@@ -597,12 +592,8 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
 // Sent if a refreshReceipt request finishes successfully
 - (void)requestDidFinish:(SKRequest *)request
 {
-  NSLog(@"[INFO] Finished refreshing receipt!");
-
-  if (refreshReceiptCallback) {
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                            NUMBOOL(YES), @"success",
-                                        nil];
+  if (_refreshReceiptCallback) {
+    NSDictionary *event = @{ @"success" : NUMBOOL(YES) };
     [self fireRefreshReceiptCallbackWithDict:event];
   }
 }
@@ -612,11 +603,9 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
 {
   NSLog(@"[ERROR] Failed to refresh receipt: %@", error);
 
-  if (refreshReceiptCallback) {
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
-                                            NUMBOOL(NO), @"success",
-                                        [TiStorekitModule descriptionFromError:error], @"error",
-                                        nil];
+  if (_refreshReceiptCallback) {
+    NSDictionary *event = @{ @"success" : NUMBOOL(YES),
+      @"error" : [TiStorekitModule descriptionFromError:error] };
     [self fireRefreshReceiptCallbackWithDict:event];
   }
 }

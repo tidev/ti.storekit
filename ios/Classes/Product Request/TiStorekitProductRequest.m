@@ -11,25 +11,25 @@
 
 @implementation TiStorekitProductRequest
 
-- (id)initWithProductIdentifiers:(NSSet *)set callback:(KrollCallback *)callback_ pageContext:(id<TiEvaluator>)context
+- (id)initWithProductIdentifiers:(NSSet *)set callback:(KrollCallback *)callback pageContext:(id<TiEvaluator>)context
 {
   if ((self = [super _initWithPageContext:context])) {
-    request = [[SKProductsRequest alloc] initWithProductIdentifiers:set];
-    request.delegate = self;
-    callback = callback_;
-    [request performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
+    _request = [[SKProductsRequest alloc] initWithProductIdentifiers:set];
+    _request.delegate = self;
+    _callback = callback;
+    [_request performSelectorOnMainThread:@selector(start) withObject:nil waitUntilDone:NO];
     [self rememberSelf];
   }
   return self;
 }
 
-#pragma mark Public APIs
+#pragma mark Public API's
 
 - (void)cancel:(id)args
 {
-  if (request != nil) {
+  if (_request != nil) {
     [self forgetSelf];
-    [request cancel];
+    [_request cancel];
   }
 }
 
@@ -37,16 +37,16 @@
 
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
-  NSMutableArray *good = [NSMutableArray arrayWithCapacity:[[response products] count]];
+  NSMutableArray *products = [NSMutableArray arrayWithCapacity:[[response products] count]];
 
   for (SKProduct *product in [response products]) {
     TiStorekitProduct *p = [[TiStorekitProduct alloc] initWithProduct:product pageContext:[self executionContext]];
-    [good addObject:p];
+    [products addObject:p];
   }
 
   NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
 
-  [event setObject:good forKey:@"products"];
+  [event setObject:products forKey:@"products"];
   [event setObject:NUMBOOL(YES) forKey:@"success"];
 
   NSArray *invalid = [response invalidProductIdentifiers];
@@ -54,15 +54,15 @@
     [event setObject:invalid forKey:@"invalid"];
   }
 
-  [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
+  [self _fireEventToListener:@"callback" withObject:event listener:_callback thisObject:nil];
   [self forgetSelf];
 }
 
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
   NSLog(@"[ERROR] received error %@", [TiStorekitModule descriptionFromError:error]);
-  NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success", [TiStorekitModule descriptionFromError:error], @"message", nil];
-  [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
+  NSDictionary *event = @{ @"success": NUMBOOL(NO), @"message": [TiStorekitModule descriptionFromError:error] };
+  [self _fireEventToListener:@"callback" withObject:event listener:_callback thisObject:nil];
 
   [self forgetSelf];
 }

@@ -11,34 +11,34 @@
 
 @implementation TiStorekitProduct
 
-- (id)initWithProduct:(SKProduct *)product_ pageContext:(id<TiEvaluator>)context
+- (id)initWithProduct:(SKProduct *)product pageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
-    product = product_;
+    _product = product;
   }
   return self;
 }
 
 - (SKProduct *)product
 {
-  return product;
+  return _product;
 }
 
-#pragma mark Public APIs
+#pragma mark Public API's
 
 - (NSString *)description
 {
-  return [product localizedDescription];
+  return [_product localizedDescription];
 }
 
 - (NSString *)title
 {
-  return [product localizedTitle];
+  return [_product localizedTitle];
 }
 
 - (NSDecimalNumber *)price
 {
-  return [product price];
+  return [_product price];
 }
 
 - (NSString *)formattedPrice
@@ -46,35 +46,35 @@
   NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
   [numberFormatter setFormatterBehavior:NSNumberFormatterBehavior10_4];
   [numberFormatter setNumberStyle:NSNumberFormatterCurrencyStyle];
-  [numberFormatter setLocale:product.priceLocale];
-  NSString *formattedString = [numberFormatter stringFromNumber:product.price];
+  [numberFormatter setLocale:_product.priceLocale];
+  NSString *formattedString = [numberFormatter stringFromNumber:_product.price];
 
   return formattedString;
 }
 
 - (NSString *)locale
 {
-  return [[product priceLocale] localeIdentifier];
+  return [[_product priceLocale] localeIdentifier];
 }
 
 - (NSString *)identifier
 {
-  return [product productIdentifier];
+  return [_product productIdentifier];
 }
 
-- (id)downloadable
+- (NSNumber *)downloadable
 {
-  return NUMBOOL([product isDownloadable]);
+  return NUMBOOL([_product isDownloadable]);
 }
 
 - (NSArray *)downloadContentLengths
 {
-  return [product downloadContentLengths];
+  return [_product downloadContentLengths];
 }
 
 - (NSString *)downloadContentVersion
 {
-  return [product downloadContentVersion];
+  return [_product downloadContentVersion];
 }
 
 @end

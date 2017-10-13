@@ -6,24 +6,36 @@
  */
 
 #import "TiProxy.h"
+#import "TiStorekitTransaction.h"
 #import <StoreKit/StoreKit.h>
 
 @interface TiStorekitDownload : TiProxy {
   @private
-  SKDownload *download;
+  SKDownload *_download;
 }
 
 - (id)initWithDownload:(SKDownload *)download pageContext:(id<TiEvaluator>)context;
 
+#pragma mark Public API's
+
 - (SKDownload *)download;
 
 - (id)contentIdentifier;
+
 - (id)contentURL;
+
 - (id)contentVersion;
+
 - (id)contentLength;
+
 - (id)downloadState;
+
 - (id)error;
+
 - (id)progress;
+
 - (id)timeRemaining;
+
+- (TiStorekitTransaction *)transaction;
 
 @end

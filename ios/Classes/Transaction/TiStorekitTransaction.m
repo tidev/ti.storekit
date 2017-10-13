@@ -28,7 +28,7 @@
     return nil;                       \
   }
 
-#pragma mark Public API
+#pragma mark Public API's
 
 - (void)finish:(id)args
 {
@@ -40,7 +40,7 @@
   [[SKPaymentQueue defaultQueue] finishTransaction:transaction];
 }
 
-- (id)state
+- (NSNumber *)state
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
   return NUMINT(transaction.transactionState);
@@ -52,25 +52,25 @@
   return transaction.transactionDate;
 }
 
-- (id)identifier
+- (NSString *)identifier
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
   return transaction.transactionIdentifier;
 }
 
-- (id)downloads
+- (NSArray *)downloads
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
-  return transaction.downloads ? [[TiStorekitModule sharedInstance] tiDownloadsFromSKDownloads:transaction.downloads] : nil;
+  return transaction.downloads ? [[TiStorekitModule sharedInstance] tiDownloadsFromStoreKitDownloads:transaction.downloads] : nil;
 }
 
-- (id)originalTransaction
+- (TiStorekitTransaction *)originalTransaction
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
   return transaction.originalTransaction ? [[TiStorekitTransaction alloc] initWithTransaction:transaction.originalTransaction pageContext:[self pageContext]] : nil;
 }
 
-- (id)receipt
+- (NSString *)receipt
 {
   NSData *dataReceipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
 
@@ -78,19 +78,19 @@
   return [dataReceipt base64EncodedStringWithOptions:0];
 }
 
-- (id)quantity
+- (NSNumber *)quantity
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
   return transaction.payment ? NUMINTEGER(transaction.payment.quantity) : nil;
 }
 
-- (id)productIdentifier
+- (NSString *)productIdentifier
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
   return transaction.payment ? transaction.payment.productIdentifier : nil;
 }
 
-- (id)applicationUsername
+- (NSString *)applicationUsername
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
   return transaction.payment ? transaction.payment.applicationUsername : nil;

@@ -14,6 +14,27 @@
 }
 
 - (id)initWithTransaction:(SKPaymentTransaction *)transaction_ pageContext:(id<TiEvaluator>)context;
+
+#pragma mark Public API's
+
 - (void)finish:(id)args;
+
+- (NSNumber *)state;
+
+- (id)date;
+
+- (NSString *)identifier;
+
+- (NSArray *)downloads;
+
+- (TiStorekitTransaction *)originalTransaction;
+
+- (NSString *)receipt;
+
+- (NSNumber *)quantity;
+
+- (NSString *)productIdentifier;
+
+- (NSString *)applicationUsername;
 
 @end

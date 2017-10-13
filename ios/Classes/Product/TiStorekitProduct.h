@@ -10,11 +10,31 @@
 
 @interface TiStorekitProduct : TiProxy {
   @private
-  SKProduct *product;
+  SKProduct *_product;
 }
 
 - (id)initWithProduct:(SKProduct *)product pageContext:(id<TiEvaluator>)context;
 
 - (SKProduct *)product;
+
+#pragma mark Public API's
+
+- (NSString *)description;
+
+- (NSString *)title;
+
+- (NSDecimalNumber *)price;
+
+- (NSString *)formattedPrice;
+
+- (NSString *)locale;
+
+- (NSString *)identifier;
+
+- (NSNumber *)downloadable;
+
+- (NSArray *)downloadContentLengths;
+
+- (NSString *)downloadContentVersion;
 
 @end
