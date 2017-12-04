@@ -2,13 +2,13 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 4.1.1
+version: 4.2.0
 apiversion: 2
 architectures: armv7 i386 x86_64 arm64
 description: Apple StoreKit module for in application purchases 
 author: Jeff Haynie, Jeff English, Jon Alter, Hans Knoechel
 license: Apache License, Version 2.0
-copyright: Copyright (c) 2010-2017 by Appcelerator, Inc.
+copyright: Copyright (c) 2010-present by Axway Appcelerator
 
 
 # these should not be edited

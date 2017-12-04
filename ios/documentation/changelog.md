@@ -1,5 +1,7 @@
 # Change Log
 <pre>
+v4.2.0 Support for the iOS 11+ property `allowedStorePaymentProductIdentifiers`.
+
 v4.1.0  Support for `requestReviewDialog()`
         Support for `showProductDialog()`
         Support for `showCloudSetupDialog()`

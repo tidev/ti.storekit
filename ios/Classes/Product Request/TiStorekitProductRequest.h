@@ -5,17 +5,20 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#import <StoreKit/StoreKit.h>
-#import "TiProxy.h"
 #import "KrollCallback.h"
-
+#import "TiProxy.h"
+#import <StoreKit/StoreKit.h>
 
 @interface TiStorekitProductRequest : TiProxy <SKProductsRequestDelegate> {
-@private
-    KrollCallback *callback;
-    SKProductsRequest* request;
+  @private
+  KrollCallback *_callback;
+  SKProductsRequest *_request;
 }
 
 - (id)initWithProductIdentifiers:(NSSet *)set callback:(KrollCallback *)callback pageContext:(id<TiEvaluator>)context;
+
+#pragma mark Public API's
+
+- (void)cancel:(id)args;
 
 @end
