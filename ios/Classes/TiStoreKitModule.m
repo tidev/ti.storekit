@@ -354,6 +354,17 @@ MAKE_SYSTEM_PROP(DOWNLOAD_STATE_CANCELLED, SKDownloadStateCancelled);
 
 MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
 
+#if IS_IOS_11_2
+MAKE_SYSTEM_PROP(DISCOUNT_PAYMENT_MODE_PAY_AS_YOU_GO, SKProductDiscountPaymentModePayAsYouGo);
+MAKE_SYSTEM_PROP(DISCOUNT_PAYMENT_MODE_PAY_UP_FRONT, SKProductDiscountPaymentModePayUpFront);
+MAKE_SYSTEM_PROP(DISCOUNT_PAYMENT_MODE_FREE_TRIAL, SKProductDiscountPaymentModeFreeTrial);
+
+MAKE_SYSTEM_PROP(PERIOD_UNIT_DAY, SKProductPeriodUnitDay);
+MAKE_SYSTEM_PROP(PERIOD_UNIT_WEEK, SKProductPeriodUnitWeek);
+MAKE_SYSTEM_PROP(PERIOD_UNIT_MONTH, SKProductPeriodUnitMonth);
+MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
+#endif
+
 #pragma mark Utils
 
 + (NSString *)descriptionFromError:(NSError *)error
@@ -610,13 +621,11 @@ MAKE_SYSTEM_PROP(DOWNLOAD_TIME_REMAINING_UNKNOWN, -1);
   }
 }
 
-#if IS_IOS_11
 - (BOOL)paymentQueue:(SKPaymentQueue *)queue shouldAddStorePayment:(SKPayment *)payment forProduct:(SKProduct *)product
 {
   NSArray<NSString *> *allowedStorePaymentProductIdentifiers = [self valueForKey:@"allowedStorePaymentProductIdentifiers"];
 
   return !allowedStorePaymentProductIdentifiers || allowedStorePaymentProductIdentifiers && [allowedStorePaymentProductIdentifiers containsObject:product.productIdentifier];
 }
-#endif
 
 @end

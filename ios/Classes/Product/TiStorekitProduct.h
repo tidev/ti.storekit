@@ -6,6 +6,7 @@
  */
 
 #import "TiProxy.h"
+#import "TiStorekitProductDiscountProxy.h"
 #import <StoreKit/StoreKit.h>
 
 @interface TiStorekitProduct : TiProxy {
@@ -36,5 +37,11 @@
 - (NSArray *)downloadContentLengths;
 
 - (NSString *)downloadContentVersion;
+
+#if IS_IOS_11_2
+- (TiStorekitProductDiscountProxy *)introductoryPrice;
+
+- (NSDictionary *)subscriptionPeriod;
+#endif
 
 @end

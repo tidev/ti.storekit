@@ -3,8 +3,8 @@
     #import <Foundation/Foundation.h>
 #endif
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-    #define IS_IOS_11 true
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_2
+    #define IS_IOS_11_2 true
 #else
-    #define IS_IOS_11 false
+    #define IS_IOS_11_2 false
 #endif

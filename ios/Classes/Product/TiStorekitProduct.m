@@ -77,4 +77,29 @@
   return [_product downloadContentVersion];
 }
 
+#if IS_IOS_11_2
+- (TiStorekitProductDiscountProxy *)introductoryPrice
+{
+  if (![TiUtils isIOSVersionOrGreater:@"11.2"]) {
+    DebugLog(@"[ERROR] The \"introductoryPrice\" property is only available on iOS 11.2 and later.");
+    return nil;
+  }
+  
+  return [[TiStorekitProductDiscountProxy alloc] initWithProductDiscount:_product.introductoryPrice pageContext:self.pageContext];
+}
+
+- (NSDictionary *)subscriptionPeriod
+{
+  if (![TiUtils isIOSVersionOrGreater:@"11.2"]) {
+    DebugLog(@"[ERROR] The \"subscriptionPeriod\" property is only available on iOS 11.2 and later.");
+    return nil;
+  }
+  
+  return @{
+    @"numberOfUnits": @(_product.subscriptionPeriod.numberOfUnits),
+    @"unit": @(_product.subscriptionPeriod.unit),
+  };
+}
+#endif
+
 @end

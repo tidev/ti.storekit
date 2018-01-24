@@ -413,6 +413,41 @@ The CANCELLED state during download request processing.
 
 The value of `timeRemaining` when it cannot create a good estimate.
 
+
+### DISCOUNT_PAYMENT_MODE_PAY_AS_YOU_GO[int]
+
+The value of the product's `paymentMode`, indicating that the payment mode
+of a product discount is billed over a single or multiple billing periods.
+
+### DISCOUNT_PAYMENT_MODE_PAY_UP_FRONT[int]
+
+The value of the product's `paymentMode`, indicating that the payment mode of
+a product discount is paid up front.
+
+### DISCOUNT_PAYMENT_MODE_FREE_TRIAL[int]
+
+The value of the product's `paymentMode`, indicating that the payment mode is a free trial.
+
+### PERIOD_UNIT_DAY[int]
+
+The value of the product's `introductoryPrice.subscriptionPeriod.unit` or `subscriptionPeriod.unit`,
+indicating an interval lasting one day.
+
+### PERIOD_UNIT_WEEK[int]
+
+The value of the product's `introductoryPrice.subscriptionPeriod.unit` or `subscriptionPeriod.unit`,
+indicating an interval lasting one week.
+
+### PERIOD_UNIT_MONTH[int]
+
+The value of the product's `introductoryPrice.subscriptionPeriod.unit` or `subscriptionPeriod.unit`,
+indicating an interval lasting one month.
+
+### PERIOD_UNIT_YEAR[int]
+
+The value of the product's `introductoryPrice.subscriptionPeriod.unit` or `subscriptionPeriod.unit`,
+indicating an interval lasting one year.
+
 ## Events
 
 ### transactionState
