@@ -1,5 +1,7 @@
 # Change Log
 <pre>
+v4.3.0 Support for the iOS 11.2+ `Discount` API.
+
 v4.2.0 Support for the iOS 11+ property `allowedStorePaymentProductIdentifiers`.
 
 v4.1.0  Support for `requestReviewDialog()`

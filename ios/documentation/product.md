@@ -22,6 +22,22 @@ The price of the product.
 
 The price of the product, formatted for the store's locale.
 
+### Ti.Storekit.Product.introductoryPrice[Discount] (read-only)
+
+The introductory price of the product, served as a `Discount` proxy.
+Includes the following properties:
+  * price (Number)
+  * priceLocale (String)
+  * subscriptionPeriod (Dictionary) { numberOfUnits (Number), unit (number) }
+  * numberOfPeriods (Number)
+  * paymentMode (Number, `DISCOUNT_PAYMENT_MODE_*`)
+
+### Ti.Storekit.Product.subscriptionPeriod[Dictionary] (read-only)
+
+The subscription period of the product, served as a dictionary with the following properties.
+  * numberOfUnits (Number)
+  * unit (Number, `PERIOD_UNIT_*`)
+
 ### Ti.Storekit.Product.locale[string] (read-only)
 
 The locale of the product.
