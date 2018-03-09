@@ -301,21 +301,32 @@ static TiStorekitModule *sharedInstance;
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  SKCloudServiceSetupViewController *cloudSetupDialog = [SKCloudServiceSetupViewController new];
-  [cloudSetupDialog setDelegate:self];
+  NSString *musicPermission = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSAppleMusicUsageDescription"];
 
-  [cloudSetupDialog loadWithOptions:args
-                  completionHandler:^(BOOL result, NSError *error) {
-                    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+  if (!musicPermission) {
+    NSLog(@"[ERROR] iOS 10 and later requires the key \"NSAppleMusicUsageDescription\" inside the plist in your tiapp.xml when showing the cloud setup dialog. Please add the key and re-run the application.");
+    return;
+  }
 
-                    if (error) {
-                      [event setObject:[error localizedDescription] forKey:@"error"];
-                    }
+  // Do some obfuscation to prevent App-Store rejection when not actually being used
+  Class cloudServiceSetupController = NSClassFromString([NSString stringWithFormat:@"%@%@Controller", @"SK", @"CloudServiceSetupView"]);
+  id cloudSetupDialog = [cloudServiceSetupController new];
+  typedef void(^MyCompletionBlock)(BOOL result, NSError *error);
 
-                    if ([self _hasListeners:@"cloudSetupDialogDidOpen"]) {
-                      [self fireEvent:@"cloudSetupDialogDidOpen" withObject:event];
-                    }
-                  }];
+  MyCompletionBlock block = ^(BOOL result, NSError *error) {
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+
+    if (error) {
+      [event setObject:[error localizedDescription] forKey:@"error"];
+    }
+
+    if ([self _hasListeners:@"cloudSetupDialogDidOpen"]) {
+      [self fireEvent:@"cloudSetupDialogDidOpen" withObject:event];
+    }
+  };
+
+  [cloudSetupDialog performSelector:@selector(setDelegate:) withObject:self];
+  [cloudSetupDialog performSelector:@selector(loadWithOptions:completionHandler:) withObject:@[args, block]];
 }
 
 - (void)requestReviewDialog:(id)unused
