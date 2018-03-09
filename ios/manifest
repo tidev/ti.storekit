@@ -2,7 +2,7 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 4.3.0
+version: 4.3.1
 apiversion: 2
 architectures: armv7 i386 x86_64 arm64
 description: Apple StoreKit module for in application purchases 
