@@ -301,21 +301,27 @@ static TiStorekitModule *sharedInstance;
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  SKCloudServiceSetupViewController *cloudSetupDialog = [SKCloudServiceSetupViewController new];
-  [cloudSetupDialog setDelegate:self];
+  if (![TiUtils isIOSVersionOrGreater:@"10.1"]) {
+    DebugLog(@"[ERROR] This API is only supported on iOS 10.1 and later. Please guard your code to only execute this on supported devices")
+  }
 
-  [cloudSetupDialog loadWithOptions:args
-                  completionHandler:^(BOOL result, NSError *error) {
-                    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+  Class MySKCloudServiceSetupViewController = NSClassFromString([NSString stringWithFormat:@"%@%@", @"SKCloudService", @"SetupViewController"]);
 
-                    if (error) {
-                      [event setObject:[error localizedDescription] forKey:@"error"];
-                    }
+  id cloudSetupDialog = [MySKCloudServiceSetupViewController new];
+  id completionHandler = ^(BOOL result, NSError *error) {
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
 
-                    if ([self _hasListeners:@"cloudSetupDialogDidOpen"]) {
-                      [self fireEvent:@"cloudSetupDialogDidOpen" withObject:event];
-                    }
-                  }];
+    if (error) {
+      [event setObject:[error localizedDescription] forKey:@"error"];
+    }
+
+    if ([self _hasListeners:@"cloudSetupDialogDidOpen"]) {
+      [self fireEvent:@"cloudSetupDialogDidOpen" withObject:event];
+    }
+  };
+
+  [cloudSetupDialog performSelector:@selector(setDelegate:) withObject:self];
+  [cloudSetupDialog performSelector:@selector(loadWithOptions:completionHandler:) withObject:args withObject:completionHandler];
 }
 
 - (void)requestReviewDialog:(id)unused
