@@ -92,7 +92,11 @@
 {
   if (![TiUtils isIOSVersionOrGreater:@"11.2"]) {
     DebugLog(@"[ERROR] The \"subscriptionPeriod\" property is only available on iOS 11.2 and later.");
-    return nil;
+    return @{};
+  }
+  
+  if (_product.subscriptionPeriod == nil) {
+    return @{};
   }
   
   return @{

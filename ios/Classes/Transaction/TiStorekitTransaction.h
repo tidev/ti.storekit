@@ -19,22 +19,22 @@
 
 - (void)finish:(id)args;
 
-- (NSNumber *)state;
+- (id)state;
 
 - (id)date;
 
-- (NSString *)identifier;
+- (id)identifier;
 
-- (NSArray *)downloads;
+- (id)downloads;
 
-- (TiStorekitTransaction *)originalTransaction;
+- (id)originalTransaction;
 
-- (NSString *)receipt;
+- (id)receipt;
 
-- (NSNumber *)quantity;
+- (id)quantity;
 
-- (NSString *)productIdentifier;
+- (id)productIdentifier;
 
-- (NSString *)applicationUsername;
+- (id)applicationUsername;
 
 @end

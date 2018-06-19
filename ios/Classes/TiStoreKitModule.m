@@ -257,7 +257,8 @@ static TiStorekitModule *sharedInstance;
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
   if ([args isKindOfClass:[NSDictionary class]]) {
-    NSString *username = [args objectForKey:@"username"];
+    id username = [args objectForKey:@"username"];
+    ENSURE_TYPE(username, NSString);
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactionsWithApplicationUsername:username];
   } else {
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
@@ -529,7 +530,7 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
       [event setObject:[TiStorekitModule descriptionFromError:error] forKey:@"message"];
     }
   } else if (state == SKPaymentTransactionStateRestored) {
-    NSLog(@"[DEBUG] Transaction restored %@", transaction);
+    NSLog(@"[DEBUG] Transaction restored: %@", transaction);
     // If this is a restored transaction, add it to the list of restored transactions
     // that will be posted in the event indicating that transactions have been restored.
     if (_restoredTransactions == nil) {
