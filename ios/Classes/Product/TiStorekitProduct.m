@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -92,7 +92,11 @@
 {
   if (![TiUtils isIOSVersionOrGreater:@"11.2"]) {
     DebugLog(@"[ERROR] The \"subscriptionPeriod\" property is only available on iOS 11.2 and later.");
-    return nil;
+    return @{};
+  }
+  
+  if (_product.subscriptionPeriod == nil) {
+    return @{};
   }
   
   return @{

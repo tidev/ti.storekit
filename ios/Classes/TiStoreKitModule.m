@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2010-present by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,18 +19,20 @@
 
 @implementation TiStorekitModule
 
-#define MAKE_DOWNLOAD_CONTROL_METHOD(name)                                                                                                            \
-  -(void)name : (id)args                                                                                                                              \
-  {                                                                                                                                                   \
-    if (_autoFinishTransactionsEnabled) {                                                                                                             \
-      [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
-    }                                                                                                                                                 \
-    ENSURE_SINGLE_ARG(args, NSDictionary);                                                                                                            \
-    id downloads = [args objectForKey:@"downloads"];                                                                                                  \
-    ENSURE_ARRAY(downloads);                                                                                                                          \
-    if ([[SKPaymentQueue defaultQueue] respondsToSelector:@selector(name:)]) {                                                                        \
-      [[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self storeKitDownloadsFromTiDownloads:downloads]];                        \
-    }                                                                                                                                                 \
+#define MAKE_DOWNLOAD_CONTROL_METHOD(name)                                                                                           \
+  -(void)name : (id)args                                                                                                             \
+  {                                                                                                                                  \
+    if (_autoFinishTransactionsEnabled) {                                                                                            \
+      [self throwException:@"The 'autoFinishTransactions' property must be set to false before using download functionality"         \
+                 subreason:nil                                                                                                       \
+                  location:CODELOCATION];                                                                                            \
+    }                                                                                                                                \
+    ENSURE_SINGLE_ARG(args, NSDictionary);                                                                                           \
+    id downloads = [args objectForKey:@"downloads"];                                                                                 \
+    ENSURE_ARRAY(downloads);                                                                                                         \
+    if ([[SKPaymentQueue defaultQueue] respondsToSelector:@selector(name:)]) {                                                       \
+      [[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self storeKitDownloadsFromTiDownloads:downloads]]; \
+    }                                                                                                                                \
   }
 
 static TiStorekitModule *sharedInstance;
@@ -257,7 +259,8 @@ static TiStorekitModule *sharedInstance;
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
   if ([args isKindOfClass:[NSDictionary class]]) {
-    NSString *username = [args objectForKey:@"username"];
+    id username = [args objectForKey:@"username"];
+    ENSURE_TYPE(username, NSString);
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactionsWithApplicationUsername:username];
   } else {
     [[SKPaymentQueue defaultQueue] restoreCompletedTransactions];
@@ -301,21 +304,27 @@ static TiStorekitModule *sharedInstance;
 {
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
 
-  SKCloudServiceSetupViewController *cloudSetupDialog = [SKCloudServiceSetupViewController new];
-  [cloudSetupDialog setDelegate:self];
+  if (![TiUtils isIOSVersionOrGreater:@"10.1"]) {
+    DebugLog(@"[ERROR] This API is only supported on iOS 10.1 and later. Please guard your code to only execute this on supported devices")
+  }
 
-  [cloudSetupDialog loadWithOptions:args
-                  completionHandler:^(BOOL result, NSError *error) {
-                    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+  Class MySKCloudServiceSetupViewController = NSClassFromString([NSString stringWithFormat:@"%@%@", @"SKCloudService", @"SetupViewController"]);
 
-                    if (error) {
-                      [event setObject:[error localizedDescription] forKey:@"error"];
-                    }
+  id cloudSetupDialog = [MySKCloudServiceSetupViewController new];
+  id completionHandler = ^(BOOL result, NSError *error) {
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
 
-                    if ([self _hasListeners:@"cloudSetupDialogDidOpen"]) {
-                      [self fireEvent:@"cloudSetupDialogDidOpen" withObject:event];
-                    }
-                  }];
+    if (error) {
+      [event setObject:[error localizedDescription] forKey:@"error"];
+    }
+
+    if ([self _hasListeners:@"cloudSetupDialogDidOpen"]) {
+      [self fireEvent:@"cloudSetupDialogDidOpen" withObject:event];
+    }
+  };
+
+  [cloudSetupDialog performSelector:@selector(setDelegate:) withObject:self];
+  [cloudSetupDialog performSelector:@selector(loadWithOptions:completionHandler:) withObject:args withObject:completionHandler];
 }
 
 - (void)requestReviewDialog:(id)unused
@@ -523,7 +532,7 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
       [event setObject:[TiStorekitModule descriptionFromError:error] forKey:@"message"];
     }
   } else if (state == SKPaymentTransactionStateRestored) {
-    NSLog(@"[DEBUG] Transaction restored %@", transaction);
+    NSLog(@"[DEBUG] Transaction restored: %@", transaction);
     // If this is a restored transaction, add it to the list of restored transactions
     // that will be posted in the event indicating that transactions have been restored.
     if (_restoredTransactions == nil) {
@@ -532,8 +541,9 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
 
     TiStorekitTransaction *trans = [[TiStorekitTransaction alloc] initWithTransaction:transaction pageContext:[self executionContext]];
     [_restoredTransactions addObject:trans];
+  } else {
+    NSLog(@"[DEBUG] Transaction state: %li", transaction.transactionState)
   }
-  // Nothing special to do for SKPaymentTransactionStatePurchased or SKPaymentTransactionStatePurchasing
 
   if ([self _hasListeners:@"transactionState"]) {
     [self fireEvent:@"transactionState" withObject:event];
@@ -579,6 +589,9 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
 {
   if ([self _hasListeners:@"restoredCompletedTransactions"]) {
+    if (_restoredTransactions == nil) {
+      _restoredTransactions = [NSMutableArray array];
+    }
     NSDictionary *event = @{ @"transactions" : _restoredTransactions };
     [self fireEvent:@"restoredCompletedTransactions" withObject:event];
   } else {

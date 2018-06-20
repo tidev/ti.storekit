@@ -30,6 +30,10 @@
 
 - (NSDictionary *)subscriptionPeriod
 {
+  if (_productDiscount.subscriptionPeriod == nil) {
+    return @{};
+  }
+
   return @{
     @"numberOfUnits": @(_productDiscount.subscriptionPeriod.numberOfUnits),
     @"unit": @(_productDiscount.subscriptionPeriod.unit),
