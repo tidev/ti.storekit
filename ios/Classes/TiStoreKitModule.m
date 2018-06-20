@@ -19,18 +19,20 @@
 
 @implementation TiStorekitModule
 
-#define MAKE_DOWNLOAD_CONTROL_METHOD(name)                                                                                                            \
-  -(void)name : (id)args                                                                                                                              \
-  {                                                                                                                                                   \
-    if (_autoFinishTransactionsEnabled) {                                                                                                             \
-      [self throwException:@"'autoFinishTransactions' must be set to false before using download functionality" subreason:nil location:CODELOCATION]; \
-    }                                                                                                                                                 \
-    ENSURE_SINGLE_ARG(args, NSDictionary);                                                                                                            \
-    id downloads = [args objectForKey:@"downloads"];                                                                                                  \
-    ENSURE_ARRAY(downloads);                                                                                                                          \
-    if ([[SKPaymentQueue defaultQueue] respondsToSelector:@selector(name:)]) {                                                                        \
-      [[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self storeKitDownloadsFromTiDownloads:downloads]];                        \
-    }                                                                                                                                                 \
+#define MAKE_DOWNLOAD_CONTROL_METHOD(name)                                                                                           \
+  -(void)name : (id)args                                                                                                             \
+  {                                                                                                                                  \
+    if (_autoFinishTransactionsEnabled) {                                                                                            \
+      [self throwException:@"The 'autoFinishTransactions' property must be set to false before using download functionality"         \
+                 subreason:nil                                                                                                       \
+                  location:CODELOCATION];                                                                                            \
+    }                                                                                                                                \
+    ENSURE_SINGLE_ARG(args, NSDictionary);                                                                                           \
+    id downloads = [args objectForKey:@"downloads"];                                                                                 \
+    ENSURE_ARRAY(downloads);                                                                                                         \
+    if ([[SKPaymentQueue defaultQueue] respondsToSelector:@selector(name:)]) {                                                       \
+      [[SKPaymentQueue defaultQueue] performSelector:@selector(name:) withObject:[self storeKitDownloadsFromTiDownloads:downloads]]; \
+    }                                                                                                                                \
   }
 
 static TiStorekitModule *sharedInstance;
@@ -539,8 +541,9 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
 
     TiStorekitTransaction *trans = [[TiStorekitTransaction alloc] initWithTransaction:transaction pageContext:[self executionContext]];
     [_restoredTransactions addObject:trans];
+  } else {
+    NSLog(@"[DEBUG] Transaction state: %li", transaction.transactionState)
   }
-  // Nothing special to do for SKPaymentTransactionStatePurchased or SKPaymentTransactionStatePurchasing
 
   if ([self _hasListeners:@"transactionState"]) {
     [self fireEvent:@"transactionState" withObject:event];
