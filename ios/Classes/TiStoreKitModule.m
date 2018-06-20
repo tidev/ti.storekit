@@ -589,6 +589,9 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
 {
   if ([self _hasListeners:@"restoredCompletedTransactions"]) {
+    if (_restoredTransactions == nil) {
+      _restoredTransactions = [NSMutableArray array];
+    }
     NSDictionary *event = @{ @"transactions" : _restoredTransactions };
     [self fireEvent:@"restoredCompletedTransactions" withObject:event];
   } else {
