@@ -166,6 +166,8 @@ Takes one argument, a dictionary with the following values:
 
 Checks if the receipt on the device is valid. `validateReceipt` is just as secure as `verifyReceipt`, and it is done entirely on the device. Returns true if the receipt is valid or false if it is not. Throws an error if the receipt does not exist, use `receiptExists` to avoid this error.
 
+Returns a boolean.
+
 The `bundleVersion` and `bundleIdentifier` properties must be set on the module before calling `validateReceipt`. Do not pull these values from the app, they should be hard coded for security reasons.
 
 The Apple Inc. Root Certificate is required to validate receipts:
@@ -174,11 +176,26 @@ The Apple Inc. Root Certificate is required to validate receipts:
 2. Download the Apple Inc. Root Certificate ( [http://www.apple.com/appleca/AppleIncRootCertificate.cer](http://www.apple.com/appleca/AppleIncRootCertificate.cer) )
 3. Add the AppleIncRootCertificate.cer to your app's `Resources` folder.
 
-**Note**: Nowadays, Apple recommends to download the certificate from your app instead of placing it in the Resources. This ensures that the app will 
-always use the most recent one and will also prevent old versions of your app to fail when the AppleIncRootCertificate certificate gets invalidated by
-Apple some day.
+**Note 1**: Nowadays, Apple recommends to download the certificate from your app instead of placing it in the Resources. 
+This ensures that the app will always use the most recent one and will also prevent old versions of your app to fail 
+when the AppleIncRootCertificate certificate gets invalidated by Apple some day.
 
-Returns a boolean.
+**Note 2**: There are some suggestions to validate the shared secret when using renewable subscriptions. The shared secret 
+is not part of the `receipt` property. If the receipt exists (validated via this method), it means that it is generally 
+valid. To compare the shared-secret explicitely, a POST-request to the iTunes-store should be made, containing the Base-64 
+representation of the receipt as the `receipt-data` body parameter and the shared-secret that can be received from the 
+iTunes store as the `password` body parameter. The POST-request should be made to one of the following servers depending on
+development (sandbox) or production:
+ 
+ - Sandbox: https://sandbox.itunes.apple.com/verifyReceipt
+ - Production: https://buy.itunes.apple.com/verifyReceipt
+ 
+Important: Do not attempt to do the remote-verification from your app. Instead, pass the receipt Base-64 encoded via a 
+secure connection to your server, add the shared-secret from the iTunes-store there and call the designated Apple server
+for verification. The reason is that your app should never store the shared-secret to prevent malicious attacks against
+your binary.
+
+You can read more about server-side receipt validation in the [official Apple docs](https://developer.apple.com/library/archive/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html).
 
 ### refreshReceipt(args[object], callback(e){})
 
@@ -290,10 +307,6 @@ the user might not see a dialog although requested, so do not store properties b
 ### receiptVerificationSandbox[boolean, defaults to false]
 
 Whether or not to use Apple's Sandbox verification server.
-
-### receiptVerificationSharedSecret[string, optional]
-
-The shared secret for your app that you created in iTunesConnect; required for verifying auto-renewable subscriptions.
 
 ### canMakePayments[boolean] (read-only)
 
