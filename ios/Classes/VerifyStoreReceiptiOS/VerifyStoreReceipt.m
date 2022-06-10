@@ -33,12 +33,11 @@
 // link with Foundation.framework, Security.framework, libssl and libCrypto (via -lssl -lcrypto in Other Linker Flags)
 
 #import <Security/Security.h>
-
-#include <pkcs7.h>
-#include <objects.h>
-#include <sha.h>
-#include <x509.h>
-#include <err.h>
+#import <openssl/pkcs7.h>
+#import <openssl/objects.h>
+#import <openssl/sha.h>
+#import <openssl/x509.h>
+#import <openssl/err.h>
 
 #include <UIKit/UIDevice.h>
 
@@ -314,7 +313,10 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
     
 	ERR_load_PKCS7_strings();
 	ERR_load_X509_strings();
-	OpenSSL_add_all_digests();
+	
+  // Appc: Removed since openssl 1.1.0
+  // See: https://www.openssl.org/docs/man1.1.1/man3/OpenSSL_add_all_digests.html
+  // OpenSSL_add_all_digests();
     
 	// Expected input is a PKCS7 container with signed data containing
 	// an ASN.1 SET of SEQUENCE structures. Each SEQUENCE contains
@@ -363,8 +365,10 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
         
 		X509_STORE_free(store);
 	}
-    
-	EVP_cleanup();
+
+  // Appc: Removed since openssl 1.1.0
+  // See: https://www.openssl.org/docs/man1.1.1/man3/OpenSSL_add_all_digests.html
+	// EVP_cleanup();
     
 	if (verifyReturnValue != 1) {
 		PKCS7_free(p7);
