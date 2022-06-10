@@ -64,7 +64,7 @@
 
 - (NSNumber *)downloadable
 {
-  return NUMBOOL([_product isDownloadable]);
+  return @([_product isDownloadable]);
 }
 
 - (NSArray *)downloadContentLengths

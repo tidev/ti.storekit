@@ -47,7 +47,7 @@
   NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
 
   [event setObject:products forKey:@"products"];
-  [event setObject:NUMBOOL(YES) forKey:@"success"];
+  [event setObject:@(YES) forKey:@"success"];
 
   NSArray *invalid = [response invalidProductIdentifiers];
   if (invalid != nil && [invalid count] > 0) {
@@ -61,7 +61,7 @@
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
   NSLog(@"[ERROR] received error %@", [TiStorekitModule descriptionFromError:error]);
-  NSDictionary *event = @{ @"success": NUMBOOL(NO), @"message": [TiStorekitModule descriptionFromError:error] };
+  NSDictionary *event = @{ @"success": @(NO), @"message": [TiStorekitModule descriptionFromError:error] };
   [self _fireEventToListener:@"callback" withObject:event listener:_callback thisObject:nil];
 
   [self forgetSelf];

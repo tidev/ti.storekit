@@ -43,7 +43,7 @@
 - (id)state
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
-  return NUMINT(transaction.transactionState);
+  return @(transaction.transactionState);
 }
 
 - (id)date
@@ -81,7 +81,7 @@
 - (id)quantity
 {
   RETURN_UNDEFINED_IF_NIL(transaction);
-  return transaction.payment ? NUMINTEGER(transaction.payment.quantity) : nil;
+  return transaction.payment ? @(transaction.payment.quantity) : nil;
 }
 
 - (id)productIdentifier

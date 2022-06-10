@@ -111,7 +111,7 @@ static TiStorekitModule *sharedInstance;
 
 - (id)autoFinishTransactions
 {
-  return NUMBOOL(_autoFinishTransactionsEnabled);
+  return @(_autoFinishTransactionsEnabled);
 }
 
 - (void)setBundleVersion:(id)value
@@ -137,7 +137,7 @@ static TiStorekitModule *sharedInstance;
 - (id)receiptExists
 {
   NSURL *receiptURL = [[NSBundle mainBundle] appStoreReceiptURL];
-  return NUMBOOL([[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]);
+  return @([[NSFileManager defaultManager] fileExistsAtPath:receiptURL.path]);
 }
 
 - (id)validateReceipt:(id)args
@@ -154,7 +154,7 @@ static TiStorekitModule *sharedInstance;
   }
 
   NSURL *receiptURL = [self receiptURL];
-  return NUMBOOL(verifyReceiptAtPath(receiptURL.path, _bundleVersion, _bundleIdentifier));
+  return @(verifyReceiptAtPath(receiptURL.path, _bundleVersion, _bundleIdentifier));
 }
 
 - (TiBlob *)receipt
@@ -203,7 +203,7 @@ static TiStorekitModule *sharedInstance;
   KrollCallback *callback = [args objectAtIndex:1];
 
   if ([SKPaymentQueue canMakePayments] == NO) {
-    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO), @"success", @"In-app purchase is disabled. Please enable it to activate more features.", @"message", nil];
+    NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:@(NO), @"success", @"In-app purchase is disabled. Please enable it to activate more features.", @"message", nil];
     [self _fireEventToListener:@"callback" withObject:event listener:callback thisObject:nil];
     return nil;
   }
@@ -240,12 +240,12 @@ static TiStorekitModule *sharedInstance;
 
 - (id)canMakePayments
 {
-  return NUMBOOL([SKPaymentQueue canMakePayments]);
+  return @([SKPaymentQueue canMakePayments]);
 }
 
 - (id)receiptVerificationSandbox
 {
-  return NUMBOOL(_receiptVerificationSandboxEnabled);
+  return @(_receiptVerificationSandboxEnabled);
 }
 
 - (void)setReceiptVerificationSandbox:(id)value
@@ -288,7 +288,7 @@ static TiStorekitModule *sharedInstance;
 
   [productDialog loadProductWithParameters:args
                            completionBlock:^(BOOL result, NSError *error) {
-                             NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+                             NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(result && error == nil), @"success", nil];
 
                              if (error) {
                                [event setObject:[error localizedDescription] forKey:@"error"];
@@ -312,7 +312,7 @@ static TiStorekitModule *sharedInstance;
 
   id cloudSetupDialog = [MySKCloudServiceSetupViewController new];
   id completionHandler = ^(BOOL result, NSError *error) {
-    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:NUMBOOL(result && error == nil), @"success", nil];
+    NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:@(result && error == nil), @"success", nil];
 
     if (error) {
       [event setObject:[error localizedDescription] forKey:@"error"];
@@ -479,7 +479,7 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
 - (NSMutableDictionary *)populateTransactionEvent:(SKPaymentTransaction *)transaction
 {
   NSMutableDictionary *event = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                        NUMINT(transaction.transactionState), @"state",
+                                                        @(transaction.transactionState), @"state",
                                                     nil];
 
   NSData *dataReceipt = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] appStoreReceiptURL]];
@@ -497,7 +497,7 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
   }
 
   if (transaction.payment) {
-    [event setObject:NUMINTEGER(transaction.payment.quantity) forKey:@"quantity"];
+    [event setObject:@(transaction.payment.quantity) forKey:@"quantity"];
     if (transaction.payment.productIdentifier) {
       [event setObject:transaction.payment.productIdentifier forKey:@"productIdentifier"];
     }
@@ -527,7 +527,7 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
     NSLog(@"[WARN] Error in transaction: %@", [TiStorekitModule descriptionFromError:error]);
     // MOD-1025: Cancelled state is actually determined by the error code
     BOOL cancelled = ([error code] == SKErrorPaymentCancelled);
-    [event setObject:NUMBOOL(cancelled) forKey:@"cancelled"];
+    [event setObject:@(cancelled) forKey:@"cancelled"];
     if (!cancelled) {
       [event setObject:[TiStorekitModule descriptionFromError:error] forKey:@"message"];
     }
@@ -617,7 +617,7 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
 - (void)requestDidFinish:(SKRequest *)request
 {
   if (_refreshReceiptCallback) {
-    NSDictionary *event = @{ @"success" : NUMBOOL(YES) };
+    NSDictionary *event = @{ @"success" : @(YES) };
     [self fireRefreshReceiptCallbackWithDict:event];
   }
 }
@@ -628,7 +628,7 @@ MAKE_SYSTEM_PROP(PERIOD_UNIT_YEAR, SKProductPeriodUnitYear);
   NSLog(@"[ERROR] Failed to refresh receipt: %@", error);
 
   if (_refreshReceiptCallback) {
-    NSDictionary *event = @{ @"success" : NUMBOOL(YES),
+    NSDictionary *event = @{ @"success" : @(YES),
       @"error" : [TiStorekitModule descriptionFromError:error] };
     [self fireRefreshReceiptCallbackWithDict:event];
   }

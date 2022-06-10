@@ -43,12 +43,12 @@
 
 - (id)contentLength
 {
-  return NUMLONGLONG([_download contentLength]);
+  return @([_download contentLength]);
 }
 
 - (id)downloadState
 {
-  return NUMINT([_download downloadState]);
+  return @([_download state]);
 }
 
 - (id)error
@@ -62,12 +62,12 @@
 
 - (id)progress
 {
-  return NUMFLOAT([_download progress]);
+  return @([_download progress]);
 }
 
 - (id)timeRemaining
 {
-  return NUMDOUBLE([_download timeRemaining] / 1000);
+  return @([_download timeRemaining] / 1000);
 }
 
 - (TiStorekitTransaction *)transaction
