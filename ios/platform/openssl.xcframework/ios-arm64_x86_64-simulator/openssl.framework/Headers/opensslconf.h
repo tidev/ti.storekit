@@ -24,6 +24,26 @@
 # include <openssl/opensslconf_catalyst_x86_64.h>
 #elif (TARGET_OS_MACCATALYST || (TARGET_OS_IOS && TARGET_OS_SIMULATOR)) && TARGET_CPU_ARM64
 # include <openssl/opensslconf_catalyst_arm64.h>
+#elif TARGET_OS_WATCH && TARGET_OS_EMBEDDED && TARGET_CPU_ARM
+# include <openssl/opensslconf_watchos_armv7k.h>
+#elif TARGET_OS_WATCH && TARGET_OS_EMBEDDED && TARGET_CPU_ARM64
+# include <openssl/opensslconf_watchos_arm64_32.h>
+#elif TARGET_OS_WATCH && TARGET_OS_SIMULATOR && TARGET_CPU_X86_64
+# include <openssl/opensslconf_watchos_sim_x86_64.h>
+#elif TARGET_OS_WATCH && TARGET_OS_SIMULATOR && TARGET_CPU_X86
+# include <openssl/opensslconf_watchos_sim_i386.h>
+#elif TARGET_OS_WATCH && TARGET_OS_SIMULATOR && TARGET_CPU_ARM64
+# include <openssl/opensslconf_watchos_sim_arm64.h>
+#elif TARGET_OS_TV && TARGET_OS_SIMULATOR && TARGET_CPU_X86_64
+# include <openssl/opensslconf_tvos_sim_x86_64.h>
+#elif TARGET_OS_TV && TARGET_OS_SIMULATOR && TARGET_CPU_ARM64
+# include <openssl/opensslconf_tvos_sim_arm64.h>
+#elif TARGET_OS_TV && TARGET_OS_EMBEDDED && TARGET_CPU_ARM64
+# include <openssl/opensslconf_tvos_arm64.h>
+#elif TARGET_OS_VISION && TARGET_OS_SIMULATOR && TARGET_CPU_ARM64
+# include <openssl/opensslconf_xros_sim_arm64.h>
+#elif TARGET_OS_VISION && TARGET_CPU_ARM64
+# include <openssl/opensslconf_xros_arm64.h>
 #else
 # error Unable to determine target or target not included in OpenSSL build
 #endif

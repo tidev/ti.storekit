@@ -5,6 +5,8 @@
 	<key>AvailableLibraries</key>
 	<array>
 		<dict>
+			<key>BinaryPath</key>
+			<string>openssl.framework/openssl</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_x86_64-simulator</string>
 			<key>LibraryPath</key>
@@ -20,6 +22,8 @@
 			<string>simulator</string>
 		</dict>
 		<dict>
+			<key>BinaryPath</key>
+			<string>openssl.framework/Versions/A/openssl</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_x86_64-maccatalyst</string>
 			<key>LibraryPath</key>
@@ -35,6 +39,8 @@
 			<string>maccatalyst</string>
 		</dict>
 		<dict>
+			<key>BinaryPath</key>
+			<string>openssl.framework/openssl</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_arm64e</string>
 			<key>LibraryPath</key>
@@ -48,6 +54,8 @@
 			<string>ios</string>
 		</dict>
 		<dict>
+			<key>BinaryPath</key>
+			<string>openssl.framework/Versions/A/openssl</string>
 			<key>LibraryIdentifier</key>
 			<string>macos-arm64_x86_64</string>
 			<key>LibraryPath</key>

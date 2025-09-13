@@ -310,10 +310,7 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 
 NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
 	NSData * rootCertData = appleRootCert();
-    
-	ERR_load_PKCS7_strings();
-	ERR_load_X509_strings();
-	
+    	
   // Appc: Removed since openssl 1.1.0
   // See: https://www.openssl.org/docs/man1.1.1/man3/OpenSSL_add_all_digests.html
   // OpenSSL_add_all_digests();

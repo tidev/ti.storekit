@@ -2,17 +2,17 @@
 # this is your module manifest and used by Titanium
 # during compilation, packaging, distribution, etc.
 #
-version: 5.0.0
+version: 6.0.0
 apiversion: 2
 architectures: arm64 x86_64
-description: Apple StoreKit module for in application purchases 
+description: Apple StoreKit module for in application purchases
 author: Jeff Haynie, Jeff English, Jon Alter, Hans Knoechel
 license: Apache License, Version 2.0
 copyright: Copyright (c) 2010-present by Axway Appcelerator
 mac: false
 
 # these should not be edited
-name: storekit 
+name: storekit
 moduleid: ti.storekit
 guid: 67fdca33-590b-498d-bd4e-1fc3a8be0f37
 platform: iphone
