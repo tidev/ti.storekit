@@ -11,15 +11,15 @@
 
 /*
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- 
+
  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- 
+
  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in
  the documentation and/or other materials provided with the distribution.
- 
+
  Neither the name of the copyright holders nor the names of its contributors may be used to endorse or promote products derived
  from this software without specific prior written permission.
- 
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
  BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
@@ -33,11 +33,11 @@
 // link with Foundation.framework, Security.framework, libssl and libCrypto (via -lssl -lcrypto in Other Linker Flags)
 
 #import <Security/Security.h>
-#import <openssl/pkcs7.h>
-#import <openssl/objects.h>
-#import <openssl/sha.h>
-#import <openssl/x509.h>
-#import <openssl/err.h>
+#import <pkcs7.h>
+#import <objects.h>
+#import <sha.h>
+#import <x509.h>
+#import <err.h>
 
 #include <UIKit/UIDevice.h>
 
@@ -105,7 +105,7 @@ NSData *appleRootCert(void) {
     // Add the AppleIncRootCertificate.cer to your app's resource bundle.
 
     NSData *cert = [NSData dataWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"AppleIncRootCertificate" withExtension:@"cer"]];
-    
+
 	return cert;
 }
 
@@ -126,36 +126,36 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 	int type = 0;
 	int xclass = 0;
 	long length = 0;
-    
+
 	NSUInteger dataLenght = [inappData length];
 	const uint8_t *p = [inappData bytes];
-    
+
 	const uint8_t *end = p + dataLenght;
-    
+
 	NSMutableArray *resultArray = [NSMutableArray array];
-    
+
 	while (p < end) {
 		ASN1_get_object(&p, &length, &type, &xclass, end - p);
-        
+
 		const uint8_t *set_end = p + length;
-        
+
 		if(type != V_ASN1_SET) {
 			break;
 		}
-        
+
 		NSMutableDictionary *item = [[NSMutableDictionary alloc] initWithCapacity:6];
-        
+
 		while (p < set_end) {
 			ASN1_get_object(&p, &length, &type, &xclass, set_end - p);
 			if (type != V_ASN1_SEQUENCE) {
 				break;
             }
-            
+
 			const uint8_t *seq_end = p + length;
-            
+
 			int attr_type = 0;
 			int attr_version = 0;
-            
+
 			// Attribute type
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 			if (type == V_ASN1_INTEGER) {
@@ -168,7 +168,7 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 				}
 			}
 			p += length;
-            
+
 			// Attribute version
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 			if (type == V_ASN1_INTEGER && length == 1) {
@@ -177,15 +177,15 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 				attr_version = p[0];
 			}
 			p += length;
-            
+
 			// Only parse attributes we're interested in
 			if ((attr_type > INAPP_ATTR_START && attr_type < INAPP_ATTR_END) || attr_type == INAPP_SUBEXP_DATE || attr_type == INAPP_WEBORDER || attr_type == INAPP_CANCEL_DATE) {
 				NSString *key = nil;
-                
+
 				ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 				if (type == V_ASN1_OCTET_STRING) {
 					//NSData *data = [NSData dataWithBytes:p length:(NSUInteger)length];
-                    
+
 					// Integers
 					if (attr_type == INAPP_QUANTITY || attr_type == INAPP_WEBORDER) {
 						int num_type = 0;
@@ -206,7 +206,7 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 									}
 								}
 							}
-                            
+
 							NSNumber *num = [[NSNumber alloc] initWithUnsignedInteger:quantity];
                             if (attr_type == INAPP_QUANTITY) {
                                 [item setObject:num forKey:kReceiptInAppQuantity];
@@ -215,7 +215,7 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
                             }
 						}
 					}
-                    
+
 					// Strings
 					if (attr_type == INAPP_PRODID ||
                         attr_type == INAPP_TRANSID ||
@@ -224,7 +224,7 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
                         attr_type == INAPP_ORIGPURCHDATE ||
                         attr_type == INAPP_SUBEXP_DATE ||
                         attr_type == INAPP_CANCEL_DATE) {
-                        
+
 						int str_type = 0;
 						long str_length = 0;
 						const uint8_t *str_p = p;
@@ -241,7 +241,7 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 									key = kReceiptInAppOriginalTransactionIdentifier;
 									break;
 							}
-                            
+
 							if (key) {
 								NSString *string = [[NSString alloc] initWithBytes:str_p
 																			length:(NSUInteger)str_length
@@ -264,7 +264,7 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 									key = kReceiptInAppCancellationDate;
 									break;
 							}
-                            
+
 							if (key) {
 								NSString *string = [[NSString alloc] initWithBytes:str_p
 																			length:(NSUInteger)str_length
@@ -274,26 +274,26 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 						}
 					}
 				}
-                
+
 				p += length;
 			}
-            
+
 			// Skip any remaining fields in this SEQUENCE
 			while (p < seq_end) {
 				ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 				p += length;
 			}
 		}
-        
+
 		// Skip any remaining fields in this SET
 		while (p < set_end) {
 			ASN1_get_object(&p, &length, &type, &xclass, set_end - p);
 			p += length;
 		}
-        
+
 		[resultArray addObject:item];
 	}
-    
+
 	return resultArray;
 }
 
@@ -310,39 +310,39 @@ NSArray *parseInAppPurchasesData(NSData *inappData) {
 
 NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
 	NSData * rootCertData = appleRootCert();
-    	
+
   // Appc: Removed since openssl 1.1.0
   // See: https://www.openssl.org/docs/man1.1.1/man3/OpenSSL_add_all_digests.html
   // OpenSSL_add_all_digests();
-    
+
 	// Expected input is a PKCS7 container with signed data containing
 	// an ASN.1 SET of SEQUENCE structures. Each SEQUENCE contains
 	// two INTEGERS and an OCTET STRING.
-    
+
 	const char * path = [[receiptPath stringByStandardizingPath] fileSystemRepresentation];
 	FILE *fp = fopen(path, "rb");
 	if (fp == NULL) {
 		return nil;
     }
-    
+
 	PKCS7 *p7 = d2i_PKCS7_fp(fp, NULL);
 	fclose(fp);
-    
+
 	// Check if the receipt file was invalid (otherwise we go crashing and burning)
 	if (p7 == NULL) {
 		return nil;
 	}
-    
+
 	if (!PKCS7_type_is_signed(p7)) {
 		PKCS7_free(p7);
 		return nil;
 	}
-    
+
 	if (!PKCS7_type_is_data(p7->d.sign->contents)) {
 		PKCS7_free(p7);
 		return nil;
 	}
-    
+
 	int verifyReturnValue = 0;
 	X509_STORE *store = X509_STORE_new();
 	if (store) {
@@ -351,61 +351,61 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
 		if (appleCA) {
 			BIO *payload = BIO_new(BIO_s_mem());
 			X509_STORE_add_cert(store, appleCA);
-            
+
 			if (payload) {
 				verifyReturnValue = PKCS7_verify(p7,NULL,store,NULL,payload,0);
 				BIO_free(payload);
 			}
-            
+
 			X509_free(appleCA);
 		}
-        
+
 		X509_STORE_free(store);
 	}
 
   // Appc: Removed since openssl 1.1.0
   // See: https://www.openssl.org/docs/man1.1.1/man3/OpenSSL_add_all_digests.html
 	// EVP_cleanup();
-    
+
 	if (verifyReturnValue != 1) {
 		PKCS7_free(p7);
 		return nil;
 	}
-    
+
 	ASN1_OCTET_STRING *octets = p7->d.sign->contents->d.data;
 	const uint8_t *p = octets->data;
 	const uint8_t *end = p + octets->length;
-    
+
 	int type = 0;
 	int xclass = 0;
 	long length = 0;
-    
+
 	ASN1_get_object(&p, &length, &type, &xclass, end - p);
 	if (type != V_ASN1_SET) {
 		PKCS7_free(p7);
 		return nil;
 	}
-    
+
 	NSMutableDictionary *info = [NSMutableDictionary dictionary];
-    
+
 	while (p < end) {
 		ASN1_get_object(&p, &length, &type, &xclass, end - p);
 		if (type != V_ASN1_SEQUENCE) {
 			break;
         }
-        
+
 		const uint8_t *seq_end = p + length;
-        
+
 		int attr_type = 0;
 		int attr_version = 0;
-        
+
 		// Attribute type
 		ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 		if (type == V_ASN1_INTEGER && length == 1) {
 			attr_type = p[0];
 		}
 		p += length;
-        
+
 		// Attribute version
 		ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 		if (type == V_ASN1_INTEGER && length == 1) {
@@ -413,15 +413,15 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
 			attr_version = attr_version;
 		}
 		p += length;
-        
+
 		// Only parse attributes we're interested in
 		if ((attr_type > ATTR_START && attr_type < ATTR_END) || attr_type == INAPP_PURCHASE || attr_type == ORIG_VERSION || attr_type == EXPIRE_DATE) {
 			NSString *key = nil;
-            
+
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 			if (type == V_ASN1_OCTET_STRING) {
                 NSData *data = [NSData dataWithBytes:p length:(NSUInteger)length];
-                
+
 				// Bytes
 				if (attr_type == BUNDLE_ID || attr_type == OPAQUE_VALUE || attr_type == HASH) {
 					switch (attr_type) {
@@ -440,7 +440,7 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
                         [info setObject:data forKey:key];
                     }
 				}
-                
+
 				// Strings
 				if (attr_type == BUNDLE_ID || attr_type == VERSION || attr_type == ORIG_VERSION || attr_type == EXPIRE_DATE) {
 					int str_type = 0;
@@ -459,7 +459,7 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
                                 key = kReceiptOriginalVersion;
                                 break;
 						}
-                        
+
 						if (key) {
                             NSString *string = [[NSString alloc] initWithBytes:str_p
 																		length:(NSUInteger)str_length
@@ -475,7 +475,7 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
 								key = kReceiptExpirationDate;
 								break;
 						}
-						
+
 						if (key) {
 							NSString *string = [[NSString alloc] initWithBytes:str_p
 																		length:(NSUInteger)str_length
@@ -484,7 +484,7 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
 						}
 					}
 				}
-                
+
 				// In-App purchases
 				if (attr_type == INAPP_PURCHASE) {
 					NSArray *inApp = parseInAppPurchasesData(data);
@@ -498,16 +498,16 @@ NSDictionary *dictionaryWithAppStoreReceipt(NSString *receiptPath) {
 			}
 			p += length;
 		}
-        
+
 		// Skip any remaining fields in this SEQUENCE
 		while (p < seq_end) {
 			ASN1_get_object(&p, &length, &type, &xclass, seq_end - p);
 			p += length;
 		}
 	}
-    
+
 	PKCS7_free(p7);
-    
+
 	return info;
 }
 
@@ -516,17 +516,17 @@ NSArray *obtainInAppPurchases(NSString *receiptPath) {
 	// According to the documentation, we need to validate the receipt first.
 	// If the receipt is not valid, no In-App purchase is valid.
 	// This performs a "quick" validation. Please use validateReceiptAtPath to perform a full validation.
-    
+
 	NSDictionary *receipt = dictionaryWithAppStoreReceipt(receiptPath);
 	if (!receipt) {
 		return nil;
     }
-    
+
 	NSArray *purchases = [receipt objectForKey:kReceiptInApp];
 	if(!purchases || ![purchases isKindOfClass:[NSArray class]]) {
 		return nil;
     }
-    
+
 	return purchases;
 }
 
@@ -560,36 +560,36 @@ BOOL verifyReceiptAtPath(NSString *receiptPath, NSString *bundleVersion, NSStrin
 	NSCAssert([bundleIdentifier isEqualToString:[[NSBundle mainBundle] bundleIdentifier]],
               @"The hard-coded bundle identifier does not match the app's bundle identifier.");
 	NSDictionary *receipt = dictionaryWithAppStoreReceipt(receiptPath);
-    
+
 	if (!receipt) {
         NSLog(@"[ERROR] Receipt does not exist!");
 		return NO;
     }
-    
+
     unsigned char uuidBytes[16];
     NSUUID *vendorUUID = [[UIDevice currentDevice] identifierForVendor];
     [vendorUUID getUUIDBytes:uuidBytes];
-    
+
 	NSMutableData *input = [NSMutableData data];
 	[input appendBytes:uuidBytes length:sizeof(uuidBytes)];
 	[input appendData:[receipt objectForKey:kReceiptOpaqueValue]];
 	[input appendData:[receipt objectForKey:kReceiptBundleIdentifierData]];
-    
+
 	NSMutableData *hash = [NSMutableData dataWithLength:SHA_DIGEST_LENGTH];
 	SHA1([input bytes], [input length], [hash mutableBytes]);
-    
+
 	if ([bundleIdentifier isEqualToString:[receipt objectForKey:kReceiptBundleIdentifier]] &&
         [bundleVersion isEqualToString:[receipt objectForKey:kReceiptVersion]] &&
         [hash isEqualToData:[receipt objectForKey:kReceiptHash]]) {
 		return YES;
 	}
-    
+
     NSLog(@"[ERROR] Error validating the receipt. Please check that none of the following checks is failing:");
     NSLog(@"[ERROR] - Bundle-Identifier: %@ == %@", bundleIdentifier, [receipt objectForKey:kReceiptBundleIdentifier]);
     NSLog(@"[ERROR] - Bundle-Version: %@ == %@", bundleVersion, [receipt objectForKey:kReceiptVersion]);
     NSLog(@"[ERROR] - Hash: %@ == %@", hash, [receipt objectForKey:kReceiptHash]);
-    
+
     NSLog(@"[ERROR] Pleae correct the failing values and try again!");
-    
+
 	return NO;
 }
