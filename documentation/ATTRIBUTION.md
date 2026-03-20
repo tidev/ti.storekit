@@ -12,7 +12,7 @@ Licensed under the Apache Public License. See the LICENSE file for details.
 
 ## Third-Party Components
 
-### VerifyStoreReceipt (removed in v5.0.0)
+### VerifyStoreReceipt (removed in v6.0.0)
 
 The on-device receipt validation code (based on `VerifyStoreReceipt`) was removed in v5.0.0 along with the OpenSSL dependency. Apple deprecated this validation approach and it is no longer included in the module.
 
